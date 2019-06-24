@@ -1,0 +1,24 @@
+{
+  "name": "xstate-component-tree",
+  "version": "1.0.0",
+  "description": "Build a tree of components based on statechart values",
+  "main": "src/build-tree.js",
+  "devDependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.4.4",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^10.0.2",
+    "babel-jest": "^24.8.0",
+    "babel-plugin-add-module-exports": "^1.0.2",
+    "eslint": "^6.0.0",
+    "eslint-plugin-jest": "^22.7.1",
+    "jest": "^24.8.0",
+    "rollup": "^1.16.2",
+    "xstate": "^4.6.2"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "Pat Cavit <npm@patcavit.com>",
+  "license": "MIT"
+}
