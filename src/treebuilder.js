@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-empty-function
 const noop = () => {};
 
 const treeBuilder = (interpreter, fn) => {
