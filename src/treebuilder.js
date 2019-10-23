@@ -1,57 +1,63 @@
-import { toStatePath } from "xstate/lib/utils.js";
-
-// const traverse = ({ root, value, meta }) => {
-//     // short-circuit in the "single-top level state" case
-//     if(typeof value === "string") {
-//         return [ value ];
-//     }
-
-//     const queue = [ Object.keys(value)[0] ];
-
-//     while(queue.length) {
-//         const current = queue.shift();
-
-//         // TODO: check meta object for this value
-//     }
-// };
+const noop = () => {};
 
 const treeBuilder = (interpreter, fn) => {
-    const root = interpreter.machine.key;
-    
+    const { idMap : ids } = interpreter.machine;
+    const paths = new Map();
+    const loaders = new Map();
+
+    // xstate maps ids to state nodes, but the value object only
+    // has paths, so need to create our own path-only map here
+    for(const id in ids) {
+        const { path, meta } = ids[id];
+
+        if(!meta) {
+            continue;
+        }
+
+        const key = path.join(".");
+
+        if(meta.load) {
+            loaders.set(key, async (item, ...args) => {
+                item.component = await meta.load(...args);
+            });
+        }
+
+        paths.set(key, meta);
+    }
+
+    console.log({ paths, loaders });
+
     // eslint-disable-next-line max-statements
-    interpreter.onTransition((state) => {
-        const { changed, value, meta } = state;
-        
-        console.log(state.configuration);
-        
+    interpreter.onTransition(async (state) => {
+        const { changed, value, context, event } = state;
+
         if(changed === false) {
             return;
         }
 
-        if(typeof value === "string") {
-            const { meta } = state.configuration.find(({ key }) => key === value);
-
-            return fn(meta);
-        }
-
-        console.log({
-            value,
-            meta,
-        });
-        // console.log(state.toStrings());
-
+        const loads = [];
+        const tree = { __proto__ : null };
+        
+        let tier = [];
+        let prev = -1;
+        let pointer = tree;
+        
         // Depth-first traversal of the currently-active states
-        // TODO: how best to identify meta value from this?
-        // Maybe store full paths to nodes somehow?
-
         // Start at a special virtual root value, since
-        // this isn't a strict tree
-        const queue = [[ "root", value ]];
+        // this isn't a strict tree. Also need the ternary since xstate will
+        // return a single string value for statecharts with only one node
+        const queue = [[
+            "root",
+            typeof value === "object" ?
+                value :
+                {
+                    __proto__ : null,
+                    [value]   : false,
+                },
+        ]];
 
         while(queue.length) {
             const [ current, children ] = queue.shift();
-
-            console.log(current);
 
             if(current === "root") {
                 queue.push(...Object.entries(children).map(([ path, grandchildren ]) => {
@@ -63,10 +69,38 @@ const treeBuilder = (interpreter, fn) => {
                 continue;
             }
 
-            // TODO: Find key using path somehow
-            const statenode = state.configuration.find(({ key }) => key === current);
+            if(current.length > prev) {
+                prev = current.length;
 
-            // console.log({ current, state });
+                if(tier.length) {
+                    pointer.components = tier;
+                    pointer.children = { __proto__ : null };
+
+                    pointer = pointer.children;
+
+                    tier = [];
+                }
+            }
+
+            const path = current.join(".");
+            
+            if(paths.has(path)) {
+                console.log({ path, meta : paths.get(path) });
+
+                const { component = noop } = paths.get(path);
+                
+                const item = {
+                    __proto__ : null,
+                    component,
+                };
+
+                // Run load function and assign the response to the component prop
+                if(loaders.has(path)) {
+                    loads.push(loaders.get(path)(item, context, event));
+                }
+
+                tier.push(item);
+            }
 
             if(!children) {
                 continue;
@@ -84,6 +118,16 @@ const treeBuilder = (interpreter, fn) => {
                 return [ path, grandchildren ];
             }));
         }
+
+        if(tier.length) {
+            pointer.components = tier;
+            pointer.children = null;
+        }
+
+        // await all the load functions
+        await Promise.all(loads);
+
+        fn(tree);
     });
 };
 

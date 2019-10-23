@@ -1,0 +1,172 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`xstate-component-tree should pass context and event params to .load methods 1`] = `
+Object {
+  "children": null,
+  "components": Array [
+    Object {
+      "component": Object {
+        "ctx": "context",
+        "event": Object {
+          "type": "xstate.init",
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`xstate-component-tree should rebuild on machine transition 1`] = `
+Object {
+  "children": null,
+  "components": Array [
+    Object {
+      "component": "one",
+    },
+  ],
+}
+`;
+
+exports[`xstate-component-tree should rebuild on machine transition 2`] = `
+Object {
+  "children": null,
+  "components": Array [
+    Object {
+      "component": "two",
+    },
+  ],
+}
+`;
+
+exports[`xstate-component-tree should return a tree of components 1`] = `
+Object {
+  "children": Object {
+    "children": null,
+    "components": Array [
+      Object {
+        "component": "two",
+      },
+    ],
+  },
+  "components": Array [
+    Object {
+      "component": "one",
+    },
+  ],
+}
+`;
+
+exports[`xstate-component-tree should support arbitrary ids 1`] = `
+Object {
+  "children": Object {
+    "children": null,
+    "components": Array [
+      Object {
+        "component": "two",
+      },
+    ],
+  },
+  "components": Array [
+    Object {
+      "component": "one",
+    },
+  ],
+}
+`;
+
+exports[`xstate-component-tree should support async .load methods 1`] = `
+Object {
+  "children": null,
+  "components": Array [
+    Object {
+      "component": "one",
+    },
+  ],
+}
+`;
+
+exports[`xstate-component-tree should support holes 1`] = `
+Object {
+  "children": Object {
+    "children": null,
+    "components": Array [
+      Object {
+        "component": "three",
+      },
+    ],
+  },
+  "components": Array [
+    Object {
+      "component": "one",
+    },
+  ],
+}
+`;
+
+exports[`xstate-component-tree should support nested async .load methods 1`] = `
+Object {
+  "children": Object {
+    "children": null,
+    "components": Array [
+      Object {
+        "component": "two",
+      },
+    ],
+  },
+  "components": Array [
+    Object {
+      "component": "one",
+    },
+  ],
+}
+`;
+
+exports[`xstate-component-tree should support nested parallel states 1`] = `
+Object {
+  "children": null,
+  "components": Array [
+    Object {
+      "component": "two",
+    },
+    Object {
+      "component": "three",
+    },
+  ],
+}
+`;
+
+exports[`xstate-component-tree should support parallel states 1`] = `
+Object {
+  "children": null,
+  "components": Array [
+    Object {
+      "component": "one",
+    },
+    Object {
+      "component": "two",
+    },
+  ],
+}
+`;
+
+exports[`xstate-component-tree should support sync .load methods 1`] = `
+Object {
+  "children": null,
+  "components": Array [
+    Object {
+      "component": "one",
+    },
+  ],
+}
+`;
+
+exports[`xstate-component-tree shouldn't rebuild on events without changes 1`] = `
+Object {
+  "children": null,
+  "components": Array [
+    Object {
+      "component": "one",
+    },
+  ],
+}
+`;
