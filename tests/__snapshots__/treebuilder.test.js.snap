@@ -2,9 +2,9 @@
 
 exports[`xstate-component-tree should pass context and event params to .load methods 1`] = `
 Object {
-  "children": null,
-  "components": Array [
+  "children": Array [
     Object {
+      "children": Array [],
       "component": Object {
         "ctx": "context",
         "event": Object {
@@ -17,39 +17,38 @@ Object {
 `;
 
 exports[`xstate-component-tree should rebuild on machine transition 1`] = `
-Object {
-  "children": null,
-  "components": Array [
-    Object {
-      "component": "one",
-    },
-  ],
-}
-`;
-
-exports[`xstate-component-tree should rebuild on machine transition 2`] = `
-Object {
-  "children": null,
-  "components": Array [
-    Object {
-      "component": "two",
-    },
-  ],
-}
-`;
-
-exports[`xstate-component-tree should return a tree of components 1`] = `
-Object {
-  "children": Object {
-    "children": null,
-    "components": Array [
+Array [
+  Object {
+    "children": Array [
       Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+  },
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
         "component": "two",
       },
     ],
   },
-  "components": Array [
+]
+`;
+
+exports[`xstate-component-tree should rebuild on nested invoked state machine transitions 1`] = `Object {}`;
+
+exports[`xstate-component-tree should return a tree of components 1`] = `
+Object {
+  "children": Array [
     Object {
+      "children": Array [
+        Object {
+          "children": Array [],
+          "component": "two",
+        },
+      ],
       "component": "one",
     },
   ],
@@ -58,16 +57,14 @@ Object {
 
 exports[`xstate-component-tree should support arbitrary ids 1`] = `
 Object {
-  "children": Object {
-    "children": null,
-    "components": Array [
-      Object {
-        "component": "two",
-      },
-    ],
-  },
-  "components": Array [
+  "children": Array [
     Object {
+      "children": Array [
+        Object {
+          "children": Array [],
+          "component": "two",
+        },
+      ],
       "component": "one",
     },
   ],
@@ -76,9 +73,9 @@ Object {
 
 exports[`xstate-component-tree should support async .load methods 1`] = `
 Object {
-  "children": null,
-  "components": Array [
+  "children": Array [
     Object {
+      "children": Array [],
       "component": "one",
     },
   ],
@@ -87,34 +84,32 @@ Object {
 
 exports[`xstate-component-tree should support holes 1`] = `
 Object {
-  "children": Object {
-    "children": null,
-    "components": Array [
-      Object {
-        "component": "three",
-      },
-    ],
-  },
-  "components": Array [
+  "children": Array [
     Object {
+      "children": Array [
+        Object {
+          "children": Array [],
+          "component": "three",
+        },
+      ],
       "component": "one",
     },
   ],
 }
 `;
 
+exports[`xstate-component-tree should support invoked state machines 1`] = `Object {}`;
+
 exports[`xstate-component-tree should support nested async .load methods 1`] = `
 Object {
-  "children": Object {
-    "children": null,
-    "components": Array [
-      Object {
-        "component": "two",
-      },
-    ],
-  },
-  "components": Array [
+  "children": Array [
     Object {
+      "children": Array [
+        Object {
+          "children": Array [],
+          "component": "two",
+        },
+      ],
       "component": "one",
     },
   ],
@@ -123,12 +118,13 @@ Object {
 
 exports[`xstate-component-tree should support nested parallel states 1`] = `
 Object {
-  "children": null,
-  "components": Array [
+  "children": Array [
     Object {
+      "children": Array [],
       "component": "two",
     },
     Object {
+      "children": Array [],
       "component": "three",
     },
   ],
@@ -137,12 +133,13 @@ Object {
 
 exports[`xstate-component-tree should support parallel states 1`] = `
 Object {
-  "children": null,
-  "components": Array [
+  "children": Array [
     Object {
+      "children": Array [],
       "component": "one",
     },
     Object {
+      "children": Array [],
       "component": "two",
     },
   ],
@@ -151,9 +148,9 @@ Object {
 
 exports[`xstate-component-tree should support sync .load methods 1`] = `
 Object {
-  "children": null,
-  "components": Array [
+  "children": Array [
     Object {
+      "children": Array [],
       "component": "one",
     },
   ],
@@ -162,9 +159,9 @@ Object {
 
 exports[`xstate-component-tree shouldn't rebuild on events without changes 1`] = `
 Object {
-  "children": null,
-  "components": Array [
+  "children": Array [
     Object {
+      "children": Array [],
       "component": "one",
     },
   ],
@@ -173,9 +170,9 @@ Object {
 
 exports[`xstate-component-tree shouldn't trigger the callback if another change occurs before the tree is built 1`] = `
 Object {
-  "children": null,
-  "components": Array [
+  "children": Array [
     Object {
+      "children": Array [],
       "component": "two",
     },
   ],
