@@ -318,13 +318,14 @@ describe("xstate-component-tree", () => {
 
         treeBuilder(service, (tree) => {
             expect(tree).toMatchSnapshot();
+            
+            service.send("NEXT");
         });
 
         service.start();
-        service.send("NEXT");
     });
 
-    it.only("shouldn't rebuild on events without changes", async () => {
+    it("shouldn't rebuild on events without changes", async () => {
         const testMachine = createMachine({
             initial : "one",
 
@@ -341,11 +342,42 @@ describe("xstate-component-tree", () => {
 
         treeBuilder(service, (tree) => {
             expect(tree).toMatchSnapshot();
+            service.send("NEXT");
         });
 
         service.start();
-        service.send("NEXT");
     });
 
-    it.todo("shouldn't trigger the callback if another change occurs before the tree is built");
+    it("shouldn't trigger the callback if another change occurs before the tree is built", async () => {
+        const testMachine = createMachine({
+            initial : "one",
+
+            states : {
+                one : {
+                    meta : {
+                        load : asyncLoad("one"),
+                    },
+
+                    on : {
+                        NEXT : "two",
+                    },
+                },
+
+                two : {
+                    meta : {
+                        component : component("two"),
+                    },
+                },
+            },
+        });
+
+        const service = interpret(testMachine);
+
+        treeBuilder(service, (tree) => {
+            expect(tree).toMatchSnapshot();
+        });
+        
+        service.start();
+        service.send("NEXT");
+    });
 });

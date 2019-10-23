@@ -170,3 +170,14 @@ Object {
   ],
 }
 `;
+
+exports[`xstate-component-tree shouldn't trigger the callback if another change occurs before the tree is built 1`] = `
+Object {
+  "children": null,
+  "components": Array [
+    Object {
+      "component": "two",
+    },
+  ],
+}
+`;

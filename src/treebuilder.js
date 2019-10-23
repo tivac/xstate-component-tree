@@ -5,6 +5,8 @@ const treeBuilder = (interpreter, fn) => {
     const paths = new Map();
     const loaders = new Map();
 
+    let req = 0;
+
     // xstate maps ids to state nodes, but the value object only
     // has paths, so need to create our own path-only map here
     for(const id in ids) {
@@ -30,11 +32,12 @@ const treeBuilder = (interpreter, fn) => {
     // eslint-disable-next-line max-statements
     interpreter.onTransition(async (state) => {
         const { changed, value, context, event } = state;
-
+        
         if(changed === false) {
             return;
         }
-
+        
+        const ver = ++req;
         const loads = [];
         const tree = { __proto__ : null };
         
@@ -85,10 +88,7 @@ const treeBuilder = (interpreter, fn) => {
             const path = current.join(".");
             
             if(paths.has(path)) {
-                console.log({ path, meta : paths.get(path) });
-
                 const { component = noop } = paths.get(path);
-                
                 const item = {
                     __proto__ : null,
                     component,
@@ -126,6 +126,12 @@ const treeBuilder = (interpreter, fn) => {
 
         // await all the load functions
         await Promise.all(loads);
+
+        // sttechart transitioned again before component tree was ready, so
+        // throw away the old values
+        if(ver !== req) {
+            return;
+        }
 
         fn(tree);
     });
