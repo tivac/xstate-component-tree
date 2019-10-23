@@ -5,6 +5,7 @@
   "main": "src/build-tree.js",
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.6.0",
+    "@tivac/eslint-config": "^2.4.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^10.0.3",
     "babel-jest": "^24.9.0",

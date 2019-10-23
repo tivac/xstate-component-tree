@@ -18,6 +18,7 @@ module.exports = {
 
     rules : {
         "max-statements" : [ "warn", 25 ],
+        "newline-after-var" : "off",
     },
 
     // Weird that setting "jest" up above in the env settings doesn't handle this
