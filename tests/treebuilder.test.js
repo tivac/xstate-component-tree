@@ -12,24 +12,24 @@ const asyncLoad = (name, delay = 0) =>
         setTimeout(() => resolve(component(name)), delay)
     );
 
-const wait = (service, responses = 1, after) => new Promise((resolve) => {
-    const results = [];
+const responses = (service, count = 1, after) => new Promise((resolve) => {
+    let received = 0;
     
     treeBuilder(service, (tree) => {
-        results.push(tree);
-        
+        expect(tree).toMatchSnapshot();
+
         if(after) {
             after(tree);
         }
         
-        if(results.length >= responses) {
-            resolve(results.length === 1 ? results.pop() : results);
+        if(++received >= count) {
+            resolve();
         }
    });
 });
 
 describe("xstate-component-tree", () => {
-    it("should return a tree of components", async () => {
+    it.only("should return a tree of components", async () => {
         const testMachine = createMachine({
             initial : "one",
 
@@ -56,7 +56,7 @@ describe("xstate-component-tree", () => {
 
         service.start();
 
-        await expect(wait(service)).resolves.toMatchSnapshot();
+        await responses(service);
     });
 
     it("should support parallel states", async () => {
@@ -82,7 +82,7 @@ describe("xstate-component-tree", () => {
 
         service.start();
 
-        await expect(wait(service)).resolves.toMatchSnapshot();
+        await expect(responses(service)).resolves.toMatchSnapshot();
     });
 
     it("should support nested parallel states", async () => {
@@ -114,7 +114,7 @@ describe("xstate-component-tree", () => {
 
         service.start();
 
-        await expect(wait(service)).resolves.toMatchSnapshot();
+        await expect(responses(service)).resolves.toMatchSnapshot();
     });
 
     it("should support arbitrary ids", async () => {
@@ -148,7 +148,7 @@ describe("xstate-component-tree", () => {
 
         service.start();
 
-        await expect(wait(service)).resolves.toMatchSnapshot();
+        await expect(responses(service)).resolves.toMatchSnapshot();
     });
 
     it("should support holes", async () => {
@@ -184,11 +184,10 @@ describe("xstate-component-tree", () => {
 
         service.start();
 
-        await expect(wait(service)).resolves.toMatchSnapshot();
+        await expect(responses(service)).resolves.toMatchSnapshot();
     });
     
-    // eslint-disable-next-line
-    it.skip("should support invoked state machines", async () => {
+    it("should support invoked state machines", async () => {
         const childMachine = createMachine({
             initial : "child",
 
@@ -210,19 +209,20 @@ describe("xstate-component-tree", () => {
                         id  : "child",
                         src : childMachine,
                     },
+
+                    meta : {
+                        component : component("one"),
+                    },
                 },
             },
         });
 
         const service = interpret(testMachine);
 
-        treeBuilder(service, (tree) => {
-            expect(tree).toMatchSnapshot();
-        });
-
         service.start();
-    });
 
+        await responses(service, 2);
+    });
 
     it.todo("should rebuild on invoked state machine transitions");
     it.todo("should support nested invoked state machines");
@@ -262,6 +262,10 @@ describe("xstate-component-tree", () => {
 
                         autoForward : true,
                     },
+
+                    meta : {
+                        component : component("child"),
+                    },
                 },
             },
         });
@@ -277,6 +281,10 @@ describe("xstate-component-tree", () => {
                         
                         autoForward : true,
                     },
+
+                    meta : {
+                        component : component("one"),
+                    },
                 },
             },
         });
@@ -285,7 +293,7 @@ describe("xstate-component-tree", () => {
 
         service.start();
 
-        await expect(wait(service, 1, () => service.send("NEXT"))).resolves.toMatchSnapshot();
+        await expect(responses(service, 4, () => service.send("NEXT"))).resolves.toMatchSnapshot();
     });
     
     it("should support sync .load methods", async () => {
@@ -305,7 +313,7 @@ describe("xstate-component-tree", () => {
 
         service.start();
 
-        await expect(wait(service)).resolves.toMatchSnapshot();
+        await expect(responses(service)).resolves.toMatchSnapshot();
     });
     
     it("should pass context and event params to .load methods", async () => {
@@ -326,7 +334,7 @@ describe("xstate-component-tree", () => {
 
         service.start();
 
-        await expect(wait(service)).resolves.toMatchSnapshot();
+        await expect(responses(service)).resolves.toMatchSnapshot();
     });
     
     it("should support async .load methods", async () => {
@@ -346,7 +354,7 @@ describe("xstate-component-tree", () => {
 
         service.start();
 
-        await expect(wait(service)).resolves.toMatchSnapshot();
+        await expect(responses(service)).resolves.toMatchSnapshot();
     });
 
     it("should support nested async .load methods", async () => {
@@ -376,7 +384,7 @@ describe("xstate-component-tree", () => {
 
         service.start();
 
-        await expect(wait(service)).resolves.toMatchSnapshot();
+        await expect(responses(service)).resolves.toMatchSnapshot();
     });
 
     it("should rebuild on machine transition", async () => {
@@ -406,7 +414,7 @@ describe("xstate-component-tree", () => {
 
         service.start();
 
-        await expect(wait(service, 2, () => service.send("NEXT"))).resolves.toMatchSnapshot();
+        await expect(responses(service, 2, () => service.send("NEXT"))).resolves.toMatchSnapshot();
     });
 
     it("shouldn't rebuild on events without changes", async () => {
@@ -428,7 +436,7 @@ describe("xstate-component-tree", () => {
         service.onEvent(eventCounter);
         service.start();
 
-        await expect(wait(service, 1, () => service.send("NEXT"))).resolves.toMatchSnapshot();
+        await expect(responses(service, 1, () => service.send("NEXT"))).resolves.toMatchSnapshot();
 
         // onEvent was called twice, but treeBuilder only returned on tree as expected
         expect(eventCounter.mock.calls.length).toBe(2);
@@ -471,7 +479,7 @@ describe("xstate-component-tree", () => {
         service.onEvent(eventCounter);
         service.start();
 
-        const result = wait(service);
+        const result = responses(service);
 
         service.send("NEXT");
 

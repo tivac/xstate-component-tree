@@ -98,7 +98,51 @@ Object {
 }
 `;
 
-exports[`xstate-component-tree should support invoked state machines 1`] = `Object {}`;
+exports[`xstate-component-tree should support invoked state machines 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "child",
+      },
+    ],
+    "id": "child",
+  },
+]
+`;
+
+exports[`xstate-component-tree should support invoked state machines 2`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "child",
+      },
+    ],
+    "id": "child",
+  },
+]
+`;
 
 exports[`xstate-component-tree should support nested async .load methods 1`] = `
 Object {

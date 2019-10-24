@@ -1,61 +1,73 @@
-// eslint-disable-next-line no-empty-function
-const noop = () => {};
-
 class ComponentTree {
     constructor(interpreter, callback, options = {}) {
         if(typeof callback !== "function") {
             throw new Error("Must provide a callback function");
         }
 
+        // Storing off args
         this.interpreter = interpreter;
         this.callback = callback;
         this.options = options;
 
-        this._paths = new Map();
-        this._loaders = new Map();
-        this._invoked = new Map();
-        this._req = 0;
-        this._last = false;
+        // identifier!
+        this._id = interpreter.id;
 
+        // path -> meta lookup
+        this._paths = new Map();
+
+        // Storage of machine value by id, for tree assembly
+        this._machines = options.machines || new Map();
+        this._machines.set(this._id, {
+            __proto__ : null,
+            children  : [],
+            id        : this._id,
+        });
+        
+        // State tracking
+        this._req = 0;
+
+        // Get goin
         this._prep();
         this._watch();
     }
 
     teardown() {
         this._paths.clear();
-        this._loaders.clear();
 
         // TODO: run teardown on all child ComponentTree instances
-        this._invoked.clear();
+        this._machines.clear();
     }
 
     // Walk the machine and build up maps of paths to meta info as
     // well as prepping any load functions for usage later
     _prep() {
-        const { _paths, _loaders } = this;
+        const { _paths } = this;
         const { idMap : ids } = this.interpreter.machine;
 
         // xstate maps ids to state nodes, but the value object only
         // has paths, so need to create our own path-only map here
         for(const id in ids) {
-            const { path, meta } = ids[id];
+            const { path, meta = false } = ids[id];
+
+            const key = path.join(".");
 
             if(!meta) {
                 continue;
             }
 
-            const key = path.join(".");
+            _paths.set(key, {
+                component : meta.component,
 
-            if(meta.load) {
-                _loaders.set(key, async (item, ...args) => {
-                    item.component = await meta.load(...args);
-                });
-            }
-
-            _paths.set(key, meta);
+                load : meta.load ?
+                    async (item, ...args) => {
+                        item.component = await meta.load(...args);
+                    } :
+                    false,
+            });
         }
     }
 
+    // Watch the machine for changes
     _watch() {
         const { interpreter } = this;
     
@@ -73,13 +85,10 @@ class ComponentTree {
     // Walk a machine via DFS, collecting meta information to build a tree
     // eslint-disable-next-line max-statements
     async _walk({ value, context, event }) {
-        const { _paths, _loaders } = this;
+        const { _paths } = this;
         
         const loads = [];
-        const tree = {
-            __proto__ : null,
-            children  : [],
-        };
+        const tree = this._machines.get(this._id);
 
         // Depth-first traversal of the currently-active states
         // Start at a special virtual root value, since
@@ -115,19 +124,19 @@ class ComponentTree {
             pointer = parent;
 
             if(_paths.has(path)) {
-                const { component = noop } = _paths.get(path);
+                const { component, loader } = _paths.get(path);
                 const item = {
                     __proto__ : null,
                     children  : [],
-                    component,
+                    component : component || false,
                 };
 
                 // Run load function and assign the response to the component prop
-                if(_loaders.has(path)) {
-                    loads.push(_loaders.get(path)(item, context, event));
+                if(loader) {
+                    loads.push(loader(item, context, event));
                 }
 
-                (parent.children || parent).push(item);
+                parent.children.push(item);
 
                 pointer = item;
             }
@@ -156,7 +165,7 @@ class ComponentTree {
     
     // eslint-disable-next-line max-statements
     async _state(state) {
-        const { _invoked } = this;
+        const { _machines, _id } = this;
         const { changed, value, context, event } = state;
 
         // Need to specifically check for false because this value is undefined
@@ -166,26 +175,28 @@ class ComponentTree {
         }
 
         // Walk child statecharts, attach subscribers for each of them
-        // Object.entries(state.children).forEach(async ([ id, child ]) => {
-        //     if(_invoked.has(id)) {
-        //         return;
-        //     }
+        Object.entries(state.children).forEach(async ([ id, child ]) => {
+            // Don't need to resubscribe
+            if(_machines.has(id)) {
+                return;
+            }
 
-        //     // TODO: how do these get set into the tree and trigger responses?
-        //     _invoked.set(id, new ComponentTree(child, console.log.bind(console, id)));
-        // });
+            // Passing along our machine instance so everyone can share
+            // it and update the one global map
+            new ComponentTree(child, () => this._respond(), { machines : _machines });
+        });
 
         // Remove any no-longer active invoked statecharts from being tracked
-        // _invoked.forEach((cancel, id) => {
+        // _machines.forEach((cancel, id) => {
         //     if(id in state.children) {
         //         return;
         //     }
 
         //     cancel();
-        //     _invoked.delete(id);
+        //     _machines.delete(id);
         // });
 
-        // console.log(_invoked);
+        // console.log(_machines);
 
         this._req += 1;
         const ver = this._req;
@@ -198,13 +209,19 @@ class ComponentTree {
             return;
         }
         
-        // Keep the last-replied w/ tree available
-        this._last = tree;
+        _machines.set(_id, tree);
 
-        this.callback(tree);
+        this._respond();
+    }
+
+    _respond() {
+        const { _machines, callback } = this;
+
+        console.log("RESPONDING", _machines);
+
+        return callback([ ..._machines.values() ]);
     }
 }
-
 
 const treeBuilder = (interpreter, fn, options = {}) => {
     const builder = new ComponentTree(interpreter, fn, options);
