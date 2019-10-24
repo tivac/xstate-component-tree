@@ -15,14 +15,6 @@ class ComponentTree {
         // path -> meta lookup
         this._paths = new Map();
 
-        // Storage of machine value by id, for tree assembly
-        this._machines = options.machines || new Map();
-        this._machines.set(this._id, {
-            __proto__ : null,
-            children  : [],
-            id        : this._id,
-        });
-        
         // State tracking
         this._req = 0;
 
@@ -34,8 +26,7 @@ class ComponentTree {
     teardown() {
         this._paths.clear();
 
-        // TODO: run teardown on all child ComponentTree instances
-        this._machines.clear();
+        this._unsubscribe();
     }
 
     // Walk the machine and build up maps of paths to meta info as
@@ -71,15 +62,14 @@ class ComponentTree {
     _watch() {
         const { interpreter } = this;
     
-        const { unsubscribe } = interpreter.onTransition(this._state.bind(this));
+        const { unsubscribe } = interpreter.subscribe(this._state.bind(this));
+
+        this._unsubscribe = unsubscribe;
 
         // In case the machine is already started, run a first pass on it
         if(interpreter.initialized) {
             this._state(interpreter.state);
         }
-        
-        // Return a clean up function that clears out our Maps and unsubs from xstate
-        return unsubscribe;
     }
 
     // Walk a machine via DFS, collecting meta information to build a tree
@@ -88,7 +78,11 @@ class ComponentTree {
         const { _paths } = this;
         
         const loads = [];
-        const tree = this._machines.get(this._id);
+        const tree = {
+            __proto__ : null,
+            children  : [],
+            id        : this._id,
+        };
 
         // Depth-first traversal of the currently-active states
         // Start at a special virtual root value, since
@@ -165,7 +159,6 @@ class ComponentTree {
     
     // eslint-disable-next-line max-statements
     async _state(state) {
-        const { _machines, _id } = this;
         const { changed, value, context, event } = state;
 
         // Need to specifically check for false because this value is undefined
@@ -173,30 +166,6 @@ class ComponentTree {
         if(changed === false) {
             return;
         }
-
-        // Walk child statecharts, attach subscribers for each of them
-        Object.entries(state.children).forEach(async ([ id, child ]) => {
-            // Don't need to resubscribe
-            if(_machines.has(id)) {
-                return;
-            }
-
-            // Passing along our machine instance so everyone can share
-            // it and update the one global map
-            new ComponentTree(child, () => this._respond(), { machines : _machines });
-        });
-
-        // Remove any no-longer active invoked statecharts from being tracked
-        // _machines.forEach((cancel, id) => {
-        //     if(id in state.children) {
-        //         return;
-        //     }
-
-        //     cancel();
-        //     _machines.delete(id);
-        // });
-
-        // console.log(_machines);
 
         this._req += 1;
         const ver = this._req;
@@ -209,24 +178,65 @@ class ComponentTree {
             return;
         }
         
-        _machines.set(_id, tree);
-
-        this._respond();
-    }
-
-    _respond() {
-        const { _machines, callback } = this;
-
-        console.log("RESPONDING", _machines);
-
-        return callback([ ..._machines.values() ]);
+        this.callback(tree);
     }
 }
 
-const treeBuilder = (interpreter, fn, options = {}) => {
-    const builder = new ComponentTree(interpreter, fn, options);
+const treeBuilder = (interpreter, fn) => {
+    const machines = new Map();
+    const trees = new Map();
 
-    return builder;
+    const root = interpreter.id;
+
+    const respond = () => {
+        fn([ ...trees.values() ]);
+    };
+
+    machines.set(root, new ComponentTree(interpreter, (tree) => {
+        trees.set(root, tree);
+
+        respond();
+    }));
+
+    interpreter.subscribe(({ changed, children }) => {
+        if(changed === false) {
+            return;
+        }
+
+        // DFS Walk child statecharts, attach subscribers for each of them
+        const queue = Object.entries(children);
+        
+        // Track active ids
+        const active = new Set();
+
+        while(queue.length) {
+            const [ id, machine ] = queue.shift();
+
+            active.add(id);
+
+            machines.set(id, new ComponentTree(machine, (tree) => {
+                trees.set(id, tree);
+
+                respond();
+            }));
+
+            if(machine.initialized && machine.state) {
+                queue.push(...Object.entries(machine.state.children));
+            }
+        }
+
+        // Remove any no-longer active invoked statecharts from being tracked
+        machines.forEach((cancel, id) => {
+            if(active.has(id) || id === root) {
+                return;
+            }
+
+            console.log("REMOVING", id);
+
+            machines.get(id).teardown();
+            machines.delete(id);
+        });
+    });
 };
 
 export {
