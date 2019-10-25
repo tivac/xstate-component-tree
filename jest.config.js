@@ -9,4 +9,12 @@ module.exports = {
         ...defaults.coveragePathIgnorePatterns,
         "<rootDir>/tests/util/",
     ],
+
+    setupFilesAfterEnv : [
+        "<rootDir>/tests/util/setup-diff.js",
+    ],
+
+    snapshotSerializers : [
+        require.resolve("snapshot-diff/serializer.js"),
+    ],
 };

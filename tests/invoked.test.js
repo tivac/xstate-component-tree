@@ -38,9 +38,63 @@ describe("xstate-component-tree", () => {
 
             const service = interpret(testMachine);
 
-            const states = trees(service);
+            const tree = trees(service);
             
-            await states(2);
+            await tree();
+            await expect(tree()).resolves.toMatchSnapshot();
+        });
+        
+        it("should remove data once the invoke is halted", async () => {
+            const childMachine = createMachine({
+                initial : "child",
+
+                states : {
+                    child : {
+                        meta : {
+                            component : component("child"),
+                        },
+                    },
+                },
+            });
+
+            const testMachine = createMachine({
+                initial : "one",
+
+                states : {
+                    one : {
+                        invoke : {
+                            id  : "child",
+                            src : childMachine,
+                        },
+
+                        meta : {
+                            component : component("one"),
+                        },
+
+                        on : {
+                            NEXT : "two",
+                        },
+                    },
+
+                    two : {
+                        meta : {
+                            component : component("two"),
+                        },
+                    },
+                },
+            });
+
+            const service = interpret(testMachine);
+            const tree = trees(service);
+            
+            await tree();
+            const before = await tree();
+            
+            service.send("NEXT");
+            
+            const after = await tree();
+
+            expect(before).toMatchDiffSnapshot(after);
         });
 
         it("should rebuild on transitions", async () => {
@@ -87,13 +141,16 @@ describe("xstate-component-tree", () => {
 
             const service = interpret(testMachine);
 
-            const states = trees(service);
+            const tree = trees(service);
 
-            await states(2);
-
+            await tree();
+            const before = await tree();
+            
             service.send("NEXT");
+            
+            const after = await tree();
 
-            await states();
+            expect(before).toMatchDiffSnapshot(after);
         });
 
         it("should support nested invoked machines", async () => {
@@ -149,9 +206,11 @@ describe("xstate-component-tree", () => {
 
             const service = interpret(testMachine);
 
-            const states = trees(service);
+            const tree = trees(service);
 
-            await states(3);
+            await tree();
+            await tree();
+            await expect(tree()).resolves.toMatchSnapshot();
         });
 
         it("should rebuild on nested invoked machine transitions", async () => {
@@ -217,13 +276,17 @@ describe("xstate-component-tree", () => {
 
             const service = interpret(testMachine);
 
-            const states = trees(service);
+            const tree = trees(service);
 
-            await states(3);
+            await tree();
+            await tree();
+            const before = await tree();
 
             service.send("NEXT");
 
-            await states();
+            const after = await tree();
+
+            expect(before).toMatchDiffSnapshot(after);
         });
     });
 });
