@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`xstate-component-tree should pass context and event params to .load methods 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": Object {
+          "ctx": "context",
+          "event": Object {
+            "type": "xstate.init",
+          },
+        },
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree should support async .load methods 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree should support nested async .load methods 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [
+          Object {
+            "children": Array [],
+            "component": "two",
+          },
+        ],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree should support sync .load methods 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;

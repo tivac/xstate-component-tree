@@ -1,0 +1,147 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`xstate-component-tree should rebuild on machine transition 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree should rebuild on machine transition 2`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "two",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree should return a tree of components 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [
+          Object {
+            "children": Array [],
+            "component": "two",
+          },
+        ],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree should support arbitrary ids 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [
+          Object {
+            "children": Array [],
+            "component": "two",
+          },
+        ],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree should support holes 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [
+          Object {
+            "children": Array [],
+            "component": "three",
+          },
+        ],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree should support nested parallel states 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "two",
+      },
+      Object {
+        "children": Array [],
+        "component": "three",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree should support parallel states 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+      Object {
+        "children": Array [],
+        "component": "two",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree shouldn't rebuild on events without changes 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree shouldn't trigger the callback if another change occurs before the tree is built 1`] = `
+Object {
+  "children": Array [
+    Object {
+      "children": Array [],
+      "component": "two",
+    },
+  ],
+}
+`;
