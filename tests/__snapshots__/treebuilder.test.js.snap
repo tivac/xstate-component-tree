@@ -1,19 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`xstate-component-tree should pass context and event params to .load methods 1`] = `
-Object {
-  "children": Array [
-    Object {
-      "children": Array [],
-      "component": Object {
-        "ctx": "context",
-        "event": Object {
-          "type": "xstate.init",
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": Object {
+          "ctx": "context",
+          "event": Object {
+            "type": "xstate.init",
+          },
         },
       },
-    },
-  ],
-}
+    ],
+    "id": "(machine)",
+  },
+]
 `;
 
 exports[`xstate-component-tree should rebuild on machine transition 1`] = `
@@ -25,7 +28,13 @@ Array [
         "component": "one",
       },
     ],
+    "id": "(machine)",
   },
+]
+`;
+
+exports[`xstate-component-tree should rebuild on machine transition 2`] = `
+Array [
   Object {
     "children": Array [
       Object {
@@ -33,6 +42,7 @@ Array [
         "component": "two",
       },
     ],
+    "id": "(machine)",
   },
 ]
 `;
@@ -177,14 +187,17 @@ Array [
 `;
 
 exports[`xstate-component-tree should support async .load methods 1`] = `
-Object {
-  "children": Array [
-    Object {
-      "children": Array [],
-      "component": "one",
-    },
-  ],
-}
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
 `;
 
 exports[`xstate-component-tree should support holes 1`] = `
@@ -244,19 +257,22 @@ Array [
 `;
 
 exports[`xstate-component-tree should support nested async .load methods 1`] = `
-Object {
-  "children": Array [
-    Object {
-      "children": Array [
-        Object {
-          "children": Array [],
-          "component": "two",
-        },
-      ],
-      "component": "one",
-    },
-  ],
-}
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [
+          Object {
+            "children": Array [],
+            "component": "two",
+          },
+        ],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
 `;
 
 exports[`xstate-component-tree should support nested parallel states 1`] = `
@@ -296,25 +312,31 @@ Array [
 `;
 
 exports[`xstate-component-tree should support sync .load methods 1`] = `
-Object {
-  "children": Array [
-    Object {
-      "children": Array [],
-      "component": "one",
-    },
-  ],
-}
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
 `;
 
 exports[`xstate-component-tree shouldn't rebuild on events without changes 1`] = `
-Object {
-  "children": Array [
-    Object {
-      "children": Array [],
-      "component": "one",
-    },
-  ],
-}
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
 `;
 
 exports[`xstate-component-tree shouldn't trigger the callback if another change occurs before the tree is built 1`] = `

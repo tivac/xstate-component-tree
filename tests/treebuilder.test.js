@@ -243,8 +243,9 @@ describe("xstate-component-tree", () => {
 
     it.todo("should rebuild on invoked state machine transitions");
     it.todo("should support nested invoked state machines");
+    it.todo("should pass child machine context & events to load fns");
 
-    it.only("should rebuild on nested invoked state machine transitions", async () => {
+    it("should rebuild on nested invoked state machine transitions", async () => {
         const grandchildMachine = createMachine({
             initial : "grandchild1",
 
@@ -515,4 +516,6 @@ describe("xstate-component-tree", () => {
         // onEvent was called twice, but treeBuilder returned on tree as expected
         expect(eventCounter.mock.calls.length).toBe(2);
     });
+
+    it.todo("should support top-level machine ids in the built tree");
 });

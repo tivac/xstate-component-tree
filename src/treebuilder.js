@@ -49,7 +49,7 @@ class ComponentTree {
             _paths.set(key, {
                 component : meta.component,
 
-                load : meta.load ?
+                loader : meta.load ?
                     async (item, ...args) => {
                         item.component = await meta.load(...args);
                     } :
