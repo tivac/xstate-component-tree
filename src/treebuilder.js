@@ -227,10 +227,11 @@ const treeBuilder = (interpreter, fn) => {
                 return;
             }
 
-            console.log("REMOVING", id);
-
             machines.get(id).teardown();
             machines.delete(id);
+            trees.delete(id);
+
+            respond();
         });
     });
 };
