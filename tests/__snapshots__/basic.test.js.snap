@@ -1,31 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`xstate-component-tree should rebuild on machine transition 1`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-      },
-    ],
-    "id": "(machine)",
-  },
-]
-`;
+Snapshot Diff:
+- First value
++ Second value
 
-exports[`xstate-component-tree should rebuild on machine transition 2`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "two",
-      },
-    ],
-    "id": "(machine)",
-  },
-]
+  Array [
+    Object {
+      "children": Array [
+        Object {
+          "children": Array [],
+-         "component": "one",
++         "component": "two",
+        },
+      ],
+      "id": "(machine)",
+    },
+  ]
 `;
 
 exports[`xstate-component-tree should return a tree of components 1`] = `
@@ -114,20 +105,6 @@ Array [
       Object {
         "children": Array [],
         "component": "two",
-      },
-    ],
-    "id": "(machine)",
-  },
-]
-`;
-
-exports[`xstate-component-tree shouldn't rebuild on events without changes 1`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
       },
     ],
     "id": "(machine)",

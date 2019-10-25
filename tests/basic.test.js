@@ -30,9 +30,9 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const states = trees(service);
+        const tree = trees(service);
 
-        await states();
+        await expect(tree()).resolves.toMatchSnapshot();
     });
 
     it("should support parallel states", async () => {
@@ -56,9 +56,9 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const states = trees(service);
+        const tree = trees(service);
 
-        await states();
+        await expect(tree()).resolves.toMatchSnapshot();
     });
 
     it("should support nested parallel states", async () => {
@@ -88,9 +88,9 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const states = trees(service);
+        const tree = trees(service);
 
-        await states();
+        await expect(tree()).resolves.toMatchSnapshot();
     });
 
     it("should support arbitrary ids", async () => {
@@ -122,9 +122,9 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const states = trees(service);
+        const tree = trees(service);
 
-        await states();
+        await expect(tree()).resolves.toMatchSnapshot();
     });
 
     it("should support holes", async () => {
@@ -158,9 +158,9 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const states = trees(service);
+        const tree = trees(service);
 
-        await states();
+        await expect(tree()).resolves.toMatchSnapshot();
     });
     
     it("should rebuild on machine transition", async () => {
@@ -188,13 +188,15 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const states = trees(service);
+        const tree = trees(service);
         
-        await states();
+        const before = await tree();
         
         service.send("NEXT");
 
-        await states();
+        const after = await tree();
+
+        expect(before).toMatchDiffSnapshot(after);
     });
 
     it("shouldn't rebuild on events without changes", async () => {
