@@ -21,9 +21,9 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const states = trees(service);
+        const tree = trees(service);
 
-        await states();
+        await expect(tree()).resolves.toMatchSnapshot();
     });
     
     it("should pass context and event params to .load methods", async () => {
@@ -42,9 +42,9 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const states = trees(service);
+        const tree = trees(service);
 
-        await states();
+        await expect(tree()).resolves.toMatchSnapshot();
     });
     
     it("should support async .load methods", async () => {
@@ -62,9 +62,9 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const states = trees(service);
+        const tree = trees(service);
 
-        await states();
+        await expect(tree()).resolves.toMatchSnapshot();
     });
 
     it("should support nested async .load methods", async () => {
@@ -92,8 +92,8 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const states = trees(service);
+        const tree = trees(service);
 
-        await states();
+        await expect(tree()).resolves.toMatchSnapshot();
     });
 });
