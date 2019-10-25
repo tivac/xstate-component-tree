@@ -1,49 +1,9 @@
 "use strict";
 
 const { Machine : createMachine, interpret } = require("xstate");
-
-const { treeBuilder } = require("../src/treebuilder.js");
-
-// TODO: figure out how to make this a function w/ a dynamic name
-const component = (name) => name;
-
-const asyncLoad = (name, delay = 0) =>
-    () => new Promise((resolve) =>
-        setTimeout(() => resolve(component(name)), delay)
-    );
-
-// Watch for a specific number of trees to be built and resolve
-// a promise once that is hit, while also comparing each value to
-// a snapshot for good measure
-const trees = (service) => {
-    let post;
-    let received = 0;
-    let times;
-    let finished;
-
-    treeBuilder(service, (tree) => {
-        expect(tree).toMatchSnapshot();
-
-        if(post) {
-            post(tree);
-        }
-        
-        if(++received >= times) {
-            finished();
-        }
-    });
-
-    return ({ count = 1, after } = false) => new Promise((resolve) => {
-        received = 0;
-        times = count;
-        post = after;
-        finished = resolve;
-        
-        if(!service.initialized) {
-            service.start();
-        }
-    });
-};
+const trees = require("./util/trees.js");
+const component = require("./util/component.js");
+const loadAsync = require("./util/async-loader.js");
 
 describe("xstate-component-tree", () => {
     it("should return a tree of components", async () => {
@@ -241,8 +201,117 @@ describe("xstate-component-tree", () => {
         await states(2);
     });
 
-    it.todo("should rebuild on invoked state machine transitions");
-    it.todo("should support nested invoked state machines");
+    it("should rebuild on invoked state machine transitions", async () => {
+        const childMachine = createMachine({
+            initial : "child1",
+
+            states : {
+                child1 : {
+                    meta : {
+                        component : component("child1"),
+                    },
+
+                    on : {
+                        NEXT : "child2",
+                    },
+                },
+
+                child2 : {
+                    meta : {
+                        component : component("child2"),
+                    },
+                },
+            },
+        });
+
+        const testMachine = createMachine({
+            initial : "one",
+
+            states : {
+                one : {
+                    invoke : {
+                        id  : "child",
+                        src : childMachine,
+                        
+                        autoForward : true,
+                    },
+
+                    meta : {
+                        component : component("one"),
+                    },
+                },
+            },
+        });
+
+        const service = interpret(testMachine);
+
+        const states = trees(service);
+
+        await states(2);
+
+        service.send("NEXT");
+
+        await states();
+    });
+
+    it("should support nested invoked state machines", async () => {
+        const grandchildMachine = createMachine({
+            initial : "grandchild",
+
+            states : {
+                grandchild : {
+                    meta : {
+                        component : component("grandchild"),
+                    },
+                },
+            },
+        });
+
+        const childMachine = createMachine({
+            initial : "child",
+
+            states : {
+                child : {
+                    invoke : {
+                        id  : "grandchild",
+                        src : grandchildMachine,
+
+                        autoForward : true,
+                    },
+
+                    meta : {
+                        component : component("child"),
+                    },
+                },
+            },
+        });
+
+        const testMachine = createMachine({
+            initial : "one",
+
+            states : {
+                one : {
+                    invoke : {
+                        id  : "child",
+                        src : childMachine,
+                        
+                        autoForward : true,
+                    },
+
+                    meta : {
+                        component : component("one"),
+                    },
+                },
+            },
+        });
+
+        const service = interpret(testMachine);
+
+        const states = trees(service);
+
+        await states(3);
+    });
+
     it.todo("should pass child machine context & events to load fns");
 
     it("should rebuild on nested invoked state machine transitions", async () => {
@@ -365,7 +434,7 @@ describe("xstate-component-tree", () => {
             states : {
                 one : {
                     meta : {
-                        load : asyncLoad("one"),
+                        load : loadAsync("one"),
                     },
                 },
             },
@@ -385,7 +454,7 @@ describe("xstate-component-tree", () => {
             states : {
                 one : {
                     meta : {
-                        load : asyncLoad("one"),
+                        load : loadAsync("one"),
                     },
 
                     initial : "two",
@@ -393,7 +462,7 @@ describe("xstate-component-tree", () => {
                     states : {
                         two : {
                             meta : {
-                                load : asyncLoad("two", 16),
+                                load : loadAsync("two", 16),
                             },
                         },
                     },
