@@ -41,7 +41,8 @@ describe("xstate-component-tree", () => {
             const tree = trees(service);
             
             await tree();
-            await expect(tree()).resolves.toMatchSnapshot();
+
+            expect(await tree()).toMatchSnapshot();
         });
         
         it("should remove data once the invoke is halted", async () => {
@@ -210,7 +211,8 @@ describe("xstate-component-tree", () => {
 
             await tree();
             await tree();
-            await expect(tree()).resolves.toMatchSnapshot();
+            
+            expect(await tree()).toMatchSnapshot();
         });
 
         it("should rebuild on nested invoked machine transitions", async () => {

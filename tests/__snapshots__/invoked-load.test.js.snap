@@ -11,20 +11,6 @@ Array [
     ],
     "id": "(machine)",
   },
-]
-`;
-
-exports[`xstate-component-tree invoked machines using .load should pass child machine context & events to load fns 2`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-      },
-    ],
-    "id": "(machine)",
-  },
   Object {
     "children": Array [
       Object {
@@ -57,20 +43,6 @@ Array [
 `;
 
 exports[`xstate-component-tree invoked machines using .load should support sync .load 1`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-      },
-    ],
-    "id": "(machine)",
-  },
-]
-`;
-
-exports[`xstate-component-tree invoked machines using .load should support sync .load 2`] = `
 Array [
   Object {
     "children": Array [

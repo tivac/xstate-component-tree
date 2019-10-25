@@ -23,7 +23,7 @@ describe("xstate-component-tree", () => {
 
         const tree = trees(service);
 
-        await expect(tree()).resolves.toMatchSnapshot();
+        expect(await tree()).toMatchSnapshot();
     });
     
     it("should pass context and event params to .load methods", async () => {
@@ -44,7 +44,7 @@ describe("xstate-component-tree", () => {
 
         const tree = trees(service);
 
-        await expect(tree()).resolves.toMatchSnapshot();
+        expect(await tree()).toMatchSnapshot();
     });
     
     it("should support async .load methods", async () => {
@@ -64,7 +64,7 @@ describe("xstate-component-tree", () => {
 
         const tree = trees(service);
 
-        await expect(tree()).resolves.toMatchSnapshot();
+        expect(await tree()).toMatchSnapshot();
     });
 
     it("should support nested async .load methods", async () => {
@@ -94,6 +94,6 @@ describe("xstate-component-tree", () => {
 
         const tree = trees(service);
 
-        await expect(tree()).resolves.toMatchSnapshot();
+        expect(await tree()).toMatchSnapshot();
     });
 });

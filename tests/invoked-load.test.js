@@ -39,13 +39,14 @@ describe("xstate-component-tree", () => {
 
             const service = interpret(testMachine);
 
-            const states = trees(service);
+            const tree = trees(service);
             
-            await states(2);
+            await tree();
+            
+            expect(await tree()).toMatchSnapshot();
         });
         
         // TODO: broken atm
-        // eslint-disable-next-line
         it.skip("should support async .load", async () => {
             const childMachine = createMachine({
                 initial : "child",
@@ -78,9 +79,11 @@ describe("xstate-component-tree", () => {
 
             const service = interpret(testMachine);
 
-            const states = trees(service);
+            const tree = trees(service);
             
-            await states(3);
+            await tree();
+            
+            expect(await tree()).toMatchSnapshot();
         });
 
         it("should pass child machine context & events to load fns", async () => {
@@ -119,9 +122,11 @@ describe("xstate-component-tree", () => {
 
             const service = interpret(testMachine);
 
-            const states = trees(service);
+            const tree = trees(service);
             
-            await states(2);
+            await tree();
+            
+            expect(await tree()).toMatchSnapshot();
         });
     });
 });

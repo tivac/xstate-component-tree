@@ -32,7 +32,7 @@ describe("xstate-component-tree", () => {
 
         const tree = trees(service);
 
-        await expect(tree()).resolves.toMatchSnapshot();
+        expect(await tree()).toMatchSnapshot();
     });
 
     it("should support parallel states", async () => {
@@ -58,7 +58,7 @@ describe("xstate-component-tree", () => {
 
         const tree = trees(service);
 
-        await expect(tree()).resolves.toMatchSnapshot();
+        expect(await tree()).toMatchSnapshot();
     });
 
     it("should support nested parallel states", async () => {
@@ -90,7 +90,7 @@ describe("xstate-component-tree", () => {
 
         const tree = trees(service);
 
-        await expect(tree()).resolves.toMatchSnapshot();
+        expect(await tree()).toMatchSnapshot();
     });
 
     it("should support arbitrary ids", async () => {
@@ -124,7 +124,7 @@ describe("xstate-component-tree", () => {
 
         const tree = trees(service);
 
-        await expect(tree()).resolves.toMatchSnapshot();
+        expect(await tree()).toMatchSnapshot();
     });
 
     it("should support holes", async () => {
@@ -160,7 +160,7 @@ describe("xstate-component-tree", () => {
 
         const tree = trees(service);
 
-        await expect(tree()).resolves.toMatchSnapshot();
+        expect(await tree()).toMatchSnapshot();
     });
     
     it("should rebuild on machine transition", async () => {
@@ -217,9 +217,9 @@ describe("xstate-component-tree", () => {
 
         service.onEvent(eventCounter);
 
-        const states = trees(service);
+        const tree = trees(service);
         
-        await states();
+        await tree();
 
         service.send("NEXT");
 
