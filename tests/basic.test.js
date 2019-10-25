@@ -3,7 +3,6 @@
 const { Machine : createMachine, interpret } = require("xstate");
 const trees = require("./util/trees.js");
 const component = require("./util/component.js");
-const loadAsync = require("./util/async-loader.js");
 
 describe("xstate-component-tree", () => {
     it("should return a tree of components", async () => {

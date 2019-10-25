@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`xstate-component-tree should rebuild on invoked state machine transitions 1`] = `
+exports[`xstate-component-tree invoked child machines should be supported 1`] = `
 Array [
   Object {
     "children": Array [
@@ -14,67 +14,7 @@ Array [
 ]
 `;
 
-exports[`xstate-component-tree should rebuild on invoked state machine transitions 2`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-      },
-    ],
-    "id": "(machine)",
-  },
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "child1",
-      },
-    ],
-    "id": "child",
-  },
-]
-`;
-
-exports[`xstate-component-tree should rebuild on invoked state machine transitions 3`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-      },
-    ],
-    "id": "(machine)",
-  },
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "child2",
-      },
-    ],
-    "id": "child",
-  },
-]
-`;
-
-exports[`xstate-component-tree should rebuild on nested invoked state machine transitions 1`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-      },
-    ],
-    "id": "(machine)",
-  },
-]
-`;
-
-exports[`xstate-component-tree should rebuild on nested invoked state machine transitions 2`] = `
+exports[`xstate-component-tree invoked child machines should be supported 2`] = `
 Array [
   Object {
     "children": Array [
@@ -97,7 +37,44 @@ Array [
 ]
 `;
 
-exports[`xstate-component-tree should rebuild on nested invoked state machine transitions 3`] = `
+exports[`xstate-component-tree invoked child machines should rebuild on nested invoked machine transitions 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree invoked child machines should rebuild on nested invoked machine transitions 2`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "child",
+      },
+    ],
+    "id": "child",
+  },
+]
+`;
+
+exports[`xstate-component-tree invoked child machines should rebuild on nested invoked machine transitions 3`] = `
 Array [
   Object {
     "children": Array [
@@ -129,7 +106,7 @@ Array [
 ]
 `;
 
-exports[`xstate-component-tree should rebuild on nested invoked state machine transitions 4`] = `
+exports[`xstate-component-tree invoked child machines should rebuild on nested invoked machine transitions 4`] = `
 Array [
   Object {
     "children": Array [
@@ -161,7 +138,7 @@ Array [
 ]
 `;
 
-exports[`xstate-component-tree should support invoked state machines 1`] = `
+exports[`xstate-component-tree invoked child machines should rebuild on transitions 1`] = `
 Array [
   Object {
     "children": Array [
@@ -175,7 +152,67 @@ Array [
 ]
 `;
 
-exports[`xstate-component-tree should support invoked state machines 2`] = `
+exports[`xstate-component-tree invoked child machines should rebuild on transitions 2`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "child1",
+      },
+    ],
+    "id": "child",
+  },
+]
+`;
+
+exports[`xstate-component-tree invoked child machines should rebuild on transitions 3`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "child2",
+      },
+    ],
+    "id": "child",
+  },
+]
+`;
+
+exports[`xstate-component-tree invoked child machines should support nested invoked machines 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree invoked child machines should support nested invoked machines 2`] = `
 Array [
   Object {
     "children": Array [
@@ -198,44 +235,7 @@ Array [
 ]
 `;
 
-exports[`xstate-component-tree should support nested invoked state machines 1`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-      },
-    ],
-    "id": "(machine)",
-  },
-]
-`;
-
-exports[`xstate-component-tree should support nested invoked state machines 2`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-      },
-    ],
-    "id": "(machine)",
-  },
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "child",
-      },
-    ],
-    "id": "child",
-  },
-]
-`;
-
-exports[`xstate-component-tree should support nested invoked state machines 3`] = `
+exports[`xstate-component-tree invoked child machines should support nested invoked machines 3`] = `
 Array [
   Object {
     "children": Array [
