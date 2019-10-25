@@ -1,9 +1,5 @@
 class ComponentTree {
     constructor(interpreter, callback, options = {}) {
-        if(typeof callback !== "function") {
-            throw new Error("Must provide a callback function");
-        }
-
         // Storing off args
         this.interpreter = interpreter;
         this.callback = callback;
@@ -72,7 +68,7 @@ class ComponentTree {
         }
     }
 
-    // Walk a machine via DFS, collecting meta information to build a tree
+    // Walk a machine via BFS, collecting meta information to build a tree
     // eslint-disable-next-line max-statements
     async _walk({ value, context, event }) {
         const { _paths } = this;
@@ -203,7 +199,7 @@ const treeBuilder = (interpreter, fn) => {
             return;
         }
 
-        // DFS Walk child statecharts, attach subscribers for each of them
+        // BFS Walk child statecharts, attach subscribers for each of them
         const queue = Object.entries(children);
         
         // Track active ids
