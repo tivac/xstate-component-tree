@@ -112,13 +112,16 @@ Array [
 ]
 `;
 
-exports[`xstate-component-tree shouldn't trigger the callback if another change occurs before the tree is built 1`] = `
-Object {
-  "children": Array [
-    Object {
-      "children": Array [],
-      "component": "two",
-    },
-  ],
-}
+exports[`xstate-component-tree should support top-level machine ids in the built tree 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "testmachine",
+  },
+]
 `;

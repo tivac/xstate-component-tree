@@ -227,52 +227,23 @@ describe("xstate-component-tree", () => {
         expect(eventCounter.mock.calls.length).toBe(2);
     });
 
-    // o god broked
-    it.skip("shouldn't trigger the callback if another change occurs before the tree is built", async () => {
+    it("should support top-level machine ids in the built tree", async () => {
         const testMachine = createMachine({
+            id      : "testmachine",
             initial : "one",
 
             states : {
                 one : {
                     meta : {
-                        load : () => {
-                            loader = new Promise((resolve) =>
-                                setTimeout(() => resolve(component("one")), 0)
-                            );
-
-                            return loader;
-                        },
-                    },
-
-                    on : {
-                        NEXT : "two",
-                    },
-                },
-
-                two : {
-                    meta : {
-                        component : component("two"),
+                        component : component("one"),
                     },
                 },
             },
         });
 
         const service = interpret(testMachine);
-        const eventCounter = jest.fn();
-
-        service.onEvent(eventCounter);
-
-        const states = trees(service);
-
-        const loader = states();
-
-        service.send("NEXT");
-
-        await loader;
-
-        // onEvent was called twice, but treeBuilder returned on tree as expected
-        expect(eventCounter.mock.calls.length).toBe(2);
+        const tree = trees(service);
+        
+        expect(await tree()).toMatchSnapshot();
     });
-
-    it.todo("should support top-level machine ids in the built tree");
 });
