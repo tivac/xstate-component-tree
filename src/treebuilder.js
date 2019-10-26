@@ -80,38 +80,22 @@ class ComponentTree {
             id        : this._id,
         };
 
-        // Depth-first traversal of the currently-active states
-        // Start at a special virtual root value, since
-        // this isn't a strict tree.
-        const queue = [[
-            "root",
-            tree,
+        // Set up queue for a breadth-first traversal of all active states
+        let queue;
 
-            // Need the ternary since xstate will
-            // return a single string value for statecharts with only one node
-            typeof value === "object" ?
-                value :
-                {
-                    __proto__ : null,
-                    [value]   : false,
-                },
-        ]];
-
-        let pointer;
+        if(typeof value === "string") {
+            queue = [[ tree, value, false ]];
+        } else {
+            queue = Object.entries(value).map(([ child, grandchildren ]) =>
+                [ tree, child, grandchildren ]
+            );
+        }
 
         while(queue.length) {
-            const [ path, parent, values ] = queue.shift();
+            const [ parent, path, values ] = queue.shift();
 
-            // Early out on the root node, it's just a placeholder for all the top-level children
-            if(path === "root") {
-                queue.push(...Object.entries(values).map(([ child, grandchildren ]) =>
-                    [ child, parent, grandchildren ]
-                ));
-
-                continue;
-            }
-
-            pointer = parent;
+            // Since it can be assigned if we add a new child
+            let pointer = parent;
 
             if(_paths.has(path)) {
                 const { component, loader } = _paths.get(path);
@@ -136,14 +120,13 @@ class ComponentTree {
             }
 
             if(typeof values === "string") {
-                queue.push([ `${path}.${values}`, pointer, false ]);
+                queue.push([ pointer, `${path}.${values}`, false ]);
 
                 continue;
             }
 
-            // TODO: what is this eslint warning for?
             queue.push(...Object.entries(values).map(([ child, grandchildren ]) =>
-                [ `${path}.${child}`, pointer, grandchildren ]
+                [ pointer, `${path}.${child}`, grandchildren ]
             ));
         }
 
