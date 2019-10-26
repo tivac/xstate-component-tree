@@ -21,15 +21,14 @@ const deferred = () => {
 // to await each value
 const trees = (service) => {
     const responses = [];
-    let idx = 0;
     let p;
 
     const respond = () => {
-        if(!p || idx === responses.length) {
+        if(!p || !responses.length) {
             return;
         }
 
-        p.resolve(responses[idx++]);
+        p.resolve(responses.shift());
 
         p = false;
     };
