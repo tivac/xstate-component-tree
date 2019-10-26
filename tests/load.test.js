@@ -96,4 +96,39 @@ describe("xstate-component-tree", () => {
 
         expect(await tree()).toMatchSnapshot();
     });
+
+    it("should ignore stale trees if component loads hadn't completed", async () => {
+        const testMachine = createMachine({
+            initial : "one",
+
+            states : {
+                one : {
+                    meta : {
+                        // whoops never resolves!
+                        // eslint-disable-next-line no-empty-function
+                        load : () => new Promise(() => {}),
+                    },
+
+                    after : {
+                        100 : "two",
+                    },
+                },
+
+                two : {
+                    meta : {
+                        component : component("two"),
+                    },
+                },
+            },
+        });
+
+        const service = interpret(testMachine);
+
+        const tree = trees(service);
+
+        // Purposefully not awaiting this, it'll never resolve!
+        tree();
+
+        expect(await tree()).toMatchSnapshot();
+    });
 });

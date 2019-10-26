@@ -23,6 +23,34 @@ Array [
 ]
 `;
 
+exports[`xstate-component-tree invoked child machines should ignore non-statechart children (callback) 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
+exports[`xstate-component-tree invoked child machines should ignore non-statechart children (promise) 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "one",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
 exports[`xstate-component-tree invoked child machines should rebuild on nested invoked machine transitions 1`] = `
 Snapshot Diff:
 - First value

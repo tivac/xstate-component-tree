@@ -1,5 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`xstate-component-tree should ignore stale trees if component loads hadn't completed 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "two",
+      },
+    ],
+    "id": "(machine)",
+  },
+]
+`;
+
 exports[`xstate-component-tree should pass context and event params to .load methods 1`] = `
 Array [
   Object {

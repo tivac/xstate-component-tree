@@ -11,9 +11,6 @@ class ComponentTree {
         // path -> meta lookup
         this._paths = new Map();
 
-        // State tracking
-        this._req = 0;
-
         // Get goin
         this._prep();
         this._watch();
@@ -146,16 +143,7 @@ class ComponentTree {
             return;
         }
 
-        this._req += 1;
-        const ver = this._req;
-
         const tree = await this._walk({ value, context, event });
-        
-        // statechart transitioned again before component tree was ready, so
-        // throw away the old values
-        if(ver !== this._req) {
-            return;
-        }
         
         this.callback(tree);
     }
@@ -193,13 +181,13 @@ const treeBuilder = (interpreter, fn) => {
 
             active.add(id);
 
-            machines.set(id, new ComponentTree(machine, (tree) => {
-                trees.set(id, tree);
-
-                respond();
-            }));
-
             if(machine.initialized && machine.state) {
+                machines.set(id, new ComponentTree(machine, (tree) => {
+                    trees.set(id, tree);
+
+                    respond();
+                }));
+
                 queue.push(...Object.entries(machine.state.children));
             }
         }

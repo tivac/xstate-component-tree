@@ -44,6 +44,36 @@ describe("xstate-component-tree", () => {
 
             expect(await tree()).toMatchSnapshot();
         });
+
+        it.each([
+            // eslint-disable-next-line no-empty-function
+            [ "promise", () => new Promise(() => {}) ],
+            // eslint-disable-next-line no-empty-function
+            [ "callback", () => () => {} ],
+        ])("should ignore non-statechart children (%s)", async (name, src) => {
+            const testMachine = createMachine({
+                initial : "one",
+
+                states : {
+                    one : {
+                        invoke : {
+                            id : "child",
+                            src,
+                        },
+
+                        meta : {
+                            component : component("one"),
+                        },
+                    },
+                },
+            });
+
+            const service = interpret(testMachine);
+
+            const tree = trees(service);
+            
+            expect(await tree()).toMatchSnapshot();
+        });
         
         it("should remove data once the invoke is halted", async () => {
             const childMachine = createMachine({
