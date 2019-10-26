@@ -46,8 +46,7 @@ describe("xstate-component-tree", () => {
             expect(await tree()).toMatchSnapshot();
         });
         
-        // TODO: broken atm
-        it.skip("should support async .load", async () => {
+        it("should support async .load", async () => {
             const childMachine = createMachine({
                 initial : "child",
 

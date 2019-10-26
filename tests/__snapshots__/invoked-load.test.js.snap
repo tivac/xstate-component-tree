@@ -39,6 +39,15 @@ Array [
     ],
     "id": "(machine)",
   },
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "child",
+      },
+    ],
+    "id": "child",
+  },
 ]
 `;
 
