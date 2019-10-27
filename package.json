@@ -26,9 +26,10 @@
     "xstate": "^4.7.0-rc5"
   },
   "scripts": {
-    "test": "jest",
     "build": "rollup --config",
     "changelog": "conventional-changelog --preset angular --infile CHANGELOG.md --same-file",
+    "lint": "eslint .",
+    "test": "jest",
     "release": "npm version",
     "preversion": "npm test",
     "version": "npm run build && npm run changelog && git add CHANGELOG.md",

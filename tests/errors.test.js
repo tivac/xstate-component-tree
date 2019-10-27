@@ -1,8 +1,8 @@
 "use strict";
 
-const { Machine : createMachine, interpret } = require("xstate");
+// const { Machine : createMachine, interpret } = require("xstate");
 
-const { treeBuilder } = require("../src/treebuilder.js");
+// const { treeBuilder } = require("../src/treebuilder.js");
 
 describe("xstate-component-tree", () => {
     describe("errors", () => {
