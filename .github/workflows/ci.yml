@@ -13,10 +13,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    
     - name: npm install, build, and test
       run: |
         npm ci
@@ -27,12 +29,12 @@ jobs:
    
     # Run codecov after all builds, and only on a single environment
     - name: Gather Coverage
-      if: matrix.os == 'ubuntu-latest' && matrix.node_version == '12'
+      if: matrix.os == 'ubuntu-latest' && matrix.node_version == '12.x'
       run: npm test -- --ci --coverage
 
     - name: Upload Coverage
       uses: codecov/codecov-action@v1.0.2
-      if: matrix.os == 'ubuntu-latest' && matrix.node_version == '12'
+      if: matrix.os == 'ubuntu-latest' && matrix.node_version == '12.x'
       with:
         token: ${{secrets.CODECOV_TOKEN}}
         file: ./coverage/coverage-final.json
