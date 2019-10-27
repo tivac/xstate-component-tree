@@ -181,7 +181,7 @@ const treeBuilder = (interpreter, fn) => {
         fn([ ...trees.values() ]);
     };
 
-    machines.setroot, new ComponentTree(interpreter, (tree) => {
+    machines.set(root, new ComponentTree(interpreter, (tree) => {
         trees.set(root, tree);
 
         respond();
