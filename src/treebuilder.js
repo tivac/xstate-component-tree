@@ -229,7 +229,6 @@ const treeBuilder = (interpreter, fn) => {
     });
 };
 
-export {
-    treeBuilder,
-    ComponentTree,
-};
+treeBuilder.ComponentTree = ComponentTree;
+
+export default treeBuilder;

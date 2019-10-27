@@ -1,8 +1,11 @@
 {
   "name": "xstate-component-tree",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Build a tree of components based on statechart values",
-  "main": "src/build-tree.js",
+  "author": "Pat Cavit <npm@patcavit.com>",
+  "license": "MIT",
+  "module": "dist/treebuilder.mjs",
+  "main": "dist/treebuilder.js",
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.6.0",
     "@tivac/eslint-config": "^2.4.0",
@@ -13,14 +16,28 @@
     "eslint": "^6.5.1",
     "eslint-plugin-jest": "^22.19.0",
     "jest": "^24.9.0",
-    "rollup": "^1.24.0",
+    "rollup": "^1.25.2",
     "snapshot-diff": "^0.5.2",
     "xstate": "^4.7.0-rc5"
   },
-  "scripts": {
-    "test": "jest"
+  "peerDependencies": {
+    "xstate": "^4.7.0-rc5"
   },
-  "keywords": [],
-  "author": "Pat Cavit <npm@patcavit.com>",
-  "license": "MIT"
+  "scripts": {
+    "test": "jest",
+    "build": "rollup --config",
+    "changelog": "conventional-changelog --preset angular --infile CHANGELOG.md --same-file",
+    "release": "npm version",
+    "preversion": "npm test",
+    "version": "npm run build && npm run changelog && git add CHANGELOG.md",
+    "postversion": "git push --follow-tags && npm publish"
+  },
+  "keywords": [
+    "xstate",
+    "components",
+    "statecahart"
+  ],
+  "files": [
+    "dist/"
+  ]
 }
