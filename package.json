@@ -33,7 +33,7 @@
     "release": "npm version",
     "preversion": "npm test",
     "version": "npm run build && npm run changelog && git add CHANGELOG.md",
-    "postversion": "git push --follow-tags && npm publish --dry-run"
+    "postversion": "git push --follow-tags && npm publish"
   },
   "keywords": [
     "xstate",

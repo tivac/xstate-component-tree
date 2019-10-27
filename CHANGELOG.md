@@ -1,5 +1,6 @@
 # 0.1.0 (2019-10-27)
 
+**UNRELEASED**
 
 ### Bug Fixes
 
@@ -15,8 +16,4 @@
 
 ## 0.0.1 (2019-10-27)
 
-
-### Features
-
 **UNRELEASED**
-
