@@ -1,6 +1,6 @@
 "use strict";
 
-const { treeBuilder } = require("../../src/treebuilder.js");
+const treeBuilder = require("../../src/treebuilder.js");
 
 const deferred = () => {
     let resolve;
