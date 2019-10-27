@@ -41,14 +41,16 @@ Machine({
     },
 });
 ```
-
-You can also dynamically load components using whatever functionality you like via the `load` key.
+Props for the components are also supported via the `props` key.
 
 ```js
     // ...
     one : {
         meta : {
-            load : () => import("./my/component/from/here.js"),
+            component : MyComponent,
+            props : {
+                prop1 : 1
+            },
         },
     },
     // ...
@@ -84,6 +86,7 @@ componentTree(service, (tree) => {
      *     children: [{
      *         component: MyComponent,
      *         children: [],
+     *         props: false
      *     }],
      * }]
      * 
@@ -93,9 +96,13 @@ componentTree(service, (tree) => {
      *     id: "machine-id",
      *     children: [{
      *         component: MyComponent,
+     *         props: false
      *         children : [{
      *             component : ChildComponent,
-     *             children: [],
+     *             props: {
+     *                 one1 : 1
+     *             },
+     *             children: []
      *         }]
      *     }],
      * }]
@@ -106,11 +113,44 @@ componentTree(service, (tree) => {
 
 This data structure can also contain components from any child statecharts you created using `invoke`, they will be correctly walked & monitored for transitions.
 
+## Advanced Usage
+
+You can dynamically load components using whatever functionality you like via the `load` key. To load components asynchronously return a promise or use `async`/`await`.
+
+```js
+    // ...
+    one : {
+        meta : {
+            load : () => import("./my/component/from/here.js"),
+        },
+    },
+    // ...
+```
+
+Dynamic props are also supported. They can load data asynchronously using promises or `async`/`await`.
+
+```js
+    // ...
+    one : {
+        meta : {
+            component : MyComponent,
+            props : () => ({
+                prop1 : 1
+            }),
+        },
+    },
+    // ...
+```
+
+Both `load` and dynamic `props` functions will be passed the `context` and `event` params from xstate.
+
+## Rendering Components
+
 Once you have the tree of components, how you assembled that into your view layer is entirely up to you! Here's a brief [svelte](svelte.dev) example.
 
 ```html
-{#each components as { component, children }}
-    <svelte:component this={component} {children}>
+{#each components as { component, props, children }}
+    <svelte:component this={component} {children} {...props}>
 {/each}
 
 <script>

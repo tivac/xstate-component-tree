@@ -1,3 +1,7 @@
+const loader = async ({ item, key, fn, context, event }) => {
+    item[key] = await fn(context, event);
+};
+
 class ComponentTree {
     constructor(interpreter, callback, options = {}) {
         // Storing off args
@@ -39,14 +43,14 @@ class ComponentTree {
                 continue;
             }
 
-            _paths.set(key, {
-                component : meta.component,
+            const { component, props, load } = meta;
 
-                loader : meta.load ?
-                    async (item, ...args) => {
-                        item.component = await meta.load(...args);
-                    } :
-                    false,
+            _paths.set(key, {
+                __proto__ : null,
+
+                component,
+                props,
+                load,
             });
         }
     }
@@ -95,16 +99,34 @@ class ComponentTree {
             let pointer = parent;
 
             if(_paths.has(path)) {
-                const { component, loader } = _paths.get(path);
+                const { component, props, load } = _paths.get(path);
                 const item = {
                     __proto__ : null,
                     children  : [],
                     component : component || false,
+                    props     : props || false,
                 };
 
                 // Run load function and assign the response to the component prop
-                if(loader) {
-                    loads.push(loader(item, context, event));
+                if(load) {
+                    loads.push(loader({
+                        item,
+                        key : "component",
+                        fn  : load,
+                        context,
+                        event,
+                    }));
+                }
+
+                // Props as a function means they're dynamic, so run it to get the value
+                if(typeof props === "function") {
+                    loads.push(loader({
+                        item,
+                        key : "props",
+                        fn  : props,
+                        context,
+                        event,
+                    }));
                 }
 
                 parent.children.push(item);

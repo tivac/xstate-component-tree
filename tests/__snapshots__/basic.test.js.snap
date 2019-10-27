@@ -5,6 +5,7 @@ Snapshot Diff:
 - First value
 + Second value
 
+@@ -1,11 +1,11 @@
   Array [
     Object {
       "children": Array [
@@ -12,11 +13,11 @@ Snapshot Diff:
           "children": Array [],
 -         "component": "one",
 +         "component": "two",
+          "props": false,
         },
       ],
       "id": "(machine)",
     },
-  ]
 `;
 
 exports[`xstate-component-tree should return a tree of components 1`] = `
@@ -28,9 +29,11 @@ Array [
           Object {
             "children": Array [],
             "component": "two",
+            "props": false,
           },
         ],
         "component": "one",
+        "props": false,
       },
     ],
     "id": "(machine)",
@@ -47,9 +50,11 @@ Array [
           Object {
             "children": Array [],
             "component": "two",
+            "props": false,
           },
         ],
         "component": "one",
+        "props": false,
       },
     ],
     "id": "(machine)",
@@ -66,9 +71,11 @@ Array [
           Object {
             "children": Array [],
             "component": "three",
+            "props": false,
           },
         ],
         "component": "one",
+        "props": false,
       },
     ],
     "id": "(machine)",
@@ -83,10 +90,12 @@ Array [
       Object {
         "children": Array [],
         "component": "two",
+        "props": false,
       },
       Object {
         "children": Array [],
         "component": "three",
+        "props": false,
       },
     ],
     "id": "(machine)",
@@ -101,10 +110,12 @@ Array [
       Object {
         "children": Array [],
         "component": "one",
+        "props": false,
       },
       Object {
         "children": Array [],
         "component": "two",
+        "props": false,
       },
     ],
     "id": "(machine)",
@@ -119,6 +130,7 @@ Array [
       Object {
         "children": Array [],
         "component": "one",
+        "props": false,
       },
     ],
     "id": "testmachine",

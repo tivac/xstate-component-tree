@@ -7,6 +7,7 @@ Array [
       Object {
         "children": Array [],
         "component": "one",
+        "props": false,
       },
     ],
     "id": "(machine)",
@@ -21,6 +22,7 @@ Array [
             "type": "xstate.init",
           },
         },
+        "props": false,
       },
     ],
     "id": "child",
@@ -35,6 +37,7 @@ Array [
       Object {
         "children": Array [],
         "component": "one",
+        "props": false,
       },
     ],
     "id": "(machine)",
@@ -44,6 +47,7 @@ Array [
       Object {
         "children": Array [],
         "component": "child",
+        "props": false,
       },
     ],
     "id": "child",
@@ -58,6 +62,7 @@ Array [
       Object {
         "children": Array [],
         "component": "one",
+        "props": false,
       },
     ],
     "id": "(machine)",
@@ -67,6 +72,7 @@ Array [
       Object {
         "children": Array [],
         "component": "child",
+        "props": false,
       },
     ],
     "id": "child",

@@ -7,6 +7,7 @@ Array [
       Object {
         "children": Array [],
         "component": "one",
+        "props": false,
       },
     ],
     "id": "(machine)",
@@ -16,6 +17,7 @@ Array [
       Object {
         "children": Array [],
         "component": "child",
+        "props": false,
       },
     ],
     "id": "child",
@@ -30,6 +32,7 @@ Array [
       Object {
         "children": Array [],
         "component": "one",
+        "props": false,
       },
     ],
     "id": "(machine)",
@@ -44,6 +47,7 @@ Array [
       Object {
         "children": Array [],
         "component": "one",
+        "props": false,
       },
     ],
     "id": "(machine)",
@@ -56,7 +60,7 @@ Snapshot Diff:
 - First value
 + Second value
 
-@@ -19,11 +19,11 @@
+@@ -21,11 +21,11 @@
     },
     Object {
       "children": Array [
@@ -64,11 +68,11 @@ Snapshot Diff:
           "children": Array [],
 -         "component": "grandchild1",
 +         "component": "grandchild2",
+          "props": false,
         },
       ],
       "id": "grandchild",
     },
-  ]
 `;
 
 exports[`xstate-component-tree invoked child machines should rebuild on transitions 1`] = `
@@ -76,7 +80,7 @@ Snapshot Diff:
 - First value
 + Second value
 
-@@ -10,11 +10,11 @@
+@@ -11,11 +11,11 @@
     },
     Object {
       "children": Array [
@@ -84,11 +88,11 @@ Snapshot Diff:
           "children": Array [],
 -         "component": "child1",
 +         "component": "child2",
+          "props": false,
         },
       ],
       "id": "child",
     },
-  ]
 `;
 
 exports[`xstate-component-tree invoked child machines should remove data once the invoke is halted 1`] = `
@@ -96,8 +100,8 @@ Snapshot Diff:
 - First value
 + Second value
 
-@@ -6,15 +6,6 @@
-          "component": "one",
+@@ -7,16 +7,6 @@
+          "props": false,
         },
       ],
       "id": "(machine)",
@@ -107,6 +111,7 @@ Snapshot Diff:
 -       Object {
 -         "children": Array [],
 -         "component": "child",
+-         "props": false,
 -       },
 -     ],
 -     "id": "child",
@@ -121,6 +126,7 @@ Array [
       Object {
         "children": Array [],
         "component": "one",
+        "props": false,
       },
     ],
     "id": "(machine)",
@@ -130,6 +136,7 @@ Array [
       Object {
         "children": Array [],
         "component": "child",
+        "props": false,
       },
     ],
     "id": "child",
@@ -139,6 +146,7 @@ Array [
       Object {
         "children": Array [],
         "component": "grandchild",
+        "props": false,
       },
     ],
     "id": "grandchild",
