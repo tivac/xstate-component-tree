@@ -35,4 +35,4 @@ jobs:
       if: matrix.os == 'ubuntu-latest' && matrix.node_version == '12'
       with:
         token: ${{secrets.CODECOV_TOKEN}}
-        file: ./coverage/coverage-final.json:  
+        file: ./coverage/coverage-final.json
