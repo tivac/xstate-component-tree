@@ -13,6 +13,7 @@
     "babel-eslint": "^10.0.3",
     "babel-jest": "^24.9.0",
     "babel-plugin-add-module-exports": "^1.0.2",
+    "conventional-changelog-cli": "^2.0.25",
     "eslint": "^6.5.1",
     "eslint-plugin-jest": "^22.19.0",
     "jest": "^24.9.0",
