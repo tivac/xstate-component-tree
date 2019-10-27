@@ -1,8 +1,12 @@
 "use strict";
 
 const { Machine : createMachine, interpret } = require("xstate");
+const waitFor = require("p-wait-for");
+
 const trees = require("./util/trees.js");
 const component = require("./util/component.js");
+
+const treeBuilder = require("../src/treebuilder.js");
 
 describe("xstate-component-tree", () => {
     it("should return a tree of components", async () => {
@@ -245,5 +249,45 @@ describe("xstate-component-tree", () => {
         const tree = trees(service);
         
         expect(await tree()).toMatchSnapshot();
+    });
+
+    it("should clean up after itself", async () => {
+        const testMachine = createMachine({
+            initial : "one",
+
+            states : {
+                one : {
+                    meta : {
+                        component : component("one"),
+                    },
+
+                    on : {
+                        NEXT : "two",
+                    },
+                },
+
+                two : {
+                    meta : {
+                        component : component("two"),
+                    },
+                },
+            },
+        });
+
+        const service = interpret(testMachine);
+
+        const callback = jest.fn();
+        
+        const cancel = treeBuilder(service, callback);
+
+        service.start();
+        
+        await waitFor(() => callback.mock.calls.length > 0);
+
+        cancel();
+
+        service.send("NEXT");
+
+        expect(callback.mock.calls.length).toBe(1);
     });
 });

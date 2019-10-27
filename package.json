@@ -17,6 +17,7 @@
     "eslint": "^6.5.1",
     "eslint-plugin-jest": "^22.19.0",
     "jest": "^24.9.0",
+    "p-wait-for": "^3.1.0",
     "rollup": "^1.25.2",
     "snapshot-diff": "^0.5.2",
     "xstate": "^4.7.0-rc5"

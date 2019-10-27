@@ -227,6 +227,12 @@ const treeBuilder = (interpreter, fn) => {
             respond();
         });
     });
+
+    return () => {
+        machines.forEach((machine) => machine.teardown());
+        machines.clear();
+        trees.clear();
+    };
 };
 
 treeBuilder.ComponentTree = ComponentTree;
