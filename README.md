@@ -10,7 +10,7 @@ $> npm install xstate-component-tree
 
 ## Usage
 
-Create an XState statechart, and then instantiate an XState interpreter instance using that statechart.
+Create an XState statechart, and then instantiate an XState interpreter with it.
 
 ```js
 const { Machine, interpret } = require("xstate");
