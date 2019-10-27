@@ -1,3 +1,7 @@
+# [1.0.0](https://github.com/tivac/xstate-component-tree/compare/v0.1.0...v1.0.0) (2019-10-27)
+
+
+
 # 0.1.0 (2019-10-27)
 
 **UNRELEASED**
