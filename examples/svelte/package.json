@@ -1,0 +1,23 @@
+{
+  "name": "xstate-component-tree-example-svelte",
+  "version": "1.0.0",
+  "description": "xstate-component-tree + svelte example",
+  "main": "index.js",
+  "scripts": {
+    "start": "rollup --config --watch"
+  },
+  "keywords": [],
+  "author": "Pat Cavit <npm@patcavit.com>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@rollup/plugin-replace": "^2.2.0",
+    "rollup": "^1.26.3",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-serve": "^1.0.1",
+    "rollup-plugin-svelte": "^5.1.0",
+    "svelte": "^3.12.1",
+    "xstate": "^4.7.0-rc5",
+    "xstate-component-tree": "file:../../"
+  }
+}
