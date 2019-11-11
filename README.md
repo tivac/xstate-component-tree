@@ -24,6 +24,8 @@ const statechart = Machine({
 });
 
 const service = interpret(statechart);
+
+service.start();
 ```
 
 Add `meta` objects to each state that you want to represent a component.
@@ -56,7 +58,8 @@ Props for the components are also supported via the `props` key.
     // ...
 ```
 
-Then pass the interpreter instance and a callback function to this module!
+Then pass an Xstate interpreter instance and a callback function to this module!
+Don't forget to `.start()` the service!
 
 ```js
 const { Machine, interpret } = require("xstate");
@@ -68,8 +71,10 @@ const statechart = Machine({
 
 const service = interpret(statechart);
 
+service.start();
+
 componentTree(service, (tree) => {
-    // 
+    // [{...}]
 });
 ```
 
@@ -79,7 +84,7 @@ The second argument to the function will be called every time the machine transi
 componentTree(service, (tree) => {
     /**
      * 
-     * tree will be something like this
+     * tree will be something like this:
      * 
      * [{
      *     id: "machine-id",
@@ -106,10 +111,11 @@ componentTree(service, (tree) => {
      *         }]
      *     }],
      * }]
-     * 
-     */ 
+     */
 });
 ```
+
+Each object in the `tree` array represents all currently active parallel states. If you aren't running multiple state machines, you can expect this array to always return an array containing a single object
 
 This data structure can also contain components from any child statecharts you created using `invoke`, they will be correctly walked & monitored for transitions.
 
@@ -121,20 +127,20 @@ You can dynamically load components using whatever functionality you like via th
     // ...
     one : {
         meta : {
-            load : () => import("./my/component/from/here.js"),
+            load : (ctx, event) => import("./my/component/from/here.js"),
         },
     },
     // ...
 ```
 
-Dynamic props are also supported. They can load data asynchronously using promises or `async`/`await`.
+Dynamic `props` are also supported. They can load data asynchronously using promises or `async`/`await`.
 
 ```js
     // ...
     one : {
         meta : {
             component : MyComponent,
-            props : () => ({
+            props : (ctx, event) => ({
                 prop1 : 1
             }),
         },
@@ -146,14 +152,44 @@ Both `load` and dynamic `props` functions will be passed the `context` and `even
 
 ## Rendering Components
 
-Once you have the tree of components, how you assembled that into your view layer is entirely up to you! Here's a brief [svelte](svelte.dev) example.
+Assuming access to the tree built by `xstate-component-tree`, you can slot this into your UI layer
+seamlessly!
+
+Here's a file that exports a function to supply the `componentTree` callback to:
+
+`tree.js`
+```js
+const { Machine, interpret } = require("xstate");
+const componentTree = require("xstate-component-tree");
+
+const statechart = Machine({
+    // ...
+});
+
+const service = interpret(statechart);
+
+service.start();
+
+export default (callback) => componentTree(service, callback);
+```
+
+Let's put this `export` to good use and render out our component tree.
+Here's a brief [svelte](svelte.dev) example:
 
 ```html
 {#each components as { component, props, children }}
-    <svelte:component this={component} {children} {...props}>
+    <svelte:component this="{component}" {children} {...props} />
 {/each}
 
 <script>
-export let components;
+import componentTree from "./tree.js";
+
+let components;
+
+componentTree(([ structure ]) => {
+    // Our statechart doesn't contain any parallel states at the top level
+    // So all components we render will exist in the first array element.
+    components = structure;
+});
 </script>
 ```
