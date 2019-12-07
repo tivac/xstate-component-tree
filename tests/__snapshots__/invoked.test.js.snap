@@ -1,28 +1,50 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`xstate-component-tree invoked child machines should be supported 1`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-        "props": false,
+Object {
+  "children": Map {
+    "one" => Object {
+      "children": Map {
+        "child-machine" => Map {
+          "child" => Object {
+            "children": Map {},
+            "component": "child",
+            "props": false,
+          },
+        },
       },
-    ],
-    "id": "(machine)",
+      "component": "one",
+      "props": false,
+    },
   },
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "child",
-        "props": false,
+  "id": "(machine)",
+}
+`;
+
+exports[`xstate-component-tree invoked child machines should be supported in a parallel state 1`] = `
+Object {
+  "children": Map {
+    "one" => Object {
+      "children": Map {
+        "child-machine" => Map {
+          "child" => Object {
+            "children": Map {},
+            "component": "child",
+            "props": false,
+          },
+        },
       },
-    ],
-    "id": "child",
+      "component": "one",
+      "props": false,
+    },
+    "two" => Object {
+      "children": Map {},
+      "component": "two",
+      "props": false,
+    },
   },
-]
+  "id": "(machine)",
+}
 `;
 
 exports[`xstate-component-tree invoked child machines should ignore non-statechart children (callback) 1`] = `

@@ -45,6 +45,51 @@ describe("xstate-component-tree", () => {
             expect(await tree()).toMatchSnapshot();
         });
 
+        it("should be supported in a parallel state", async () => {
+            const childMachine = createMachine({
+                initial : "child",
+
+                states : {
+                    child : {
+                        meta : {
+                            component : component("child"),
+                        },
+                    },
+                },
+            });
+
+            const testMachine = createMachine({
+                type : "parallel",
+
+                states : {
+                    one : {
+                        invoke : {
+                            id  : "child-machine",
+                            src : childMachine,
+                        },
+
+                        meta : {
+                            component : component("one"),
+                        },
+                    },
+
+                    two : {
+                        meta : {
+                            component : component("two"),
+                        },
+                    },
+                },
+            });
+
+            const service = interpret(testMachine);
+
+            const tree = trees(service);
+            
+            await tree();
+
+            expect(await tree()).toMatchSnapshot();
+        });
+
         it.each([
             // eslint-disable-next-line no-empty-function
             [ "promise", () => new Promise(() => {}) ],
@@ -184,7 +229,7 @@ describe("xstate-component-tree", () => {
             expect(before).toMatchDiffSnapshot(after);
         });
 
-        it.only("should support nested invoked machines", async () => {
+        it("should support nested invoked machines", async () => {
             const grandchildMachine = createMachine({
                 initial : "grandchild",
 

@@ -82,7 +82,7 @@ class ComponentTree {
         const loads = [];
         const tree = {
             __proto__ : null,
-            children  : [],
+            children  : new Map(),
             id        : this._id,
         };
 
@@ -109,7 +109,7 @@ class ComponentTree {
 
                 const item = {
                     __proto__ : null,
-                    children  : [],
+                    children  : new Map(),
                     component : component || false,
                     props     : props || false,
                 };
@@ -140,7 +140,7 @@ class ComponentTree {
                     }));
                 }
 
-                parent.children.push(item);
+                parent.children.set(path, item);
 
                 pointer = item;
             }
@@ -184,18 +184,16 @@ class ComponentTree {
 
 const treeBuilder = (interpreter, fn) => {
     const machines = new Map();
-    const trees = new Map();
+    let trees;
 
     const root = interpreter.id;
 
     const respond = () => {
-        fn([ ...trees.values() ]);
+        fn(trees);
     };
 
     machines.set(root, new ComponentTree(interpreter, (tree) => {
-        // console.log(root, tree);
-        
-        trees.set(root, tree);
+        trees = tree;
 
         respond();
     }));
@@ -223,11 +221,7 @@ const treeBuilder = (interpreter, fn) => {
                 machines.set(id, new ComponentTree(machine, (tree) => {
                     const { item } = parent._paths.get(path);
 
-                    // trees.set(id, tree);
-
-                    console.log({ id, tree });
-
-                    item.children.push(...tree.children);
+                    item.children.set(id, tree.children);
 
                     respond();
                 }));
