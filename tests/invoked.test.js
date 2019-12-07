@@ -25,7 +25,7 @@ describe("xstate-component-tree", () => {
                 states : {
                     one : {
                         invoke : {
-                            id  : "child",
+                            id  : "child-machine",
                             src : childMachine,
                         },
 
@@ -184,7 +184,7 @@ describe("xstate-component-tree", () => {
             expect(before).toMatchDiffSnapshot(after);
         });
 
-        it("should support nested invoked machines", async () => {
+        it.only("should support nested invoked machines", async () => {
             const grandchildMachine = createMachine({
                 initial : "grandchild",
 
@@ -203,7 +203,7 @@ describe("xstate-component-tree", () => {
                 states : {
                     child : {
                         invoke : {
-                            id  : "grandchild",
+                            id  : "grandchild-machine",
                             src : grandchildMachine,
 
                             autoForward : true,
@@ -222,7 +222,7 @@ describe("xstate-component-tree", () => {
                 states : {
                     one : {
                         invoke : {
-                            id  : "child",
+                            id  : "child-machine",
                             src : childMachine,
                             
                             autoForward : true,

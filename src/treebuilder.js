@@ -15,6 +15,9 @@ class ComponentTree {
         // path -> meta lookup
         this._paths = new Map();
 
+        // invoked id -> path lookup
+        this._invokes = new Map();
+
         // Get goin
         this._prep();
         this._watch();
@@ -29,29 +32,31 @@ class ComponentTree {
     // Walk the machine and build up maps of paths to meta info as
     // well as prepping any load functions for usage later
     _prep() {
-        const { _paths } = this;
+        const { _paths, _invokes } = this;
         const { idMap : ids } = this.interpreter.machine;
 
         // xstate maps ids to state nodes, but the value object only
         // has paths, so need to create our own path-only map here
         for(const id in ids) {
-            const { path, meta = false } = ids[id];
+            const { path, meta = false, invoke = false } = ids[id];
 
             const key = path.join(".");
 
-            if(!meta) {
-                continue;
+            if(meta) {
+                const { component, props, load } = meta;
+
+                _paths.set(key, {
+                    __proto__ : null,
+
+                    component,
+                    props,
+                    load,
+                });
             }
 
-            const { component, props, load } = meta;
-
-            _paths.set(key, {
-                __proto__ : null,
-
-                component,
-                props,
-                load,
-            });
+            if(invoke) {
+                invoke.forEach(({ id : invokeid }) => _invokes.set(invokeid, key));
+            }
         }
     }
 
@@ -99,13 +104,19 @@ class ComponentTree {
             let pointer = parent;
 
             if(_paths.has(path)) {
-                const { component, props, load } = _paths.get(path);
+                const details = _paths.get(path);
+                const { component, props, load } = details;
+
                 const item = {
                     __proto__ : null,
                     children  : [],
                     component : component || false,
                     props     : props || false,
                 };
+
+                details.item = item;
+
+                _paths.set(path, details);
 
                 // Run load function and assign the response to the component prop
                 if(load) {
@@ -182,6 +193,8 @@ const treeBuilder = (interpreter, fn) => {
     };
 
     machines.set(root, new ComponentTree(interpreter, (tree) => {
+        // console.log(root, tree);
+        
         trees.set(root, tree);
 
         respond();
@@ -193,24 +206,35 @@ const treeBuilder = (interpreter, fn) => {
         }
 
         // BFS Walk child statecharts, attach subscribers for each of them
-        const queue = Object.entries(children);
+        const queue = Object.entries(children).map(([ id, machine ]) => [ machines.get(root), id, machine ]);
         
         // Track active ids
         const active = new Set();
 
         while(queue.length) {
-            const [ id, machine ] = queue.shift();
+            const [ parent, id, machine ] = queue.shift();
+
+
+            const path = parent._invokes.get(id);
 
             active.add(id);
 
             if(machine.initialized && machine.state) {
                 machines.set(id, new ComponentTree(machine, (tree) => {
-                    trees.set(id, tree);
+                    const { item } = parent._paths.get(path);
+
+                    // trees.set(id, tree);
+
+                    console.log({ id, tree });
+
+                    item.children.push(...tree.children);
 
                     respond();
                 }));
 
-                queue.push(...Object.entries(machine.state.children));
+                queue.push(...Object.entries(machine.state.children).map(([ cid, cmachine ]) =>
+                    [ machines.get(id), cid, cmachine ]
+                ));
             }
         }
 
