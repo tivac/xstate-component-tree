@@ -10,13 +10,16 @@ class ComponentTree {
         this.options = options;
 
         // identifier!
-        this._id = interpreter.id;
+        this.id = interpreter.id;
 
         // path -> meta lookup
         this._paths = new Map();
 
         // invoked id -> path lookup
-        this._invokes = new Map();
+        this._invocables = new Map();
+
+        // active children
+        this._children = new Map();
 
         // Get goin
         this._prep();
@@ -25,6 +28,8 @@ class ComponentTree {
 
     teardown() {
         this._paths.clear();
+        this._invocables.clear();
+        this._children.clear();
 
         this._unsubscribe();
     }
@@ -32,7 +37,7 @@ class ComponentTree {
     // Walk the machine and build up maps of paths to meta info as
     // well as prepping any load functions for usage later
     _prep() {
-        const { _paths, _invokes } = this;
+        const { _paths, _invocables } = this;
         const { idMap : ids } = this.interpreter.machine;
 
         // xstate maps ids to state nodes, but the value object only
@@ -55,7 +60,7 @@ class ComponentTree {
             }
 
             if(invoke) {
-                invoke.forEach(({ id : invokeid }) => _invokes.set(invokeid, key));
+                invoke.forEach(({ id : invokeid }) => _invocables.set(invokeid, key));
             }
         }
     }
@@ -77,13 +82,13 @@ class ComponentTree {
     // Walk a machine via BFS, collecting meta information to build a tree
     // eslint-disable-next-line max-statements
     async _walk({ value, context, event }) {
-        const { _paths } = this;
+        const { _paths, _invocables, _children } = this;
         
         const loads = [];
         const tree = {
             __proto__ : null,
-            children  : new Map(),
-            id        : this._id,
+            id        : this.id,
+            children  : [],
         };
 
         // Set up queue for a breadth-first traversal of all active states
@@ -109,9 +114,9 @@ class ComponentTree {
 
                 const item = {
                     __proto__ : null,
-                    children  : new Map(),
                     component : component || false,
                     props     : props || false,
+                    children  : [],
                 };
 
                 details.item = item;
@@ -140,7 +145,16 @@ class ComponentTree {
                     }));
                 }
 
-                parent.children.set(path, item);
+                if(_invocables.has(path)) {
+                    const id = _invocables.get(path);
+                    const { tree : invoked } = _children.get(id);
+
+                    if(invoked) {
+                        parent.children.push(invoked);
+                    }
+                }
+
+                parent.children.push(item);
 
                 pointer = item;
             }
@@ -167,14 +181,52 @@ class ComponentTree {
     }
     
     // eslint-disable-next-line max-statements
-    async _state(state) {
-        const { changed, value, context, event } = state;
-
+    async _state({ changed, value, context, event, children }) {
         // Need to specifically check for false because this value is undefined
         // when a machine first boots up
         if(changed === false) {
             return;
         }
+
+        const { _children } = this;
+
+        // Clear out any old children that are no longer being tracked
+        _children.forEach(({ child }, key) => {
+            if(key in children) {
+                return;
+            }
+
+            child.teardown();
+            _children.delete(key);
+        });
+
+        // Add any new children to be tracked
+        Object.entries(children).forEach(([ id, service ]) => {
+            // Already tracked
+            if(_children.has(id)) {
+                return;
+            }
+
+            _children.set(id, {
+                tree  : false,
+                child : new ComponentTree(service, async (tree) => {
+                    const entry = _children.get(id);
+
+                    entry.tree = tree;
+
+                    _children.set(id, entry);
+
+                    // TODO: Need to trigger output now that this has changed
+                    // Call _walk again somehow? Needs more thinking!
+
+                    const out = await this._walk({ value, context, event });
+        
+                    this.callback(out);
+                }),
+            });
+        });
+
+        console.log(_children);
 
         const tree = await this._walk({ value, context, event });
         
@@ -183,74 +235,7 @@ class ComponentTree {
 }
 
 const treeBuilder = (interpreter, fn) => {
-    const machines = new Map();
-    let trees;
-
-    const root = interpreter.id;
-
-    const respond = () => {
-        fn(trees);
-    };
-
-    machines.set(root, new ComponentTree(interpreter, (tree) => {
-        trees = tree;
-
-        respond();
-    }));
-
-    interpreter.subscribe(({ changed, children }) => {
-        if(changed === false) {
-            return;
-        }
-
-        // BFS Walk child statecharts, attach subscribers for each of them
-        const queue = Object.entries(children).map(([ id, machine ]) => [ machines.get(root), id, machine ]);
-        
-        // Track active ids
-        const active = new Set();
-
-        while(queue.length) {
-            const [ parent, id, machine ] = queue.shift();
-
-
-            const path = parent._invokes.get(id);
-
-            active.add(id);
-
-            if(machine.initialized && machine.state) {
-                machines.set(id, new ComponentTree(machine, (tree) => {
-                    const { item } = parent._paths.get(path);
-
-                    item.children.set(id, tree.children);
-
-                    respond();
-                }));
-
-                queue.push(...Object.entries(machine.state.children).map(([ cid, cmachine ]) =>
-                    [ machines.get(id), cid, cmachine ]
-                ));
-            }
-        }
-
-        // Remove any no-longer active invoked statecharts from being tracked
-        machines.forEach((cancel, id) => {
-            if(active.has(id) || id === root) {
-                return;
-            }
-
-            machines.get(id).teardown();
-            machines.delete(id);
-            trees.delete(id);
-
-            respond();
-        });
-    });
-
-    return () => {
-        machines.forEach((machine) => machine.teardown());
-        machines.clear();
-        trees.clear();
-    };
+    new ComponentTree(interpreter, fn);
 };
 
 treeBuilder.ComponentTree = ComponentTree;

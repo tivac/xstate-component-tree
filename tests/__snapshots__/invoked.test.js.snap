@@ -2,21 +2,24 @@
 
 exports[`xstate-component-tree invoked child machines should be supported 1`] = `
 Object {
-  "children": Map {
-    "one" => Object {
-      "children": Map {
-        "child-machine" => Map {
-          "child" => Object {
-            "children": Map {},
-            "component": "child",
-            "props": false,
-          },
+  "children": Array [
+    Object {
+      "children": Array [
+        Object {
+          "children": Array [
+            Object {
+              "children": Array [],
+              "component": "child",
+              "props": false,
+            },
+          ],
+          "id": "child-machine",
         },
-      },
+      ],
       "component": "one",
       "props": false,
     },
-  },
+  ],
   "id": "(machine)",
 }
 `;
@@ -77,6 +80,11 @@ Array [
 ]
 `;
 
+exports[`xstate-component-tree invoked child machines should rebuild on child transitions 1`] = `
+Snapshot Diff:
+Compared values have no visual difference.
+`;
+
 exports[`xstate-component-tree invoked child machines should rebuild on nested invoked machine transitions 1`] = `
 Snapshot Diff:
 - First value
@@ -97,24 +105,24 @@ Snapshot Diff:
     },
 `;
 
-exports[`xstate-component-tree invoked child machines should rebuild on transitions 1`] = `
+exports[`xstate-component-tree invoked child machines should rebuild on parent transitions 1`] = `
 Snapshot Diff:
 - First value
 + Second value
 
-@@ -11,11 +11,11 @@
-    },
-    Object {
-      "children": Array [
-        Object {
-          "children": Array [],
--         "component": "child1",
-+         "component": "child2",
-          "props": false,
-        },
-      ],
-      "id": "child",
-    },
+@@ -2,11 +2,11 @@
+    "children": Array [
+      Object {
+        "children": Array [
+          Object {
+            "children": Array [],
+-           "component": "oneone",
++           "component": "onetwo",
+            "props": false,
+          },
+          Object {
+            "children": Array [
+              Object {
 `;
 
 exports[`xstate-component-tree invoked child machines should remove data once the invoke is halted 1`] = `

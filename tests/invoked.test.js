@@ -6,7 +6,7 @@ const component = require("./util/component.js");
 
 describe("xstate-component-tree", () => {
     describe("invoked child machines", () => {
-        it("should be supported", async () => {
+        it.only("should be supported", async () => {
             const childMachine = createMachine({
                 initial : "child",
 
@@ -173,7 +173,7 @@ describe("xstate-component-tree", () => {
             expect(before).toMatchDiffSnapshot(after);
         });
 
-        it("should rebuild on transitions", async () => {
+        it("should rebuild on child transitions", async () => {
             const childMachine = createMachine({
                 initial : "child1",
 
@@ -223,6 +223,73 @@ describe("xstate-component-tree", () => {
             const before = await tree();
             
             service.send("NEXT");
+            
+            const after = await tree();
+
+            expect(before).toMatchDiffSnapshot(after);
+        });
+
+        it("should rebuild on parent transitions", async () => {
+            const childMachine = createMachine({
+                initial : "child",
+
+                states : {
+                    child : {
+                        meta : {
+                            component : component("child1"),
+                        },
+                    },
+                },
+            });
+
+            const testMachine = createMachine({
+                initial : "one",
+
+                states : {
+                    one : {
+                        invoke : {
+                            id  : "child",
+                            src : childMachine,
+                        },
+
+                        meta : {
+                            component : component("one"),
+                        },
+
+                        initial : "oneone",
+
+                        states : {
+                            oneone : {
+                                meta : {
+                                    component : component("oneone"),
+                                },
+
+                                on : {
+                                    NEXT : "onetwo",
+                                },
+                            },
+
+                            onetwo : {
+                                meta : {
+                                    component : component("onetwo"),
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+
+            const service = interpret(testMachine);
+
+            const tree = trees(service);
+
+            await tree();
+
+            const before = await tree();
+
+            service.send("NEXT");
+
+            await tree();
             
             const after = await tree();
 
