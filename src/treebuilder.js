@@ -210,7 +210,7 @@ class ComponentTree {
 
         const run = async () => {
             // Cancel any previous walks, we're the captain now
-            if(this._walking) {
+            if(this._walking && !this._walking.isCanceled) {
                 this._walking.cancel();
             }
 
@@ -221,10 +221,15 @@ class ComponentTree {
                 
                 this.callback(tree);
             } catch(e) {
-                // NO-OP
-            }
+                // Swallow errors from cancelling promises, those are ignored because
+                // a newer walk was requested
+                if(e instanceof Cancelable.CancelError) {
+                    return;
+                }
 
-            this._walking = false;
+                // Anything else gets re-thrown
+                throw e;
+            }
         };
         
         // Clear out any old children that are no longer being tracked
