@@ -6,14 +6,9 @@ Object {
     Object {
       "children": Array [
         Object {
-          "children": Array [
-            Object {
-              "children": Array [],
-              "component": "child",
-              "props": false,
-            },
-          ],
-          "id": "child-machine",
+          "children": Array [],
+          "component": "child",
+          "props": false,
         },
       ],
       "component": "one",
@@ -26,86 +21,55 @@ Object {
 
 exports[`xstate-component-tree invoked child machines should be supported in a parallel state 1`] = `
 Object {
-  "children": Map {
-    "one" => Object {
-      "children": Map {
-        "child-machine" => Map {
-          "child" => Object {
-            "children": Map {},
-            "component": "child",
-            "props": false,
-          },
+  "children": Array [
+    Object {
+      "children": Array [
+        Object {
+          "children": Array [],
+          "component": "child",
+          "props": false,
         },
-      },
+      ],
       "component": "one",
       "props": false,
     },
-    "two" => Object {
-      "children": Map {},
+    Object {
+      "children": Array [],
       "component": "two",
       "props": false,
     },
-  },
+  ],
   "id": "(machine)",
 }
 `;
 
 exports[`xstate-component-tree invoked child machines should ignore non-statechart children (callback) 1`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-        "props": false,
-      },
-    ],
-    "id": "(machine)",
-  },
-]
+Object {
+  "children": Array [
+    Object {
+      "children": Array [],
+      "component": "one",
+      "props": false,
+    },
+  ],
+  "id": "(machine)",
+}
 `;
 
 exports[`xstate-component-tree invoked child machines should ignore non-statechart children (promise) 1`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-        "props": false,
-      },
-    ],
-    "id": "(machine)",
-  },
-]
+Object {
+  "children": Array [
+    Object {
+      "children": Array [],
+      "component": "one",
+      "props": false,
+    },
+  ],
+  "id": "(machine)",
+}
 `;
 
 exports[`xstate-component-tree invoked child machines should rebuild on child transitions 1`] = `
-Snapshot Diff:
-Compared values have no visual difference.
-`;
-
-exports[`xstate-component-tree invoked child machines should rebuild on nested invoked machine transitions 1`] = `
-Snapshot Diff:
-- First value
-+ Second value
-
-@@ -21,11 +21,11 @@
-    },
-    Object {
-      "children": Array [
-        Object {
-          "children": Array [],
--         "component": "grandchild1",
-+         "component": "grandchild2",
-          "props": false,
-        },
-      ],
-      "id": "grandchild",
-    },
-`;
-
-exports[`xstate-component-tree invoked child machines should rebuild on parent transitions 1`] = `
 Snapshot Diff:
 - First value
 + Second value
@@ -116,13 +80,53 @@ Snapshot Diff:
         "children": Array [
           Object {
             "children": Array [],
+-           "component": "child1",
++           "component": "child2",
+            "props": false,
+          },
+        ],
+        "component": "one",
+        "props": false,
+`;
+
+exports[`xstate-component-tree invoked child machines should rebuild on nested invoked machine transitions 1`] = `
+Snapshot Diff:
+- First value
++ Second value
+
+@@ -4,11 +4,11 @@
+        "children": Array [
+          Object {
+            "children": Array [
+              Object {
+                "children": Array [],
+-               "component": "grandchild1",
++               "component": "grandchild2",
+                "props": false,
+              },
+            ],
+            "component": "child",
+            "props": false,
+`;
+
+exports[`xstate-component-tree invoked child machines should rebuild on parent transitions 1`] = `
+Snapshot Diff:
+- First value
++ Second value
+
+@@ -7,11 +7,11 @@
+            "component": "child1",
+            "props": false,
+          },
+          Object {
+            "children": Array [],
 -           "component": "oneone",
 +           "component": "onetwo",
             "props": false,
           },
-          Object {
-            "children": Array [
-              Object {
+        ],
+        "component": "one",
+        "props": false,
 `;
 
 exports[`xstate-component-tree invoked child machines should remove data once the invoke is halted 1`] = `
@@ -130,56 +134,46 @@ Snapshot Diff:
 - First value
 + Second value
 
-@@ -7,16 +7,6 @@
-          "props": false,
-        },
-      ],
-      "id": "(machine)",
-    },
--   Object {
--     "children": Array [
--       Object {
--         "children": Array [],
--         "component": "child",
--         "props": false,
--       },
--     ],
--     "id": "child",
--   },
-  ]
-`;
-
-exports[`xstate-component-tree invoked child machines should support nested invoked machines 1`] = `
-Array [
   Object {
     "children": Array [
       Object {
+-       "children": Array [
+-         Object {
         "children": Array [],
-        "component": "one",
+-           "component": "child",
+-           "props": false,
+-         },
+-       ],
+-       "component": "one",
++       "component": "two",
         "props": false,
       },
     ],
     "id": "(machine)",
-  },
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "child",
-        "props": false,
-      },
-    ],
-    "id": "child",
-  },
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "grandchild",
-        "props": false,
-      },
-    ],
-    "id": "grandchild",
-  },
-]
+  }
+`;
+
+exports[`xstate-component-tree invoked child machines should support nested invoked machines 1`] = `
+Object {
+  "children": Array [
+    Object {
+      "children": Array [
+        Object {
+          "children": Array [
+            Object {
+              "children": Array [],
+              "component": "grandchild",
+              "props": false,
+            },
+          ],
+          "component": "child",
+          "props": false,
+        },
+      ],
+      "component": "one",
+      "props": false,
+    },
+  ],
+  "id": "(machine)",
+}
 `;

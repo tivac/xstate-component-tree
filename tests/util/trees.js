@@ -1,57 +1,49 @@
 "use strict";
 
 const treeBuilder = require("../../src/treebuilder.js");
-
-const deferred = () => {
-    let resolve;
-    let reject;
-    
-    const p = new Promise((ok, no) => {
-        resolve = ok;
-        reject = no;
-    });
-
-    p.resolve = resolve;
-    p.reject = reject;
-
-    return p;
-};
+const deferred = require("./deferred.js");
 
 // Watch for trees to be built, and provide an easy way
 // to await each value
 const trees = (service) => {
     const responses = [];
+    let idx = 0;
     let p;
+    let resolved;
 
     const respond = () => {
-        if(!p || !responses.length) {
+        if(resolved || idx >= responses.length) {
             return;
         }
 
-        p.resolve(responses.shift());
-
-        p = false;
+        p.resolve(responses[idx++]);
     };
 
+    const out = () => {
+        p = deferred();
+        resolved = false;
+
+        respond();
+
+        return p.then((data) => {
+            resolved = true;
+
+            return data;
+        });
+    };
+
+    out.responses = responses;
+    
+    // Push new tree states onto array and respond if a request is waiting
     treeBuilder(service, (tree) => {
         responses.push(tree);
 
         respond();
     });
 
-    return () => {
-        if(!service.initialized) {
-            service.start();
-        }
+    service.start();
 
-        p = deferred();
-
-        // Scheduled so promise can be returned before this has a chance
-        // to run and potentially remove the promise reference
-        setImmediate(respond);
-
-        return p;
-    };
+    return out;
 };
 
 module.exports = trees;

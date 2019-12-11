@@ -1,12 +1,15 @@
 "use strict";
 
+// eslint-disable-next-line no-empty-function
+const NOOP = () => {};
+
 const { Machine : createMachine, interpret } = require("xstate");
 const trees = require("./util/trees.js");
 const component = require("./util/component.js");
 
 describe("xstate-component-tree", () => {
     describe("invoked child machines", () => {
-        it.only("should be supported", async () => {
+        it("should be supported", async () => {
             const childMachine = createMachine({
                 initial : "child",
 
@@ -40,8 +43,10 @@ describe("xstate-component-tree", () => {
 
             const tree = trees(service);
             
+            // Root built
             await tree();
-
+            
+            // Child built
             expect(await tree()).toMatchSnapshot();
         });
 
@@ -85,16 +90,16 @@ describe("xstate-component-tree", () => {
 
             const tree = trees(service);
             
+            // Root built
             await tree();
 
+            // Child built
             expect(await tree()).toMatchSnapshot();
         });
 
         it.each([
-            // eslint-disable-next-line no-empty-function
-            [ "promise", () => new Promise(() => {}) ],
-            // eslint-disable-next-line no-empty-function
-            [ "callback", () => () => {} ],
+            [ "promise", () => new Promise(NOOP) ],
+            [ "callback", () => NOOP ],
         ])("should ignore non-statechart children (%s)", async (name, src) => {
             const testMachine = createMachine({
                 initial : "one",
@@ -117,6 +122,7 @@ describe("xstate-component-tree", () => {
 
             const tree = trees(service);
             
+            // Root built
             expect(await tree()).toMatchSnapshot();
         });
         
@@ -163,11 +169,15 @@ describe("xstate-component-tree", () => {
             const service = interpret(testMachine);
             const tree = trees(service);
             
+            // Root built
             await tree();
+            
+            // Child built
             const before = await tree();
             
             service.send("NEXT");
             
+            // Root rebuilt
             const after = await tree();
 
             expect(before).toMatchDiffSnapshot(after);
@@ -219,11 +229,15 @@ describe("xstate-component-tree", () => {
 
             const tree = trees(service);
 
+            // Root built
             await tree();
+
+            // Child built
             const before = await tree();
             
             service.send("NEXT");
             
+            // Child rebuilt
             const after = await tree();
 
             expect(before).toMatchDiffSnapshot(after);
@@ -283,14 +297,15 @@ describe("xstate-component-tree", () => {
 
             const tree = trees(service);
 
+            // Root built
             await tree();
 
+            // Child built
             const before = await tree();
 
             service.send("NEXT");
 
-            await tree();
-            
+            // Root rebuilt
             const after = await tree();
 
             expect(before).toMatchDiffSnapshot(after);
@@ -351,9 +366,13 @@ describe("xstate-component-tree", () => {
 
             const tree = trees(service);
 
+            // Root built
             await tree();
+
+            // Child built
             await tree();
-            
+
+            // Grandchild built
             expect(await tree()).toMatchSnapshot();
         });
 
@@ -422,12 +441,18 @@ describe("xstate-component-tree", () => {
 
             const tree = trees(service);
 
+            // Root built
             await tree();
+
+            // Child built
             await tree();
+            
+            // Grandchild built
             const before = await tree();
 
             service.send("NEXT");
-
+            
+            // Grandchild rebuilt
             const after = await tree();
 
             expect(before).toMatchDiffSnapshot(after);
