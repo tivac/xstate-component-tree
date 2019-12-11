@@ -1,3 +1,5 @@
+import Cancelable from "p-cancelable";
+
 const loader = async ({ item, key, fn, context, event }) => {
     item[key] = await fn(context, event);
 };
@@ -15,11 +17,15 @@ class ComponentTree {
         // path -> meta lookup
         this._paths = new Map();
 
-        // invoked id -> path lookup
+        // path -> invoked id
         this._invocables = new Map();
 
-        // active children
+        // invoked id -> child machine
         this._children = new Map();
+
+        // Cancelable version of the walker
+        this._walking = false;
+        this._walk = Cancelable.fn(this._walkRaw.bind(this));
 
         // Get goin
         this._prep();
@@ -60,7 +66,7 @@ class ComponentTree {
             }
 
             if(invoke) {
-                invoke.forEach(({ id : invokeid }) => _invocables.set(invokeid, key));
+                invoke.forEach(({ id : invokeid }) => _invocables.set(key, invokeid));
             }
         }
     }
@@ -81,9 +87,9 @@ class ComponentTree {
 
     // Walk a machine via BFS, collecting meta information to build a tree
     // eslint-disable-next-line max-statements
-    async _walk({ value, context, event }) {
+    async _walkRaw({ value, context, event }, onCancel) {
         const { _paths, _invocables, _children } = this;
-        
+
         const loads = [];
         const tree = {
             __proto__ : null,
@@ -93,6 +99,12 @@ class ComponentTree {
 
         // Set up queue for a breadth-first traversal of all active states
         let queue;
+
+        // Blank out the queue immediately to force iteration to stop ASAP
+        // TODO: seems vulnerable to timing issues, investigate
+        onCancel(() => {
+            queue = [];
+        });
 
         if(typeof value === "string") {
             queue = [[ tree, value, false ]];
@@ -145,18 +157,23 @@ class ComponentTree {
                     }));
                 }
 
-                if(_invocables.has(path)) {
-                    const id = _invocables.get(path);
-                    const { tree : invoked } = _children.get(id);
-
-                    if(invoked) {
-                        parent.children.push(invoked);
-                    }
-                }
-
                 parent.children.push(item);
 
                 pointer = item;
+            }
+
+            if(_invocables.has(path)) {
+                const id = _invocables.get(path);
+
+                if(_children.has(id)) {
+                    const { tree : child } = _children.get(id);
+    
+                    if(child) {
+                        // Will attach to the state itself if it has a component,
+                        // otherwise will attach to the parent
+                        pointer.children.push(...child.children);
+                    }
+                }
             }
 
             if(!values) {
@@ -176,20 +193,40 @@ class ComponentTree {
 
         // await all the load functions
         await Promise.all(loads);
-
+        
         return tree;
     }
     
+    // Listen for the tree to change, update the status of any children, and _walk() it
     // eslint-disable-next-line max-statements
-    async _state({ changed, value, context, event, children }) {
+    _state({ changed, value, context, event, children }) {
         // Need to specifically check for false because this value is undefined
         // when a machine first boots up
         if(changed === false) {
-            return;
+            return false;
         }
 
         const { _children } = this;
 
+        const run = async () => {
+            // Cancel any previous walks, we're the captain now
+            if(this._walking) {
+                this._walking.cancel();
+            }
+
+            this._walking = this._walk({ value, context, event });
+
+            try {
+                const tree = await this._walking;
+                
+                this.callback(tree);
+            } catch(e) {
+                // NO-OP
+            }
+
+            this._walking = false;
+        };
+        
         // Clear out any old children that are no longer being tracked
         _children.forEach(({ child }, key) => {
             if(key in children) {
@@ -207,30 +244,27 @@ class ComponentTree {
                 return;
             }
 
+            // Not a statechart, abort!
+            if(!service.initialized || !service.state) {
+                return;
+            }
+
+            const child = new ComponentTree(service, (tree) => {
+                const me = _children.get(id);
+
+                me.tree = tree;
+
+                return run();
+            });
+
+            // Setup child service for tracking
             _children.set(id, {
-                tree  : false,
-                child : new ComponentTree(service, async (tree) => {
-                    const entry = _children.get(id);
-
-                    entry.tree = tree;
-
-                    _children.set(id, entry);
-
-                    // TODO: Need to trigger output now that this has changed
-                    // Call _walk again somehow? Needs more thinking!
-
-                    const out = await this._walk({ value, context, event });
-        
-                    this.callback(out);
-                }),
+                child,
+                tree : false,
             });
         });
-
-        console.log(_children);
-
-        const tree = await this._walk({ value, context, event });
-        
-        this.callback(tree);
+    
+        return run();
     }
 }
 
