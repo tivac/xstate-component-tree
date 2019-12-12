@@ -5,19 +5,14 @@ Snapshot Diff:
 - First value
 + Second value
 
-@@ -1,11 +1,11 @@
   Array [
     Object {
-      "children": Array [
-        Object {
-          "children": Array [],
--         "component": "one",
-+         "component": "two",
-          "props": false,
-        },
-      ],
-      "id": "(machine)",
+      "children": Array [],
+-     "component": "one",
++     "component": "two",
+      "props": false,
     },
+  ]
 `;
 
 exports[`xstate-component-tree should return a tree of components 1`] = `
@@ -25,18 +20,13 @@ Array [
   Object {
     "children": Array [
       Object {
-        "children": Array [
-          Object {
-            "children": Array [],
-            "component": "two",
-            "props": false,
-          },
-        ],
-        "component": "one",
+        "children": Array [],
+        "component": "two",
         "props": false,
       },
     ],
-    "id": "(machine)",
+    "component": "one",
+    "props": false,
   },
 ]
 `;
@@ -46,18 +36,13 @@ Array [
   Object {
     "children": Array [
       Object {
-        "children": Array [
-          Object {
-            "children": Array [],
-            "component": "two",
-            "props": false,
-          },
-        ],
-        "component": "one",
+        "children": Array [],
+        "component": "two",
         "props": false,
       },
     ],
-    "id": "(machine)",
+    "component": "one",
+    "props": false,
   },
 ]
 `;
@@ -67,18 +52,13 @@ Array [
   Object {
     "children": Array [
       Object {
-        "children": Array [
-          Object {
-            "children": Array [],
-            "component": "three",
-            "props": false,
-          },
-        ],
-        "component": "one",
+        "children": Array [],
+        "component": "three",
         "props": false,
       },
     ],
-    "id": "(machine)",
+    "component": "one",
+    "props": false,
   },
 ]
 `;
@@ -86,19 +66,14 @@ Array [
 exports[`xstate-component-tree should support nested parallel states 1`] = `
 Array [
   Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "two",
-        "props": false,
-      },
-      Object {
-        "children": Array [],
-        "component": "three",
-        "props": false,
-      },
-    ],
-    "id": "(machine)",
+    "children": Array [],
+    "component": "two",
+    "props": false,
+  },
+  Object {
+    "children": Array [],
+    "component": "three",
+    "props": false,
   },
 ]
 `;
@@ -106,34 +81,14 @@ Array [
 exports[`xstate-component-tree should support parallel states 1`] = `
 Array [
   Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-        "props": false,
-      },
-      Object {
-        "children": Array [],
-        "component": "two",
-        "props": false,
-      },
-    ],
-    "id": "(machine)",
+    "children": Array [],
+    "component": "one",
+    "props": false,
   },
-]
-`;
-
-exports[`xstate-component-tree should support top-level machine ids in the built tree 1`] = `
-Array [
   Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-        "props": false,
-      },
-    ],
-    "id": "testmachine",
+    "children": Array [],
+    "component": "two",
+    "props": false,
   },
 ]
 `;

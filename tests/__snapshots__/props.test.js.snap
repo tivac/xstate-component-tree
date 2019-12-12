@@ -3,19 +3,14 @@
 exports[`xstate-component-tree props should pass context & event to dynamic props functions 1`] = `
 Array [
   Object {
-    "children": Array [
+    "children": Array [],
+    "component": "one",
+    "props": Array [
+      "context",
       Object {
-        "children": Array [],
-        "component": "one",
-        "props": Array [
-          "context",
-          Object {
-            "type": "xstate.init",
-          },
-        ],
+        "type": "xstate.init",
       },
     ],
-    "id": "(machine)",
   },
 ]
 `;
@@ -23,17 +18,12 @@ Array [
 exports[`xstate-component-tree props should support async dynamic props 1`] = `
 Array [
   Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-        "props": Object {
-          "booga": 2,
-          "fooga": 1,
-        },
-      },
-    ],
-    "id": "(machine)",
+    "children": Array [],
+    "component": "one",
+    "props": Object {
+      "booga": 2,
+      "fooga": 1,
+    },
   },
 ]
 `;
@@ -43,24 +33,19 @@ Array [
   Object {
     "children": Array [
       Object {
-        "children": Array [
-          Object {
-            "children": Array [],
-            "component": "two",
-            "props": Object {
-              "tooga": 2,
-              "wooga": 1,
-            },
-          },
-        ],
-        "component": "one",
+        "children": Array [],
+        "component": "two",
         "props": Object {
-          "booga": 2,
-          "fooga": 1,
+          "tooga": 2,
+          "wooga": 1,
         },
       },
     ],
-    "id": "(machine)",
+    "component": "one",
+    "props": Object {
+      "booga": 2,
+      "fooga": 1,
+    },
   },
 ]
 `;
@@ -68,17 +53,12 @@ Array [
 exports[`xstate-component-tree props should support sync dynamic props 1`] = `
 Array [
   Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-        "props": Object {
-          "booga": 2,
-          "fooga": 1,
-        },
-      },
-    ],
-    "id": "(machine)",
+    "children": Array [],
+    "component": "one",
+    "props": Object {
+      "booga": 2,
+      "fooga": 1,
+    },
   },
 ]
 `;

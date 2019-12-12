@@ -1,11 +1,14 @@
 "use strict";
 
-const treeBuilder = require("../../src/treebuilder.js");
+const ComponentTree = require("../../src/treebuilder.js");
 const deferred = require("./deferred.js");
+
+// eslint-disable-next-line no-empty-function
+const noop = () => {};
 
 // Watch for trees to be built, and provide an easy way
 // to await each value
-const trees = (service) => {
+const trees = (service, fn = noop) => {
     const responses = [];
     let idx = 0;
     let p;
@@ -35,8 +38,10 @@ const trees = (service) => {
     out.responses = responses;
     
     // Push new tree states onto array and respond if a request is waiting
-    treeBuilder(service, (tree) => {
+    out.builder = new ComponentTree(service, (tree) => {
         responses.push(tree);
+
+        fn(tree);
 
         respond();
     });

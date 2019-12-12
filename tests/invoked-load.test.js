@@ -80,8 +80,10 @@ describe("xstate-component-tree", () => {
 
             const tree = trees(service);
             
+            // Root Built
             await tree();
             
+            // Child Built
             expect(await tree()).toMatchSnapshot();
         });
 

@@ -6,16 +6,6 @@ Array [
     "children": Array [
       Object {
         "children": Array [],
-        "component": "one",
-        "props": false,
-      },
-    ],
-    "id": "(machine)",
-  },
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
         "component": Object {
           "ctx": "child context",
           "event": Object {
@@ -25,7 +15,8 @@ Array [
         "props": false,
       },
     ],
-    "id": "child",
+    "component": "one",
+    "props": false,
   },
 ]
 `;
@@ -36,21 +27,12 @@ Array [
     "children": Array [
       Object {
         "children": Array [],
-        "component": "one",
-        "props": false,
-      },
-    ],
-    "id": "(machine)",
-  },
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
         "component": "child",
         "props": false,
       },
     ],
-    "id": "child",
+    "component": "one",
+    "props": false,
   },
 ]
 `;
@@ -61,21 +43,12 @@ Array [
     "children": Array [
       Object {
         "children": Array [],
-        "component": "one",
-        "props": false,
-      },
-    ],
-    "id": "(machine)",
-  },
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
         "component": "child",
         "props": false,
       },
     ],
-    "id": "child",
+    "component": "one",
+    "props": false,
   },
 ]
 `;
