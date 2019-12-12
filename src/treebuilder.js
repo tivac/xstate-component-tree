@@ -91,7 +91,7 @@ class ComponentTree {
         const { _paths, _invocables, _children } = this;
 
         const loads = [];
-        const tree = {
+        const root = {
             __proto__ : null,
             id        : this.id,
             children  : [],
@@ -107,17 +107,17 @@ class ComponentTree {
         });
 
         if(typeof value === "string") {
-            queue = [[ tree, value, false ]];
+            queue = [[ root, value, false ]];
         } else {
             queue = Object.entries(value).map(([ child, grandchildren ]) =>
-                [ tree, child, grandchildren ]
+                [ root, child, grandchildren ]
             );
         }
 
         while(queue.length) {
             const [ parent, path, values ] = queue.shift();
 
-            // Since it can be assigned if we add a new child
+            // Using let since it can be reassigned if we add a new child
             let pointer = parent;
 
             if(_paths.has(path)) {
@@ -171,7 +171,7 @@ class ComponentTree {
                     if(child) {
                         // Will attach to the state itself if it has a component,
                         // otherwise will attach to the parent
-                        pointer.children.push(...child.children);
+                        pointer.children.push(...child);
                     }
                 }
             }
@@ -194,11 +194,11 @@ class ComponentTree {
         // await all the load functions
         await Promise.all(loads);
         
-        return tree;
+        return root.children;
     }
     
-    // Listen for the tree to change, update the status of any children, and _walk() it
-    // eslint-disable-next-line max-statements
+    // React to statechart transitions, sync up the state of child actors,
+    // and kick off the _walk
     _state({ changed, value, context, event, children }) {
         // Need to specifically check for false because this value is undefined
         // when a machine first boots up
@@ -273,10 +273,4 @@ class ComponentTree {
     }
 }
 
-const treeBuilder = (interpreter, fn) => {
-    new ComponentTree(interpreter, fn);
-};
-
-treeBuilder.ComponentTree = ComponentTree;
-
-export default treeBuilder;
+export default ComponentTree;
