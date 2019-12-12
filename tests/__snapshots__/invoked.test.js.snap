@@ -6,12 +6,18 @@ Array [
     "children": Array [
       Object {
         "children": Array [],
-        "component": "one",
+        "component": "child",
         "props": false,
       },
     ],
-    "id": "(machine)",
+    "component": "one",
+    "props": false,
   },
+]
+`;
+
+exports[`xstate-component-tree invoked child machines should be supported in a parallel state 1`] = `
+Array [
   Object {
     "children": Array [
       Object {
@@ -20,7 +26,13 @@ Array [
         "props": false,
       },
     ],
-    "id": "child",
+    "component": "one",
+    "props": false,
+  },
+  Object {
+    "children": Array [],
+    "component": "two",
+    "props": false,
   },
 ]
 `;
@@ -28,14 +40,9 @@ Array [
 exports[`xstate-component-tree invoked child machines should ignore non-statechart children (callback) 1`] = `
 Array [
   Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-        "props": false,
-      },
-    ],
-    "id": "(machine)",
+    "children": Array [],
+    "component": "one",
+    "props": false,
   },
 ]
 `;
@@ -43,45 +50,20 @@ Array [
 exports[`xstate-component-tree invoked child machines should ignore non-statechart children (promise) 1`] = `
 Array [
   Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-        "props": false,
-      },
-    ],
-    "id": "(machine)",
+    "children": Array [],
+    "component": "one",
+    "props": false,
   },
 ]
 `;
 
-exports[`xstate-component-tree invoked child machines should rebuild on nested invoked machine transitions 1`] = `
+exports[`xstate-component-tree invoked child machines should rebuild on child transitions 1`] = `
 Snapshot Diff:
 - First value
 + Second value
 
-@@ -21,11 +21,11 @@
-    },
-    Object {
-      "children": Array [
-        Object {
-          "children": Array [],
--         "component": "grandchild1",
-+         "component": "grandchild2",
-          "props": false,
-        },
-      ],
-      "id": "grandchild",
-    },
-`;
-
-exports[`xstate-component-tree invoked child machines should rebuild on transitions 1`] = `
-Snapshot Diff:
-- First value
-+ Second value
-
-@@ -11,11 +11,11 @@
-    },
+@@ -1,11 +1,11 @@
+  Array [
     Object {
       "children": Array [
         Object {
@@ -91,8 +73,48 @@ Snapshot Diff:
           "props": false,
         },
       ],
-      "id": "child",
-    },
+      "component": "one",
+      "props": false,
+`;
+
+exports[`xstate-component-tree invoked child machines should rebuild on nested invoked machine transitions 1`] = `
+Snapshot Diff:
+- First value
++ Second value
+
+@@ -3,11 +3,11 @@
+      "children": Array [
+        Object {
+          "children": Array [
+            Object {
+              "children": Array [],
+-             "component": "grandchild1",
++             "component": "grandchild2",
+              "props": false,
+            },
+          ],
+          "component": "child",
+          "props": false,
+`;
+
+exports[`xstate-component-tree invoked child machines should rebuild on parent transitions 1`] = `
+Snapshot Diff:
+- First value
++ Second value
+
+@@ -6,11 +6,11 @@
+          "component": "child1",
+          "props": false,
+        },
+        Object {
+          "children": Array [],
+-         "component": "oneone",
++         "component": "onetwo",
+          "props": false,
+        },
+      ],
+      "component": "one",
+      "props": false,
 `;
 
 exports[`xstate-component-tree invoked child machines should remove data once the invoke is halted 1`] = `
@@ -100,22 +122,19 @@ Snapshot Diff:
 - First value
 + Second value
 
-@@ -7,16 +7,6 @@
-          "props": false,
-        },
-      ],
-      "id": "(machine)",
-    },
--   Object {
+  Array [
+    Object {
 -     "children": Array [
 -       Object {
--         "children": Array [],
+      "children": Array [],
 -         "component": "child",
 -         "props": false,
 -       },
 -     ],
--     "id": "child",
--   },
+-     "component": "one",
++     "component": "two",
+      "props": false,
+    },
   ]
 `;
 
@@ -124,32 +143,19 @@ Array [
   Object {
     "children": Array [
       Object {
-        "children": Array [],
-        "component": "one",
-        "props": false,
-      },
-    ],
-    "id": "(machine)",
-  },
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
+        "children": Array [
+          Object {
+            "children": Array [],
+            "component": "grandchild",
+            "props": false,
+          },
+        ],
         "component": "child",
         "props": false,
       },
     ],
-    "id": "child",
-  },
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "grandchild",
-        "props": false,
-      },
-    ],
-    "id": "grandchild",
+    "component": "one",
+    "props": false,
   },
 ]
 `;

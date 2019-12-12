@@ -3,14 +3,9 @@
 exports[`xstate-component-tree should ignore stale trees if component loads hadn't completed 1`] = `
 Array [
   Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "two",
-        "props": false,
-      },
-    ],
-    "id": "(machine)",
+    "children": Array [],
+    "component": "two",
+    "props": false,
   },
 ]
 `;
@@ -18,19 +13,14 @@ Array [
 exports[`xstate-component-tree should pass context and event params to .load methods 1`] = `
 Array [
   Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": Object {
-          "ctx": "context",
-          "event": Object {
-            "type": "xstate.init",
-          },
-        },
-        "props": false,
+    "children": Array [],
+    "component": Object {
+      "ctx": "context",
+      "event": Object {
+        "type": "xstate.init",
       },
-    ],
-    "id": "(machine)",
+    },
+    "props": false,
   },
 ]
 `;
@@ -38,14 +28,9 @@ Array [
 exports[`xstate-component-tree should support async .load methods 1`] = `
 Array [
   Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-        "props": false,
-      },
-    ],
-    "id": "(machine)",
+    "children": Array [],
+    "component": "one",
+    "props": false,
   },
 ]
 `;
@@ -55,18 +40,13 @@ Array [
   Object {
     "children": Array [
       Object {
-        "children": Array [
-          Object {
-            "children": Array [],
-            "component": "two",
-            "props": false,
-          },
-        ],
-        "component": "one",
+        "children": Array [],
+        "component": "two",
         "props": false,
       },
     ],
-    "id": "(machine)",
+    "component": "one",
+    "props": false,
   },
 ]
 `;
@@ -74,14 +54,9 @@ Array [
 exports[`xstate-component-tree should support sync .load methods 1`] = `
 Array [
   Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "one",
-        "props": false,
-      },
-    ],
-    "id": "(machine)",
+    "children": Array [],
+    "component": "one",
+    "props": false,
   },
 ]
 `;
