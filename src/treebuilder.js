@@ -99,11 +99,12 @@ class ComponentTree {
 
         // Set up queue for a breadth-first traversal of all active states
         let queue;
+        let cancelled;
 
         // Blank out the queue immediately to force iteration to stop ASAP
-        // TODO: seems vulnerable to timing issues, investigate
         onCancel(() => {
             queue = [];
+            cancelled = true;
         });
 
         if(typeof value === "string") {
@@ -114,7 +115,8 @@ class ComponentTree {
             );
         }
 
-        while(queue.length) {
+        // eslint-disable-next-line no-unmodified-loop-condition
+        while(queue.length && !cancelled) {
             const [ parent, path, values ] = queue.shift();
 
             // Using let since it can be reassigned if we add a new child
@@ -189,6 +191,10 @@ class ComponentTree {
             queue.push(...Object.entries(values).map(([ child, grandchildren ]) =>
                 [ pointer, `${path}.${child}`, grandchildren ]
             ));
+        }
+
+        if(cancelled) {
+            return false;
         }
 
         // await all the load functions
