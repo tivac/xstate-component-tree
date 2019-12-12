@@ -32,8 +32,8 @@
     "test": "jest",
     "release": "npm version",
     "preversion": "npm test",
-    "version": "npm run build && npm run changelog && git add CHANGELOG.md",
-    "postversion": "git push --follow-tags && npm publish"
+    "version": "npm run changelog && git add CHANGELOG.md",
+    "postversion": "git push --follow-tags"
   },
   "keywords": [
     "xstate",

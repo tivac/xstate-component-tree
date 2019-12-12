@@ -1,0 +1,64 @@
+name: publish
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+
+  npm-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+    
+      - name: Set up Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: 12
+      
+      - name: Cache node modules
+        id: cache
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-${{ env.cache-name }}-
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-:  
+
+      - name: npm install
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: npm build
+        run: npm run build
+      
+      - name: release description
+        run: node build/latest-change.js > release-notes.txt
+
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release-notes.txt 
+          files: |
+            dist/*
+            CHANGELOG.md
+            README.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      
+      - name: npm publish
+        run: |
+          # Necessary to use token based auth with npm publish
+          # https://techsparx.com/nodejs/tools/publish-github.html
+          npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
+          
+          # 🚀🚀🚀🚀🚀
+          npm publish
+        env:
+          CI: true
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

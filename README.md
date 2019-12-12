@@ -93,18 +93,15 @@ componentTree(service, (tree) => {
      * or if there are nested components
      * 
      * [{
-     *     id: "machine-id",
-     *     children: [{
-     *         component: MyComponent,
-     *         props: false
-     *         children : [{
-     *             component : ChildComponent,
-     *             props: {
-     *                 one1 : 1
-     *             },
-     *             children: []
-     *         }]
-     *     }],
+     *     component: MyComponent,
+     *     props: false
+     *     children : [{
+     *         component : ChildComponent,
+     *         props: {
+     *             one : 1
+     *         },
+     *         children: []
+     *     }]
      * }]
      * 
      */ 
