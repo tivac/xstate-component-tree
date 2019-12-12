@@ -60,7 +60,7 @@ Then pass the interpreter instance and a callback function to this module!
 
 ```js
 const { Machine, interpret } = require("xstate");
-const componentTree = require("xstate-component-tree");
+const ComponentTree = require("xstate-component-tree");
 
 const statechart = Machine({
     // ...
@@ -68,7 +68,7 @@ const statechart = Machine({
 
 const service = interpret(statechart);
 
-componentTree(service, (tree) => {
+new ComponentTree(service, (tree) => {
     // 
 });
 ```
@@ -76,35 +76,29 @@ componentTree(service, (tree) => {
 The second argument to the function will be called every time the machine transitions. It will pass the callback a new object representing all the views defined on currently active states, all correctly nested to match the structure of the statechart.
 
 ```js
-componentTree(service, (tree) => {
+new ComponentTree(service, (tree) => {
     /**
      * 
      * tree will be something like this
      * 
      * [{
-     *     id: "machine-id",
-     *     children: [{
-     *         component: MyComponent,
-     *         children: [],
-     *         props: false
-     *     }],
+     *     component: MyComponent,
+     *     children: [],
+     *     props: false,
      * }]
      * 
      * or if there are nested components
      * 
      * [{
-     *     id: "machine-id",
-     *     children: [{
-     *         component: MyComponent,
-     *         props: false
-     *         children : [{
-     *             component : ChildComponent,
-     *             props: {
-     *                 one1 : 1
-     *             },
-     *             children: []
-     *         }]
-     *     }],
+     *     component: MyComponent,
+     *     props: false
+     *     children : [{
+     *         component : ChildComponent,
+     *         props: {
+     *             one1 : 1
+     *         },
+     *         children: []
+     *     }]
      * }]
      * 
      */ 
