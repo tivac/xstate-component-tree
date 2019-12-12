@@ -1,12 +1,9 @@
 "use strict";
 
 const { Machine : createMachine, interpret } = require("xstate");
-const waitFor = require("p-wait-for");
 
 const trees = require("./util/trees.js");
 const component = require("./util/component.js");
-
-const ComponentTree = require("../src/treebuilder.js");
 
 describe("xstate-component-tree", () => {
     it("should return a tree of components", async () => {
