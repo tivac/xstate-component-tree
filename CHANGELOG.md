@@ -1,3 +1,17 @@
+# [2.0.0](https://github.com/tivac/xstate-component-tree/compare/v1.0.0...v2.0.0) (2019-12-13)
+
+
+### Features
+
+* insert child machine trees into parent tree ([#2](https://github.com/tivac/xstate-component-tree/issues/2)) ([7357d40](https://github.com/tivac/xstate-component-tree/commit/7357d408cd7011f9e9e82aa40ad9922eec818038))
+
+
+### BREAKING CHANGES
+
+* The output format has changed to no longer have an array of machines at the top-level, instead it is just the top-level components representing active states. Invoked machines are no longer part of the top-level array but now inserted into the tree of components based on the location of the component that invoked them.
+
+
+
 # [1.0.0](https://github.com/tivac/xstate-component-tree/compare/v0.1.0...v1.0.0) (2019-10-27)
 
 
