@@ -56,8 +56,6 @@ jobs:
           # Necessary to use token based auth with npm publish
           # https://techsparx.com/nodejs/tools/publish-github.html
           npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-          
-          # 🚀🚀🚀🚀🚀
           npm publish
         env:
           CI: true
