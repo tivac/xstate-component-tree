@@ -1,3 +1,12 @@
+## [2.0.1](https://github.com/tivac/xstate-component-tree/compare/v2.0.0...v2.0.1) (2019-12-14)
+
+
+### Bug Fixes
+
+* svelte example 2.0 compat ([4a7f0da](https://github.com/tivac/xstate-component-tree/commit/4a7f0da3978aba9fdea3eb2a4fbd351dffb818e5))
+
+
+
 # [2.0.0](https://github.com/tivac/xstate-component-tree/compare/v1.0.0...v2.0.0) (2019-12-13)
 
 
