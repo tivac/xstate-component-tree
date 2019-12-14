@@ -1,13 +1,9 @@
 HOME
 
-{#each children as child}
-    <svelte:component
-        this={child.component}
-        children={child.children}
-        {...child.props}
-    />
-{/each}
+<Children {children} />
 
 <script>
+import Children from "./children.svelte";
+
 export let children = [];
 </script>

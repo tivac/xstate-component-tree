@@ -1,29 +1,23 @@
 <div>
     LAYOUT
 
-    {#each machines as { id, children }}
-        {#each children as child}
-            <svelte:component
-                this={child.component}
-                children={child.children}
-                {...child.props}
-            />
-        {/each}
-    {/each}
+    <Children children={components} />
 </div>
 
 <script>
 import { interpret } from "xstate";
-import componentTree from "xstate-component-tree";
+import ComponentTree from "xstate-component-tree";
 
 import statechart from "./statechart.js";
 
+import Children from "./children.svelte";
+
 const service = interpret(statechart);
 
-let machines = [];
+let components = [];
 
-componentTree(service, (tree) => {
-    machines = tree;
+new ComponentTree(service, (tree) => {
+    components = tree;
 });
 
 service.start();
