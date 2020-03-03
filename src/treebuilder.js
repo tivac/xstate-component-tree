@@ -1,7 +1,16 @@
 import Cancelable from "p-cancelable";
 
-const loader = async ({ item, key, fn, context, event }) => {
-    item[key] = await fn(context, event);
+const loader = async ({ item, load, context, event }) => {
+    const result = await load(context, event);
+
+    if(Array.isArray(result)) {
+        const [ component, props ] = result;
+
+        item.component = component;
+        item.props = props;
+    } else {
+        item.component = result;
+    }
 };
 
 class ComponentTree {
@@ -122,7 +131,7 @@ class ComponentTree {
             // Using let since it can be reassigned if we add a new child
             let pointer = parent;
 
-            if(_paths.has(path)) {
+            if(_paths.has(path) && !item) {
                 const details = _paths.get(path);
                 const { component, props, load } = details;
 
@@ -133,34 +142,23 @@ class ComponentTree {
                     children  : [],
                 };
 
-                details.item = item;
-
-                _paths.set(path, details);
-
                 // Run load function and assign the response to the component prop
                 if(load) {
-                    loads.push(loader({
+                    const loading = loader({
                         item,
-                        key : "component",
-                        fn  : load,
+                        load,
                         context,
                         event,
-                    }));
-                }
+                    });
 
-                // Props as a function means they're dynamic, so run it to get the value
-                if(typeof props === "function") {
-                    loads.push(loader({
-                        item,
-                        key : "props",
-                        fn  : props,
-                        context,
-                        event,
-                    }));
+                    loads.push(loading);
                 }
 
                 parent.children.push(item);
-
+            }
+            
+            if(item) {
+                console.log(path, item, root);
                 pointer = item;
             }
 

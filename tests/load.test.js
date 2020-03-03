@@ -46,6 +46,26 @@ describe("xstate-component-tree", () => {
 
         expect(await tree()).toMatchSnapshot();
     });
+
+    it("should support returning a component and props", async () => {
+        const testMachine = createMachine({
+            initial : "one",
+
+            states : {
+                one : {
+                    meta : {
+                        load : () => [ component("one"), { props : true }],
+                    },
+                },
+            },
+        });
+
+        const service = interpret(testMachine);
+
+        const tree = trees(service);
+
+        expect(await tree()).toMatchSnapshot();
+    });
     
     it("should support async .load methods", async () => {
         const testMachine = createMachine({

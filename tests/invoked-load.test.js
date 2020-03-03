@@ -87,6 +87,47 @@ describe("xstate-component-tree", () => {
             expect(await tree()).toMatchSnapshot();
         });
 
+        it("should support returning a component and props", async () => {
+            const childMachine = createMachine({
+                initial : "child",
+
+                states : {
+                    child : {
+                        meta : {
+                            load : () => [ component("child"), { props : true }],
+                        },
+                    },
+                },
+            });
+
+            const testMachine = createMachine({
+                initial : "one",
+
+                states : {
+                    one : {
+                        invoke : {
+                            id  : "child",
+                            src : childMachine,
+                        },
+
+                        meta : {
+                            component : component("one"),
+                        },
+                    },
+                },
+            });
+
+            const service = interpret(testMachine);
+
+            const tree = trees(service);
+            
+            // Root Built
+            await tree();
+            
+            // Child Built
+            expect(await tree()).toMatchSnapshot();
+        });
+
         it("should pass child machine context & events to load fns", async () => {
             const childMachine = createMachine({
                 initial : "child",

@@ -51,6 +51,18 @@ Array [
 ]
 `;
 
+exports[`xstate-component-tree should support returning a component and props 1`] = `
+Array [
+  Object {
+    "children": Array [],
+    "component": "one",
+    "props": Object {
+      "props": true,
+    },
+  },
+]
+`;
+
 exports[`xstate-component-tree should support sync .load methods 1`] = `
 Array [
   Object {
