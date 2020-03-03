@@ -151,4 +151,51 @@ describe("xstate-component-tree", () => {
 
         expect(await tree()).toMatchSnapshot();
     });
+
+    it("should only call load when a state is entered", async () => {
+        let runs = 0;
+        
+        const testMachine = createMachine({
+            initial : "one",
+            context : "context",
+
+            states : {
+                one : {
+                    initial : "child1",
+
+                    meta : {
+                        load : () => {
+                            ++runs;
+
+                            return component("one");
+                        },
+                    },
+
+                    states : {
+                        child1 : {
+                            on : {
+                                NEXT : "child2",
+                            },
+                        },
+
+                        child2 : {},
+                    },
+                },
+            },
+        });
+
+        const service = interpret(testMachine);
+
+        const tree = trees(service);
+
+        await tree();
+
+        expect(runs).toEqual(1);
+        
+        service.send("NEXT");
+        
+        await tree();
+
+        expect(runs).toEqual(1);
+    });
 });
