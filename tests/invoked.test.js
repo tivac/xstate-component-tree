@@ -458,4 +458,7 @@ describe("xstate-component-tree", () => {
             expect(before).toMatchDiffSnapshot(after);
         });
     });
+
+    it.todo("should not re-run load on parent transitions");
+    it.todo("should not re-run load on child transitions");
 });

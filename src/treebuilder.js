@@ -23,6 +23,12 @@ class ComponentTree {
         // identifier!
         this.id = interpreter.id;
 
+        // Count # of times tree has been walked for cache viability
+        this._counter = 0;
+
+        // Caching for results of previous walks
+        this._cache = new Map();
+
         // path -> meta lookup
         this._paths = new Map();
 
@@ -97,7 +103,9 @@ class ComponentTree {
     // Walk a machine via BFS, collecting meta information to build a tree
     // eslint-disable-next-line max-statements, complexity
     async _walkRaw({ value, context, event }, onCancel) {
-        const { _paths, _invocables, _children } = this;
+        const { _paths, _invocables, _children, _cache } = this;
+
+        ++this._counter;
 
         const loads = [];
         const root = {
@@ -133,17 +141,29 @@ class ComponentTree {
 
             if(_paths.has(path)) {
                 const details = _paths.get(path);
-                const { component, props, load } = details;
+                let cached = false;
+
+                // Only cache items from the previous run are valid
+                if(_cache.has(path) && _cache.get(path).counter === this._counter - 1) {
+                    cached = _cache.get(path);
+
+                    // Update counter since it's still valid
+                    cached.counter = this._counter;
+                } else {
+                    _cache.delete(path);
+                }
+
+                const { component = false, props = false, load } = details;
 
                 const item = {
                     __proto__ : null,
-                    component : component || false,
-                    props     : props || false,
+                    component : cached ? cached.item.component : component,
+                    props     : cached ? cached.item.props : props,
                     children  : [],
                 };
 
                 // Run load function and assign the response to the component prop
-                if(load) {
+                if(load && !cached.loaded) {
                     const loading = loader({
                         item,
                         load,
@@ -151,7 +171,23 @@ class ComponentTree {
                         event,
                     });
 
+                    // Mark this state loaded in the cache once its acutally done
+                    loading.then(() => {
+                        const saved = _cache.get(path);
+
+                        saved.loaded = true;
+                    });
+
                     loads.push(loading);
+                }
+
+                if(!cached) {
+                    _cache.set(path, {
+                        __proto__ : null,
+                        item,
+                        counter   : this._counter,
+                        loaded    : false,
+                    });
                 }
 
                 parent.children.push(item);
