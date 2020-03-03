@@ -95,7 +95,7 @@ class ComponentTree {
     }
 
     // Walk a machine via BFS, collecting meta information to build a tree
-    // eslint-disable-next-line max-statements
+    // eslint-disable-next-line max-statements, complexity
     async _walkRaw({ value, context, event }, onCancel) {
         const { _paths, _invocables, _children } = this;
 
@@ -131,7 +131,7 @@ class ComponentTree {
             // Using let since it can be reassigned if we add a new child
             let pointer = parent;
 
-            if(_paths.has(path) && !item) {
+            if(_paths.has(path)) {
                 const details = _paths.get(path);
                 const { component, props, load } = details;
 
@@ -155,10 +155,6 @@ class ComponentTree {
                 }
 
                 parent.children.push(item);
-            }
-            
-            if(item) {
-                console.log(path, item, root);
                 pointer = item;
             }
 

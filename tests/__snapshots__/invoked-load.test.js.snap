@@ -40,11 +40,17 @@ Array [
 exports[`xstate-component-tree invoked machines using .load should support returning a component and props 1`] = `
 Array [
   Object {
-    "children": Array [],
-    "component": "child",
-    "props": Object {
-      "props": true,
-    },
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "child",
+        "props": Object {
+          "props": true,
+        },
+      },
+    ],
+    "component": "one",
+    "props": false,
   },
 ]
 `;
