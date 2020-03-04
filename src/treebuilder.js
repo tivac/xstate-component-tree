@@ -2,10 +2,10 @@ const loadComponent = async ({ item, load, context, event }) => {
     const result = await load(context, event);
 
     if(Array.isArray(result)) {
-        const [ component, props ] = result;
+        const [ component, props ] = await Promise.all(result);
 
-        item.component = await component;
-        item.props = await props;
+        item.component = component;
+        item.props = props;
     } else {
         item.component = result;
     }
@@ -16,8 +16,6 @@ const loadChild = async ({ child, root }) => {
     
     const children = await _tree;
 
-    // Will attach to the state itself if it has a component,
-    // otherwise will attach to the parent
     root.children.push(...children);
 };
 
@@ -220,7 +218,6 @@ class ComponentTree {
 
     // Kicks off tree walks & handles overlapping walk behaviors
     async _run(data) {
-        // Cancel any previous walks, we're the captain now
         const run = ++this._counter;
         
         this._tree = this._walk(data);
@@ -230,7 +227,7 @@ class ComponentTree {
             [ ...this._children.values() ].map(({ _tree }) => _tree),
         ]);
 
-        // New run started since this finished, abort
+        // New run started since this finished, abort instead of notifying
         if(run !== this._counter) {
             return;
         }
