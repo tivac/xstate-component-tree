@@ -70,7 +70,7 @@ class ComponentTree {
         // xstate maps ids to state nodes, but the value object only
         // has paths, so need to create our own path-only map here
         for(const id in ids) {
-            const { path, meta = false, invoke = false } = ids[id];
+            const { path, meta = false, invoke } = ids[id];
 
             const key = path.join(".");
 
@@ -86,9 +86,8 @@ class ComponentTree {
                 });
             }
 
-            if(invoke) {
-                invoke.forEach(({ id : invokeid }) => _invocables.set(key, invokeid));
-            }
+            // .invoke is always an array
+            invoke.forEach(({ id : invokeid }) => _invocables.set(key, invokeid));
         }
     }
 
@@ -164,7 +163,7 @@ class ComponentTree {
                         event,
                     });
 
-                    // Mark this state loaded in the cache once its acutally done
+                    // Mark this state loaded in the cache once its actually done
                     loading.then(() => {
                         const saved = _cache.get(path);
 
@@ -211,10 +210,6 @@ class ComponentTree {
             queue.push(...Object.keys(values).map((child) =>
                 [ pointer, `${path}.${child}`, values[child] ]
             ));
-        }
-
-        if(_counter !== this._counter) {
-            return false;
         }
 
         // await all the load functions

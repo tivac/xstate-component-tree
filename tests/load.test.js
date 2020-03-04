@@ -198,4 +198,53 @@ describe("xstate-component-tree", () => {
 
         expect(runs).toEqual(1);
     });
+    
+    // Skipped because, well, it doesn't support this ATM
+    it.skip("should re-run load when a state is entered from an external self-transition", async () => {
+        let runs = 0;
+        
+        const testMachine = createMachine({
+            initial : "one",
+            context : "context",
+
+            states : {
+                one : {
+                    initial : "child1",
+
+                    meta : {
+                        load : () => {
+                            ++runs;
+
+                            return component("one");
+                        },
+                    },
+
+                    states : {
+                        child1 : {
+                            on : {
+                                NEXT : {
+                                    target   : "child1",
+                                    internal : false,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        const service = interpret(testMachine);
+
+        const tree = trees(service);
+
+        await tree();
+
+        expect(runs).toEqual(1);
+        
+        service.send("NEXT");
+        
+        await tree();
+
+        expect(runs).toEqual(2);
+    });
 });
