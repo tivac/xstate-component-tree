@@ -1,10 +1,8 @@
 "use strict";
 
-const component = require("./component.js");
-
-const load = (name, delay = 0) =>
+const load = (result, delay = 0) =>
     () => new Promise((resolve) =>
-        setTimeout(() => resolve(component(name)), delay)
+        setTimeout(() => resolve(result), delay)
     );
 
 module.exports = load;

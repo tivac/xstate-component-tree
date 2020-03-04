@@ -4,8 +4,8 @@ const loadComponent = async ({ item, load, context, event }) => {
     if(Array.isArray(result)) {
         const [ component, props ] = result;
 
-        item.component = component;
-        item.props = props;
+        item.component = await component;
+        item.props = await props;
     } else {
         item.component = result;
     }
@@ -30,7 +30,7 @@ class ComponentTree {
         // identifier!
         this.id = interpreter.id;
 
-        // Count # of times tree has been walked for cache viability
+        // Count # of times tree has been walked, used by cache & for walk cancellation
         this._counter = 0;
 
         // Caching for results of previous walks
@@ -45,7 +45,7 @@ class ComponentTree {
         // invoked id -> child machine
         this._children = new Map();
 
-        // Result of the walk is also available albeit quietly
+        // Expose walk result as a property
         this._tree = false;
 
         // Get goin

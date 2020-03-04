@@ -51,7 +51,7 @@ describe("xstate-component-tree", () => {
                 states : {
                     child : {
                         meta : {
-                            load : loadAsync("child"),
+                            load : loadAsync(component("child")),
                         },
                     },
                 },

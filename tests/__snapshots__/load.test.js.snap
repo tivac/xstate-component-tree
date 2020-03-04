@@ -35,6 +35,42 @@ Array [
 ]
 `;
 
+exports[`xstate-component-tree should support async .load methods that return: async component & sync props 1`] = `
+Array [
+  Object {
+    "children": Array [],
+    "component": "one",
+    "props": Object {
+      "props": true,
+    },
+  },
+]
+`;
+
+exports[`xstate-component-tree should support async .load methods that return: sync component & async props 1`] = `
+Array [
+  Object {
+    "children": Array [],
+    "component": "one",
+    "props": Object {
+      "props": true,
+    },
+  },
+]
+`;
+
+exports[`xstate-component-tree should support async .load methods that return: sync component & sync props 1`] = `
+Array [
+  Object {
+    "children": Array [],
+    "component": "one",
+    "props": Object {
+      "props": true,
+    },
+  },
+]
+`;
+
 exports[`xstate-component-tree should support nested async .load methods 1`] = `
 Array [
   Object {

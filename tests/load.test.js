@@ -74,7 +74,31 @@ describe("xstate-component-tree", () => {
             states : {
                 one : {
                     meta : {
-                        load : loadAsync("one"),
+                        load : loadAsync(component("one")),
+                    },
+                },
+            },
+        });
+
+        const service = interpret(testMachine);
+
+        const tree = trees(service);
+
+        expect(await tree()).toMatchSnapshot();
+    });
+
+    it.each([
+        [ "sync component & sync props", loadAsync([ component("one"), { props : true }]) ],
+        [ "async component & sync props", loadAsync([ loadAsync(component("one"))(), { props : true }]) ],
+        [ "sync component & async props", loadAsync([ component("one"), loadAsync({ props : true })() ]) ],
+    ])("should support async .load methods that return: %s", async (name, load) => {
+        const testMachine = createMachine({
+            initial : "one",
+
+            states : {
+                one : {
+                    meta : {
+                        load,
                     },
                 },
             },
@@ -94,7 +118,7 @@ describe("xstate-component-tree", () => {
             states : {
                 one : {
                     meta : {
-                        load : loadAsync("one"),
+                        load : loadAsync(component("one")),
                     },
 
                     initial : "two",
@@ -102,7 +126,7 @@ describe("xstate-component-tree", () => {
                     states : {
                         two : {
                             meta : {
-                                load : loadAsync("two", 16),
+                                load : loadAsync(component("two"), 16),
                             },
                         },
                     },
