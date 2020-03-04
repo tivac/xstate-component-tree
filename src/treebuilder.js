@@ -240,13 +240,14 @@ class ComponentTree {
     
     // Callback for statechart transitions to sync up child machine states
     _state(data) {
+        const { changed, children } = data;
+
         // Need to specifically check for false because this value is undefined
         // when a machine first boots up
-        if(data.changed === false) {
+        if(changed === false) {
             return false;
         }
 
-        const { children } = data;
         const { _children } = this;
         
         // Clear out any old children that are no longer being tracked
