@@ -127,8 +127,8 @@ class ComponentTree {
         if(typeof value === "string") {
             queue = [[ root, value, false ]];
         } else {
-            queue = Object.entries(value).map(([ child, grandchildren ]) =>
-                [ root, child, grandchildren ]
+            queue = Object.keys(value).map((child) =>
+                [ root, child, value[child] ]
             );
         }
 
@@ -218,8 +218,8 @@ class ComponentTree {
                 continue;
             }
 
-            queue.push(...Object.entries(values).map(([ child, grandchildren ]) =>
-                [ pointer, `${path}.${child}`, grandchildren ]
+            queue.push(...Object.keys(values).map((child) =>
+                [ pointer, `${path}.${child}`, values[child] ]
             ));
         }
 
@@ -232,41 +232,43 @@ class ComponentTree {
         
         return root.children;
     }
+
+    async _run(data) {
+        // Cancel any previous walks, we're the captain now
+        if(this._walking && !this._walking.isCanceled) {
+            this._walking.cancel();
+        }
+
+        this._walking = this._walk(data);
+
+        try {
+            const tree = await this._walking;
+            
+            this.callback(tree);
+        } catch(e) {
+            // Swallow errors from cancelling promises, those are ignored because
+            // a newer walk was requested
+            if(e instanceof Cancelable.CancelError) {
+                return;
+            }
+
+            // Anything else gets re-thrown
+            throw e;
+        }
+    }
     
     // React to statechart transitions, sync up the state of child actors,
     // and kick off the _walk
-    _state({ changed, value, context, event, children }) {
+    _state(data) {
         // Need to specifically check for false because this value is undefined
         // when a machine first boots up
-        if(changed === false) {
+        if(data.changed === false) {
             return false;
         }
 
         const { _children } = this;
 
-        const run = async () => {
-            // Cancel any previous walks, we're the captain now
-            if(this._walking && !this._walking.isCanceled) {
-                this._walking.cancel();
-            }
-
-            this._walking = this._walk({ value, context, event });
-
-            try {
-                const tree = await this._walking;
-                
-                this.callback(tree);
-            } catch(e) {
-                // Swallow errors from cancelling promises, those are ignored because
-                // a newer walk was requested
-                if(e instanceof Cancelable.CancelError) {
-                    return;
-                }
-
-                // Anything else gets re-thrown
-                throw e;
-            }
-        };
+        const { children } = data;
         
         // Clear out any old children that are no longer being tracked
         _children.forEach(({ child }, key) => {
@@ -279,11 +281,13 @@ class ComponentTree {
         });
 
         // Add any new children to be tracked
-        Object.entries(children).forEach(([ id, service ]) => {
+        Object.keys(children).forEach((id) => {
             // Already tracked
             if(_children.has(id)) {
                 return;
             }
+
+            const service = children[id];
 
             // Not a statechart, abort!
             if(!service.initialized || !service.state) {
@@ -295,7 +299,7 @@ class ComponentTree {
 
                 me.tree = tree;
 
-                return run();
+                return this._run(data);
             });
 
             // Setup child service for tracking
@@ -305,7 +309,7 @@ class ComponentTree {
             });
         });
     
-        return run();
+        return this._run(data);
     }
 }
 
