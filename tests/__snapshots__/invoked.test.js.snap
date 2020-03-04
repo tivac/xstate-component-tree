@@ -102,19 +102,19 @@ Snapshot Diff:
 - First value
 + Second value
 
-@@ -6,11 +6,11 @@
-          "component": "child1",
-          "props": false,
-        },
+@@ -1,11 +1,11 @@
+  Array [
+    Object {
+      "children": Array [
         Object {
           "children": Array [],
 -         "component": "oneone",
 +         "component": "onetwo",
           "props": false,
         },
-      ],
-      "component": "one",
-      "props": false,
+        Object {
+          "children": Array [],
+          "component": "child1",
 `;
 
 exports[`xstate-component-tree invoked child machines should remove data once the invoke is halted 1`] = `

@@ -45,8 +45,5 @@
   ],
   "files": [
     "dist/"
-  ],
-  "dependencies": {
-    "p-cancelable": "^2.0.0"
-  }
+  ]
 }

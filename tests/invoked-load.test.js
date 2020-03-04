@@ -41,8 +41,6 @@ describe("xstate-component-tree", () => {
 
             const tree = trees(service);
             
-            await tree();
-            
             expect(await tree()).toMatchSnapshot();
         });
         
@@ -80,10 +78,6 @@ describe("xstate-component-tree", () => {
 
             const tree = trees(service);
             
-            // Root Built
-            await tree();
-            
-            // Child Built
             expect(await tree()).toMatchSnapshot();
         });
 
@@ -121,10 +115,6 @@ describe("xstate-component-tree", () => {
 
             const tree = trees(service);
             
-            // Root Built
-            await tree();
-            
-            // Child Built
             expect(await tree()).toMatchSnapshot();
         });
 
@@ -165,8 +155,6 @@ describe("xstate-component-tree", () => {
             const service = interpret(testMachine);
 
             const tree = trees(service);
-            
-            await tree();
             
             expect(await tree()).toMatchSnapshot();
         });
