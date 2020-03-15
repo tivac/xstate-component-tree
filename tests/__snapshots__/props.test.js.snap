@@ -1,33 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`xstate-component-tree props should pass context & event to dynamic props functions 1`] = `
-Array [
-  Object {
-    "children": Array [],
-    "component": "one",
-    "props": Array [
-      "context",
-      Object {
-        "type": "xstate.init",
-      },
-    ],
-  },
-]
-`;
-
-exports[`xstate-component-tree props should support async dynamic props 1`] = `
-Array [
-  Object {
-    "children": Array [],
-    "component": "one",
-    "props": Object {
-      "booga": 2,
-      "fooga": 1,
-    },
-  },
-]
-`;
-
 exports[`xstate-component-tree props should support static props 1`] = `
 Array [
   Object {
@@ -41,19 +13,6 @@ Array [
         },
       },
     ],
-    "component": "one",
-    "props": Object {
-      "booga": 2,
-      "fooga": 1,
-    },
-  },
-]
-`;
-
-exports[`xstate-component-tree props should support sync dynamic props 1`] = `
-Array [
-  Object {
-    "children": Array [],
     "component": "one",
     "props": Object {
       "booga": 2,

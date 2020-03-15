@@ -6,6 +6,16 @@ const trees = require("./util/trees.js");
 const component = require("./util/component.js");
 
 describe("xstate-component-tree", () => {
+    let tree;
+
+    afterEach(() => {
+        if(tree && tree.builder) {
+            tree.builder.teardown();
+        }
+
+        tree = null;
+    });
+    
     it("should return a tree of components", async () => {
         const testMachine = createMachine({
             initial : "one",
@@ -31,7 +41,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         expect(await tree()).toMatchSnapshot();
     });
@@ -57,7 +67,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         expect(await tree()).toMatchSnapshot();
     });
@@ -89,7 +99,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         expect(await tree()).toMatchSnapshot();
     });
@@ -123,7 +133,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         expect(await tree()).toMatchSnapshot();
     });
@@ -159,7 +169,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         expect(await tree()).toMatchSnapshot();
     });
@@ -189,7 +199,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
         
         const before = await tree();
         
@@ -218,7 +228,7 @@ describe("xstate-component-tree", () => {
 
         service.onEvent(eventCounter);
 
-        const tree = trees(service);
+        tree = trees(service);
         
         await tree();
 
@@ -255,7 +265,7 @@ describe("xstate-component-tree", () => {
 
         const callback = jest.fn();
         
-        const tree = trees(service, callback);
+        tree = trees(service, callback);
         
         await tree();
         

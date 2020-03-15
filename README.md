@@ -109,7 +109,7 @@ This data structure can also contain components from any child statecharts you c
 
 ## Advanced Usage
 
-You can dynamically load components using whatever functionality you like via the `load` key. To load components asynchronously return a promise or use `async`/`await`.
+You can dynamically load components or props using whatever functionality you like via the `load` key. To load components asynchronously return a promise or use `async`/`await`.
 
 ```js
     // ...
@@ -121,22 +121,36 @@ You can dynamically load components using whatever functionality you like via th
     // ...
 ```
 
-Dynamic props are also supported. They can load data asynchronously using promises or `async`/`await`.
+Dynamic props are also supported. To return props return an array from `load` where the first value is the component and the second is the props for the component. Both values support a returned promise.
 
 ```js
     // ...
     one : {
         meta : {
-            component : MyComponent,
-            props : () => ({
-                prop1 : 1
-            }),
+            load : (context) => [
+                import("./my/component/from/here.js"),, 
+                {
+                    prop1 : context.prop1
+                },
+            ],
         },
     },
     // ...
 ```
 
-Both `load` and dynamic `props` functions will be passed the `context` and `event` params from xstate.
+The `load` function will be passed the `context` and `event` params from xstate.
+
+## API
+
+### `new ComponentTree(interpreter, callback, [options])`
+
+- `interpreter`, and instance of a xstate interpreter
+- `callback`, a function that will be executed each time a new tree of components is ready
+- `options`, an optional object containing [configuration values](#options) for the library.
+
+#### `options`
+
+- `cache` (default `true`), a boolean determining whether or not the value of `load()` functions should be cached. This can be overriden by setting `meta.cache` on any state in the tree where caching needs to be disabled.
 
 ## Rendering Components
 

@@ -1,6 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`xstate-component-tree invoked machines using .load should pass child machine context & events to load fns 1`] = `
+exports[`xstate-component-tree should not re-run load on parent/child machine transitions 1`] = `
+Array [
+  "child1",
+  "one",
+]
+`;
+
+exports[`xstate-component-tree should not re-run load on parent/child machine transitions 2`] = `
+Array [
+  "two",
+]
+`;
+
+exports[`xstate-component-tree should not re-run load on parent/child machine transitions 3`] = `
+Array [
+  "child2",
+]
+`;
+
+exports[`xstate-component-tree should pass child machine context & events to load fns 1`] = `
 Array [
   Object {
     "children": Array [
@@ -21,7 +40,7 @@ Array [
 ]
 `;
 
-exports[`xstate-component-tree invoked machines using .load should support async .load 1`] = `
+exports[`xstate-component-tree should support async .load 1`] = `
 Array [
   Object {
     "children": Array [
@@ -37,7 +56,25 @@ Array [
 ]
 `;
 
-exports[`xstate-component-tree invoked machines using .load should support sync .load 1`] = `
+exports[`xstate-component-tree should support returning a component and props 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "child",
+        "props": Object {
+          "props": true,
+        },
+      },
+    ],
+    "component": "one",
+    "props": false,
+  },
+]
+`;
+
+exports[`xstate-component-tree should support sync .load 1`] = `
 Array [
   Object {
     "children": Array [
