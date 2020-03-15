@@ -1,3 +1,18 @@
+# [3.0.0](https://github.com/tivac/xstate-component-tree/compare/v2.0.1...v3.0.0) (2020-03-15)
+
+
+### Features
+
+* caching load methods ([d534245](https://github.com/tivac/xstate-component-tree/commit/d5342456669c854ae0269798f34f1ac6666658e9))
+
+
+### BREAKING CHANGES
+
+* - Only 1 callback per tree change, no matter if it was the deepest child or the root machine.
+- Updated `load()` support so it can take either a `component` or `[ component, props ]` as a return and the overall `load()` as well as either `component` or `props` will be `await`ed.
+
+
+
 ## [2.0.1](https://github.com/tivac/xstate-component-tree/compare/v2.0.0...v2.0.1) (2019-12-14)
 
 
