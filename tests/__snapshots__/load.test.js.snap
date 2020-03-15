@@ -1,5 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`xstate-component-tree should allow the caching to be disabled globally 1`] = `
+Array [
+  "one",
+  "oneone",
+]
+`;
+
+exports[`xstate-component-tree should allow the caching to be disabled globally 2`] = `
+Array [
+  "one",
+]
+`;
+
+exports[`xstate-component-tree should allow the caching to be disabled locally 1`] = `
+Array [
+  "one",
+  "oneone",
+]
+`;
+
+exports[`xstate-component-tree should allow the caching to be disabled locally 2`] = `
+Array [
+  "one",
+]
+`;
+
 exports[`xstate-component-tree should ignore stale trees if component loads hadn't completed 1`] = `
 Array [
   Object {
@@ -22,6 +48,24 @@ Array [
     },
     "props": false,
   },
+]
+`;
+
+exports[`xstate-component-tree should re-run load functions when transitioning back to a state 1`] = `
+Array [
+  "one",
+]
+`;
+
+exports[`xstate-component-tree should re-run load functions when transitioning back to a state 2`] = `
+Array [
+  "two",
+]
+`;
+
+exports[`xstate-component-tree should re-run load functions when transitioning back to a state 3`] = `
+Array [
+  "one",
 ]
 `;
 

@@ -3,12 +3,9 @@
 const ComponentTree = require("../../src/treebuilder.js");
 const deferred = require("./deferred.js");
 
-// eslint-disable-next-line no-empty-function
-const noop = () => {};
-
 // Watch for trees to be built, and provide an easy way
 // to await each value
-const trees = (service, fn = noop) => {
+const trees = (service, fn = false, options) => {
     const responses = [];
     let idx = 0;
     let p;
@@ -41,10 +38,12 @@ const trees = (service, fn = noop) => {
     out.builder = new ComponentTree(service, (tree) => {
         responses.push(tree);
 
-        fn(tree);
+        if(fn) {
+            fn(tree);
+        }
 
         respond();
-    });
+    }, options);
 
     service.start();
 

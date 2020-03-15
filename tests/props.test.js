@@ -6,6 +6,16 @@ const trees = require("./util/trees.js");
 const component = require("./util/component.js");
 
 describe("xstate-component-tree", () => {
+    let tree;
+
+    afterEach(() => {
+        if(tree && tree.builder) {
+            tree.builder.teardown();
+        }
+
+        tree = null;
+    });
+    
     describe("props", () => {
         it("should support static props", async () => {
             const testMachine = createMachine({
@@ -40,7 +50,7 @@ describe("xstate-component-tree", () => {
     
             const service = interpret(testMachine);
     
-            const tree = trees(service);
+            tree = trees(service);
     
             expect(await tree()).toMatchSnapshot();
         });

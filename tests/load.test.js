@@ -6,6 +6,16 @@ const component = require("./util/component.js");
 const loadAsync = require("./util/async-loader.js");
 
 describe("xstate-component-tree", () => {
+    let tree;
+
+    afterEach(() => {
+        if(tree && tree.builder) {
+            tree.builder.teardown();
+        }
+
+        tree = null;
+    });
+
     it("should support sync .load methods", async () => {
         const testMachine = createMachine({
             initial : "one",
@@ -21,7 +31,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         expect(await tree()).toMatchSnapshot();
     });
@@ -42,7 +52,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         expect(await tree()).toMatchSnapshot();
     });
@@ -62,7 +72,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         expect(await tree()).toMatchSnapshot();
     });
@@ -82,7 +92,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         expect(await tree()).toMatchSnapshot();
     });
@@ -106,7 +116,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         expect(await tree()).toMatchSnapshot();
     });
@@ -136,7 +146,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         expect(await tree()).toMatchSnapshot();
     });
@@ -168,7 +178,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         // Purposefully not awaiting this, it'll never resolve!
         tree();
@@ -210,7 +220,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         await tree();
 
@@ -222,36 +232,39 @@ describe("xstate-component-tree", () => {
 
         expect(runs).toEqual(1);
     });
-    
-    // Skipped because, well, it doesn't support this ATM
-    it.skip("should re-run load when a state is entered from an external self-transition", async () => {
-        let runs = 0;
+
+    it("should re-run load functions when transitioning back to a state", async () => {
+        let runs = [];
         
         const testMachine = createMachine({
             initial : "one",
-            context : "context",
 
             states : {
                 one : {
-                    initial : "child1",
-
                     meta : {
                         load : () => {
-                            ++runs;
+                            runs.push("one");
 
                             return component("one");
                         },
                     },
 
-                    states : {
-                        child1 : {
-                            on : {
-                                NEXT : {
-                                    target   : "child1",
-                                    internal : false,
-                                },
-                            },
+                    on : {
+                        NEXT : "two",
+                    },
+                },
+
+                two : {
+                    meta : {
+                        load : () => {
+                            runs.push("two");
+
+                            return component("two");
                         },
+                    },
+
+                    on : {
+                        NEXT : "one",
                     },
                 },
             },
@@ -259,16 +272,139 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        const tree = trees(service);
+        tree = trees(service);
 
         await tree();
 
-        expect(runs).toEqual(1);
+        expect(runs).toMatchSnapshot();
+
+        runs = [];
+
+        service.send("NEXT");
+        
+        await tree();
+
+        expect(runs).toMatchSnapshot();
+
+        runs = [];
         
         service.send("NEXT");
         
         await tree();
 
-        expect(runs).toEqual(2);
+        expect(runs).toMatchSnapshot();
+    });
+
+    it("should allow the caching to be disabled globally", async () => {
+        let runs = [];
+        
+        const testMachine = createMachine({
+            initial : "one",
+
+            states : {
+                one : {
+                    initial : "oneone",
+
+                    meta : {
+                        load : () => {
+                            runs.push("one");
+
+                            return component("one");
+                        },
+                    },
+
+                    states : {
+                        oneone : {
+                            on : {
+                                NEXT : "onetwo",
+                            },
+
+                            meta : {
+                                load : () => {
+                                    runs.push("oneone");
+        
+                                    return component("oneone");
+                                },
+                            },
+                        },
+
+                        onetwo : {},
+                    },
+                },
+            },
+        });
+
+        const service = interpret(testMachine);
+
+        tree = trees(service, false, { caching : false });
+
+        await tree();
+
+        expect(runs).toMatchSnapshot();
+
+        runs = [];
+
+        service.send("NEXT");
+        
+        await tree();
+
+        expect(runs).toMatchSnapshot();
+    });
+    
+    it("should allow the caching to be disabled locally", async () => {
+        let runs = [];
+        
+        const testMachine = createMachine({
+            initial : "one",
+
+            states : {
+                one : {
+                    initial : "oneone",
+
+                    meta : {
+                        cache : false,
+                        load  : () => {
+                            runs.push("one");
+
+                            return component("one");
+                        },
+                    },
+
+                    states : {
+                        oneone : {
+                            on : {
+                                NEXT : "onetwo",
+                            },
+
+                            meta : {
+                                load : () => {
+                                    runs.push("oneone");
+        
+                                    return component("oneone");
+                                },
+                            },
+                        },
+
+                        onetwo : {},
+                    },
+                },
+            },
+        });
+
+        const service = interpret(testMachine);
+
+        tree = trees(service, false);
+
+        await tree();
+
+        expect(runs).toMatchSnapshot();
+
+        runs = [];
+
+        service.send("NEXT");
+        
+        await tree();
+
+        expect(runs).toMatchSnapshot();
     });
 });

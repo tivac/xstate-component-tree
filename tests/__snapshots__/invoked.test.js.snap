@@ -1,43 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`xstate-component-tree invoked child machines should be supported 1`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "child",
-        "props": false,
-      },
-    ],
-    "component": "one",
-    "props": false,
-  },
-]
-`;
-
-exports[`xstate-component-tree invoked child machines should be supported in a parallel state 1`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
-        "children": Array [],
-        "component": "child",
-        "props": false,
-      },
-    ],
-    "component": "one",
-    "props": false,
-  },
-  Object {
-    "children": Array [],
-    "component": "two",
-    "props": false,
-  },
-]
-`;
-
-exports[`xstate-component-tree invoked child machines should ignore non-statechart children (callback) 1`] = `
+exports[`xstate component tree should ignore non-statechart children (callback) 1`] = `
 Array [
   Object {
     "children": Array [],
@@ -47,7 +10,7 @@ Array [
 ]
 `;
 
-exports[`xstate-component-tree invoked child machines should ignore non-statechart children (promise) 1`] = `
+exports[`xstate component tree should ignore non-statechart children (promise) 1`] = `
 Array [
   Object {
     "children": Array [],
@@ -57,7 +20,7 @@ Array [
 ]
 `;
 
-exports[`xstate-component-tree invoked child machines should rebuild on child transitions 1`] = `
+exports[`xstate component tree should rebuild on child machine transitions 1`] = `
 Snapshot Diff:
 - First value
 + Second value
@@ -77,7 +40,7 @@ Snapshot Diff:
       "props": false,
 `;
 
-exports[`xstate-component-tree invoked child machines should rebuild on nested invoked machine transitions 1`] = `
+exports[`xstate component tree should rebuild on nested invoked machine transitions 1`] = `
 Snapshot Diff:
 - First value
 + Second value
@@ -97,7 +60,7 @@ Snapshot Diff:
           "props": false,
 `;
 
-exports[`xstate-component-tree invoked child machines should rebuild on parent transitions 1`] = `
+exports[`xstate component tree should rebuild on parent transitions 1`] = `
 Snapshot Diff:
 - First value
 + Second value
@@ -117,7 +80,7 @@ Snapshot Diff:
           "component": "child1",
 `;
 
-exports[`xstate-component-tree invoked child machines should remove data once the invoke is halted 1`] = `
+exports[`xstate component tree should remove data once the invoked child machine is halted 1`] = `
 Snapshot Diff:
 - First value
 + Second value
@@ -138,7 +101,44 @@ Snapshot Diff:
   ]
 `;
 
-exports[`xstate-component-tree invoked child machines should support nested invoked machines 1`] = `
+exports[`xstate component tree should support invoked child machines 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "child",
+        "props": false,
+      },
+    ],
+    "component": "one",
+    "props": false,
+  },
+]
+`;
+
+exports[`xstate component tree should support invoked child machines in a parallel state 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "component": "child",
+        "props": false,
+      },
+    ],
+    "component": "one",
+    "props": false,
+  },
+  Object {
+    "children": Array [],
+    "component": "two",
+    "props": false,
+  },
+]
+`;
+
+exports[`xstate component tree should support nested invoked machines 1`] = `
 Array [
   Object {
     "children": Array [
