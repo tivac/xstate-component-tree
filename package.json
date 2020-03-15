@@ -4,8 +4,8 @@
   "description": "Build a tree of components based on statechart values",
   "author": "Pat Cavit <npm@patcavit.com>",
   "license": "MIT",
-  "module": "dist/treebuilder.mjs",
-  "main": "dist/treebuilder.js",
+  "module": "dist/component-tree.mjs",
+  "main": "dist/component-tree.js",
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.7.5",
     "@tivac/eslint-config": "^2.4.0",

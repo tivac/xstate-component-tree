@@ -24,11 +24,9 @@ const loadChild = async ({ child, root }) => {
 class ComponentTree {
     constructor(interpreter, callback, { caching = true } = false) {
         // Storing off args + options
-        this.options = {
-            caching,
-            interpreter,
-            callback,
-        };
+        this._interpreter = interpreter;
+        this._callback = callback;
+        this._caching = caching;
 
         // identifier!
         this.id = interpreter.id;
@@ -75,8 +73,8 @@ class ComponentTree {
     // Walk the machine and build up maps of paths to meta info as
     // well as prepping any load functions for usage later
     _prep() {
-        const { _paths, _invocables, options : { interpreter, caching } } = this;
-        const { idMap : ids } = interpreter.machine;
+        const { _paths, _invocables, _interpreter, _caching } = this;
+        const { idMap : ids } = _interpreter.machine;
 
         // xstate maps ids to state nodes, but the value object only
         // has paths, so need to create our own path-only map here
@@ -89,7 +87,7 @@ class ComponentTree {
                 _paths.set(key, {
                     __proto__ : null,
 
-                    cache : caching,
+                    cache : _caching,
 
                     ...meta,
                 });
@@ -102,11 +100,11 @@ class ComponentTree {
 
     // Subscribe to an interpreter
     _watch() {
-        const { options : { interpreter } } = this;
+        const { _interpreter } = this;
     
         // Subscribing will start a run of the machine, so no need to manually
         // kick one off
-        const { unsubscribe } = interpreter.subscribe((data) => this._state(data));
+        const { unsubscribe } = _interpreter.subscribe((data) => this._state(data));
 
         this._unsubscribe = unsubscribe;
     }
@@ -249,7 +247,7 @@ class ComponentTree {
 
     // Kicks off tree walks & handles overlapping walk behaviors
     async _run() {
-        const { _children, options : { callback } } = this;
+        const { _children, _callback } = this;
 
         // Cancel any previous walks, we're the captain now
         const run = ++this._counter;
@@ -266,7 +264,7 @@ class ComponentTree {
             return;
         }
         
-        callback(tree, { data : this._data });
+        _callback(tree, { data : this._data });
     }
     
     // Callback for statechart transitions to sync up child machine states

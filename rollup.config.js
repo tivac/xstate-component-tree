@@ -4,9 +4,9 @@ const { terser } = require("rollup-plugin-terser");
 
 const pkg = require("./package.json");
 
-const banner = `/*! ${pkg.name}@${pkg.version} !*/`;
+const banner = `/*! ${pkg.name}@${pkg.version} !*/\n`;
 
-const input = "./src/treebuilder.js";
+const input = "./src/component-tree.js";
 
 // ESM & CJS builds
 module.exports = {
@@ -41,7 +41,20 @@ module.exports = {
         format    : "es",
         sourcemap : true,
         plugins   : [
-            terser(),
+            terser({
+                mangle : {
+                    // Keep classnames intact for more usable stack traces
+                    keep_classnames : true,
+
+                    // Mangle properties
+                    properties : {
+                        // Except teardown because that's part of the public API
+                        reserved : [
+                            "teardown",
+                        ],
+                    },
+                },
+            }),
         ],
         banner,
     }],
