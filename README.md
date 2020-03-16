@@ -1,6 +1,6 @@
 # xstate-component-tree [![NPM Version](https://img.shields.io/npm/v/xstate-component-tree.svg)](https://www.npmjs.com/package/xstate-component-tree) [![NPM License](https://img.shields.io/npm/l/xstate-component-tree.svg)](https://www.npmjs.com/package/xstate-component-tree) [![NPM Downloads](https://img.shields.io/npm/dm/xstate-component-tree.svg)](https://www.npmjs.com/package/xstate-component-tree)
 
-Utility method to wrap up an [XState](xstate.js.org) interpreter and read state meta information so your statechart can be used to create a tree of components to render.
+Utility method to wrap up an [XState](https://xstate.js.org) interpreter and read state meta information so your statechart can be used to create a tree of components to render.
 
 ## Installation
 
@@ -154,7 +154,7 @@ The `load` function will be passed the `context` and `event` params from xstate.
 
 ## Rendering Components
 
-Once you have the tree of components, how you assembled that into your view layer is entirely up to you! Here's a brief [svelte](svelte.dev) example.
+Once you have the tree of components, how you assembled that into your view layer is entirely up to you! Here's a brief [svelte](https://svelte.dev) example.
 
 ```html
 {#each components as { component, props, children }}
