@@ -238,6 +238,94 @@ describe("xstate-component-tree", () => {
         expect(eventCounter.mock.calls.length).toBe(2);
     });
 
+    it("should rebuild in a stable order (change before)", async () => {
+        const testMachine = createMachine({
+            type : "parallel",
+
+            states : {
+                b : {
+                    initial : "one",
+
+                    on : {
+                        NEXT : ".two",
+                    },
+
+                    states : {
+                        one : {},
+
+                        two : {
+                            meta : {
+                                component : component("b.two"),
+                            },
+                        },
+                    },
+                },
+
+                one : {
+                    meta : {
+                        component : component("one"),
+                    },
+                },
+            },
+        });
+
+        const service = interpret(testMachine);
+
+        tree = trees(service);
+        
+        const before = await tree();
+        
+        service.send("NEXT");
+
+        const after = await tree();
+
+        expect(before).toMatchDiffSnapshot(after);
+    });
+
+    it("should rebuild in a stable order (change after)", async () => {
+        const testMachine = createMachine({
+            type : "parallel",
+
+            states : {
+                one : {
+                    meta : {
+                        component : component("one"),
+                    },
+                },
+
+                b : {
+                    initial : "one",
+
+                    on : {
+                        NEXT : ".two",
+                    },
+
+                    states : {
+                        one : {},
+
+                        two : {
+                            meta : {
+                                component : component("b.two"),
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        const service = interpret(testMachine);
+
+        tree = trees(service);
+        
+        const before = await tree();
+        
+        service.send("NEXT");
+
+        const after = await tree();
+
+        expect(before).toMatchDiffSnapshot(after);
+    });
+
     it("should clean up after itself", async () => {
         const testMachine = createMachine({
             initial : "one",

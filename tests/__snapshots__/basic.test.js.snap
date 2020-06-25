@@ -1,5 +1,43 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`xstate-component-tree should rebuild in a stable order (change after) 1`] = `
+Snapshot Diff:
+- First value
++ Second value
+
+@@ -2,6 +2,11 @@
+    Object {
+      "children": Array [],
+      "component": "one",
+      "props": false,
+    },
++   Object {
++     "children": Array [],
++     "component": "b.two",
++     "props": false,
++   },
+  ]
+`;
+
+exports[`xstate-component-tree should rebuild in a stable order (change before) 1`] = `
+Snapshot Diff:
+- First value
++ Second value
+
+@@ -2,6 +2,11 @@
+    Object {
+      "children": Array [],
+      "component": "one",
+      "props": false,
+    },
++   Object {
++     "children": Array [],
++     "component": "b.two",
++     "props": false,
++   },
+  ]
+`;
+
 exports[`xstate-component-tree should rebuild on machine transition 1`] = `
 Snapshot Diff:
 - First value
