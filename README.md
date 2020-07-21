@@ -73,7 +73,7 @@ new ComponentTree(service, (tree) => {
 });
 ```
 
-The second argument to the function will be called every time the machine transitions. It will pass the callback a new object representing all the views defined on currently active states, all correctly nested to match the structure of the statechart.
+The second argument to the function will be called every time the machine transitions. It will pass the callback a new object representing all the views defined on currently active states, all correctly nested to match the structure of the statechart. Each element in the response will also contain a `path` value corresponding to the the specific state the object represents.
 
 ```js
 new ComponentTree(service, (tree) => {
@@ -82,6 +82,7 @@ new ComponentTree(service, (tree) => {
      * tree will be something like this
      * 
      * [{
+     *     path : "one",
      *     component: MyComponent,
      *     children: [],
      *     props: false,
@@ -90,9 +91,11 @@ new ComponentTree(service, (tree) => {
      * or if there are nested components
      * 
      * [{
+     *     path : "one",
      *     component: MyComponent,
      *     props: false
      *     children : [{
+     *         path : "one.two",
      *         component : ChildComponent,
      *         props: {
      *             one : 1
@@ -157,8 +160,8 @@ The `load` function will be passed the `context` and `event` params from xstate.
 Once you have the tree of components, how you assembled that into your view layer is entirely up to you! Here's a brief [svelte](svelte.dev) example.
 
 ```html
-{#each components as { component, props, children }}
-    <svelte:component this={component} {children} {...props}>
+{#each components as { path, component, props, children } (path)}
+    <svelte:component this={component} {...props} {children} />
 {/each}
 
 <script>
