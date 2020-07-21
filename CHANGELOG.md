@@ -1,3 +1,12 @@
+# [3.1.0](https://github.com/tivac/xstate-component-tree/compare/v3.0.0...v3.1.0) (2020-07-21)
+
+
+### Features
+
+* add path to return objects ([#11](https://github.com/tivac/xstate-component-tree/issues/11)) ([e6f266b](https://github.com/tivac/xstate-component-tree/commit/e6f266b74bbb946ba808fd21ce00a60a48514316))
+
+
+
 # [3.0.0](https://github.com/tivac/xstate-component-tree/compare/v2.0.1...v3.0.0) (2020-03-15)
 
 
