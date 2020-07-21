@@ -5,15 +5,16 @@ Snapshot Diff:
 - First value
 + Second value
 
-@@ -2,6 +2,11 @@
-    Object {
+@@ -3,6 +3,12 @@
       "children": Array [],
       "component": "one",
+      "path": "one",
       "props": false,
     },
 +   Object {
 +     "children": Array [],
 +     "component": "b.two",
++     "path": "b.two",
 +     "props": false,
 +   },
   ]
@@ -24,15 +25,16 @@ Snapshot Diff:
 - First value
 + Second value
 
-@@ -2,6 +2,11 @@
-    Object {
+@@ -3,6 +3,12 @@
       "children": Array [],
       "component": "one",
+      "path": "one",
       "props": false,
     },
 +   Object {
 +     "children": Array [],
 +     "component": "b.two",
++     "path": "b.two",
 +     "props": false,
 +   },
   ]
@@ -47,7 +49,9 @@ Snapshot Diff:
     Object {
       "children": Array [],
 -     "component": "one",
+-     "path": "one",
 +     "component": "two",
++     "path": "two",
       "props": false,
     },
   ]
@@ -60,10 +64,12 @@ Array [
       Object {
         "children": Array [],
         "component": "two",
+        "path": "one.two",
         "props": false,
       },
     ],
     "component": "one",
+    "path": "one",
     "props": false,
   },
 ]
@@ -76,10 +82,12 @@ Array [
       Object {
         "children": Array [],
         "component": "two",
+        "path": "one.two",
         "props": false,
       },
     ],
     "component": "one",
+    "path": "one",
     "props": false,
   },
 ]
@@ -92,10 +100,12 @@ Array [
       Object {
         "children": Array [],
         "component": "three",
+        "path": "one.two.three",
         "props": false,
       },
     ],
     "component": "one",
+    "path": "one",
     "props": false,
   },
 ]
@@ -106,11 +116,13 @@ Array [
   Object {
     "children": Array [],
     "component": "two",
+    "path": "one.two",
     "props": false,
   },
   Object {
     "children": Array [],
     "component": "three",
+    "path": "one.three",
     "props": false,
   },
 ]
@@ -121,11 +133,13 @@ Array [
   Object {
     "children": Array [],
     "component": "one",
+    "path": "one",
     "props": false,
   },
   Object {
     "children": Array [],
     "component": "two",
+    "path": "two",
     "props": false,
   },
 ]

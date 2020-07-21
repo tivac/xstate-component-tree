@@ -5,6 +5,7 @@ Array [
   Object {
     "children": Array [],
     "component": "one",
+    "path": "one",
     "props": false,
   },
 ]
@@ -15,6 +16,7 @@ Array [
   Object {
     "children": Array [],
     "component": "one",
+    "path": "one",
     "props": false,
   },
 ]
@@ -25,19 +27,21 @@ Snapshot Diff:
 - First value
 + Second value
 
-@@ -1,11 +1,11 @@
+@@ -1,12 +1,12 @@
   Array [
     Object {
       "children": Array [
         Object {
           "children": Array [],
 -         "component": "child1",
+-         "path": "child1",
 +         "component": "child2",
++         "path": "child2",
           "props": false,
         },
       ],
       "component": "one",
-      "props": false,
+      "path": "one",
 `;
 
 exports[`xstate component tree should rebuild on nested invoked machine transitions 1`] = `
@@ -45,19 +49,21 @@ Snapshot Diff:
 - First value
 + Second value
 
-@@ -3,11 +3,11 @@
+@@ -3,12 +3,12 @@
       "children": Array [
         Object {
           "children": Array [
             Object {
               "children": Array [],
 -             "component": "grandchild1",
+-             "path": "grandchild1",
 +             "component": "grandchild2",
++             "path": "grandchild2",
               "props": false,
             },
           ],
           "component": "child",
-          "props": false,
+          "path": "child",
 `;
 
 exports[`xstate component tree should rebuild on parent transitions 1`] = `
@@ -65,14 +71,16 @@ Snapshot Diff:
 - First value
 + Second value
 
-@@ -1,11 +1,11 @@
+@@ -1,12 +1,12 @@
   Array [
     Object {
       "children": Array [
         Object {
           "children": Array [],
 -         "component": "oneone",
+-         "path": "one.oneone",
 +         "component": "onetwo",
++         "path": "one.onetwo",
           "props": false,
         },
         Object {
@@ -91,11 +99,14 @@ Snapshot Diff:
 -       Object {
       "children": Array [],
 -         "component": "child",
+-         "path": "child",
 -         "props": false,
 -       },
 -     ],
 -     "component": "one",
+-     "path": "one",
 +     "component": "two",
++     "path": "two",
       "props": false,
     },
   ]
@@ -108,10 +119,12 @@ Array [
       Object {
         "children": Array [],
         "component": "child",
+        "path": "child",
         "props": false,
       },
     ],
     "component": "one",
+    "path": "one",
     "props": false,
   },
 ]
@@ -124,15 +137,18 @@ Array [
       Object {
         "children": Array [],
         "component": "child",
+        "path": "child",
         "props": false,
       },
     ],
     "component": "one",
+    "path": "one",
     "props": false,
   },
   Object {
     "children": Array [],
     "component": "two",
+    "path": "two",
     "props": false,
   },
 ]
@@ -147,14 +163,17 @@ Array [
           Object {
             "children": Array [],
             "component": "grandchild",
+            "path": "grandchild",
             "props": false,
           },
         ],
         "component": "child",
+        "path": "child",
         "props": false,
       },
     ],
     "component": "one",
+    "path": "one",
     "props": false,
   },
 ]

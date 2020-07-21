@@ -31,10 +31,12 @@ Array [
             "type": "xstate.init",
           },
         },
+        "path": "child",
         "props": false,
       },
     ],
     "component": "one",
+    "path": "one",
     "props": false,
   },
 ]
@@ -47,10 +49,12 @@ Array [
       Object {
         "children": Array [],
         "component": "child",
+        "path": "child",
         "props": false,
       },
     ],
     "component": "one",
+    "path": "one",
     "props": false,
   },
 ]
@@ -63,12 +67,14 @@ Array [
       Object {
         "children": Array [],
         "component": "child",
+        "path": "child",
         "props": Object {
           "props": true,
         },
       },
     ],
     "component": "one",
+    "path": "one",
     "props": false,
   },
 ]
@@ -81,10 +87,12 @@ Array [
       Object {
         "children": Array [],
         "component": "child",
+        "path": "child",
         "props": false,
       },
     ],
     "component": "one",
+    "path": "one",
     "props": false,
   },
 ]

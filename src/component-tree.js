@@ -41,7 +41,7 @@ class ComponentTree {
         this._paths = new Map();
 
         // path -> invoked id
-        this._invocables = new Map();
+        this._invokables = new Map();
 
         // invoked id -> child machine
         this._children = new Map();
@@ -59,7 +59,7 @@ class ComponentTree {
 
     teardown() {
         this._paths.clear();
-        this._invocables.clear();
+        this._invokables.clear();
         this._children.clear();
         this._cache.clear();
         
@@ -73,7 +73,7 @@ class ComponentTree {
     // Walk the machine and build up maps of paths to meta info as
     // well as prepping any load functions for usage later
     _prep() {
-        const { _paths, _invocables, _interpreter, _caching } = this;
+        const { _paths, _invokables, _interpreter, _caching } = this;
         const { idMap : ids } = _interpreter.machine;
 
         // xstate maps ids to state nodes, but the value object only
@@ -94,7 +94,7 @@ class ComponentTree {
             }
 
             // .invoke is always an array
-            invoke.forEach(({ id : invokeid }) => _invocables.set(key, invokeid));
+            invoke.forEach(({ id : invokeid }) => _invokables.set(key, invokeid));
         }
     }
 
@@ -113,8 +113,9 @@ class ComponentTree {
     // eslint-disable-next-line max-statements, complexity
     async _walk() {
         const {
+            id,
            _paths,
-           _invocables,
+           _invokables,
            _children,
            _cache,
            _counter,
@@ -125,7 +126,7 @@ class ComponentTree {
         const root = {
             __proto__ : null,
             
-            id       : this.id,
+            id,
             children : [],
         };
 
@@ -169,6 +170,8 @@ class ComponentTree {
                 const item = {
                     __proto__ : null,
 
+                    path,
+                    
                     component : cached ? cached.item.component : component,
                     props     : cached ? cached.item.props : props,
                     children  : [],
@@ -213,12 +216,12 @@ class ComponentTree {
                 pointer = item;
             }
 
-            if(_invocables.has(path)) {
-                const id = _invocables.get(path);
+            if(_invokables.has(path)) {
+                const invokable = _invokables.get(path);
 
-                if(_children.has(id)) {
+                if(_children.has(invokable)) {
                     loads.push(loadChild({
-                        child : _children.get(id),
+                        child : _children.get(invokable),
                         root  : pointer,
                     }));
                 }
