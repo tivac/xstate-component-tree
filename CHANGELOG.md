@@ -1,3 +1,12 @@
+## [3.1.1](https://github.com/tivac/xstate-component-tree/compare/v3.1.0...v3.1.1) (2020-08-06)
+
+
+### Bug Fixes
+
+* remove object spread ([#12](https://github.com/tivac/xstate-component-tree/issues/12)) ([3770ca4](https://github.com/tivac/xstate-component-tree/commit/3770ca4dadd63584f98ac379840b359df202a611))
+
+
+
 # [3.1.0](https://github.com/tivac/xstate-component-tree/compare/v3.0.0...v3.1.0) (2020-07-21)
 
 
