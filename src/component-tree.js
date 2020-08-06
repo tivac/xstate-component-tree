@@ -84,13 +84,11 @@ class ComponentTree {
             const key = path.join(".");
 
             if(meta) {
-                _paths.set(key, {
+                _paths.set(key, Object.assign({
                     __proto__ : null,
 
                     cache : _caching,
-
-                    ...meta,
-                });
+                }, meta));
             }
 
             // .invoke is always an array
