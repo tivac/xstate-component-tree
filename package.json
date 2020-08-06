@@ -32,6 +32,7 @@
     "changelog": "conventional-changelog --preset angular --infile CHANGELOG.md --same-file",
     "lint": "eslint .",
     "test": "jest",
+    "prerelease": "npm run build",
     "release": "npm version",
     "preversion": "npm test",
     "version": "npm run changelog && git add CHANGELOG.md",
