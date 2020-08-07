@@ -155,6 +155,8 @@ The `load` function will be passed the `context` and `event` params from xstate.
 
 - `cache` (default `true`), a boolean determining whether or not the value of `load()` functions should be cached. This can be overriden by setting `meta.cache` on any state in the tree where caching needs to be disabled.
 
+- `stable` (default: `false`), tells the library to sort states alphabetically before walking them at each tier to help ensure that the component output is more consistent between state transitions.
+
 ## Rendering Components
 
 Once you have the tree of components, how you assembled that into your view layer is entirely up to you! Here's a brief [svelte](https://svelte.dev) example.

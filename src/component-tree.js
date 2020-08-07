@@ -22,11 +22,16 @@ const loadChild = async ({ child, root }) => {
 };
 
 class ComponentTree {
-    constructor(interpreter, callback, { cache = true } = false) {
+    constructor(interpreter, callback, { cache = true, stable = false } = false) {
         // Storing off args + options
         this._interpreter = interpreter;
         this._callback = callback;
+
+        // Whether or not to cache the result of dynamic component/prop functions
         this._caching = cache;
+
+        // Whether or not to sort keys to ensure component output order is more stable
+        this._stable = stable;
 
         // identifier!
         this.id = interpreter.id;
@@ -116,6 +121,7 @@ class ComponentTree {
            _invokables,
            _children,
            _cache,
+           _stable,
            _counter,
            _data : { value, context, event },
         } = this;
@@ -134,11 +140,15 @@ class ComponentTree {
         if(typeof value === "string") {
             queue = [[ root, value, false ]];
         } else {
-            queue = Object.keys(value).map((child) =>
+            const keys = Object.keys(value);
+
+            queue = (_stable ? keys.sort() : keys).map((child) =>
                 [ root, child, value[child] ]
             );
         }
 
+        // _counter === this._counter is to kill looping if state
+        // transitions before it finishes
         // eslint-disable-next-line no-unmodified-loop-condition
         while(queue.length && _counter === this._counter) {
             const [ parent, path, values ] = queue.shift();
@@ -235,7 +245,9 @@ class ComponentTree {
                 continue;
             }
 
-            queue.push(...Object.keys(values).map((child) =>
+            const keys = Object.keys(values);
+
+            queue.push(...(_stable ? keys.sort() : keys).map((child) =>
                 [ pointer, `${path}.${child}`, values[child] ]
             ));
         }

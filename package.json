@@ -16,7 +16,7 @@
     "conventional-changelog-cli": "^2.0.28",
     "eslint": "^7.6.0",
     "eslint-plugin-jest": "^23.1.1",
-    "jest": "^24.9.0",
+    "jest": "^26.2.2",
     "rollup": "^2.23.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",

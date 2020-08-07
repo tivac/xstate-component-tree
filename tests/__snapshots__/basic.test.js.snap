@@ -111,7 +111,7 @@ Array [
 ]
 `;
 
-exports[`xstate-component-tree should support nested parallel states 1`] = `
+exports[`xstate-component-tree should support nested parallel states (stable: false) 1`] = `
 Array [
   Object {
     "children": Array [],
@@ -123,6 +123,23 @@ Array [
     "children": Array [],
     "component": "three",
     "path": "one.three",
+    "props": false,
+  },
+]
+`;
+
+exports[`xstate-component-tree should support nested parallel states (stable: true) 1`] = `
+Array [
+  Object {
+    "children": Array [],
+    "component": "three",
+    "path": "one.three",
+    "props": false,
+  },
+  Object {
+    "children": Array [],
+    "component": "two",
+    "path": "one.two",
     "props": false,
   },
 ]
