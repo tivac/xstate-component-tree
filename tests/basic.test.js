@@ -72,7 +72,10 @@ describe("xstate-component-tree", () => {
         expect(await tree()).toMatchSnapshot();
     });
 
-    it("should support nested parallel states", async () => {
+    it.each([
+        true,
+        false,
+    ])("should support nested parallel states (stable: %s)", async (stable) => {
         const testMachine = createMachine({
             initial : "one",
 
@@ -99,7 +102,7 @@ describe("xstate-component-tree", () => {
 
         const service = interpret(testMachine);
 
-        tree = trees(service);
+        tree = trees(service, false, { stable });
 
         expect(await tree()).toMatchSnapshot();
     });
