@@ -1,3 +1,12 @@
+# [3.2.0](https://github.com/tivac/xstate-component-tree/compare/v3.1.2...v3.2.0) (2020-08-07)
+
+
+### Features
+
+* add stable option ([#14](https://github.com/tivac/xstate-component-tree/issues/14)) ([e37e1db](https://github.com/tivac/xstate-component-tree/commit/e37e1dbda3ffc05d9d404a6b99aa26c510ecaee9))
+
+
+
 ## [3.1.2](https://github.com/tivac/xstate-component-tree/compare/v3.1.1...v3.1.2) (2020-08-06)
 
 
