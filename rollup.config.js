@@ -21,11 +21,13 @@ module.exports = {
         file      : pkg.main,
         format    : "cjs",
         sourcemap : true,
+        exports   : "default",
         banner,
     }, {
         file      : pkg.main.replace(".js", "-min.js"),
         format    : "cjs",
         sourcemap : true,
+        exports   : "default",
         plugins   : [
             terser(),
         ],
