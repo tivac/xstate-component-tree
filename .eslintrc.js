@@ -4,7 +4,7 @@ module.exports = {
         "plugin:jest/recommended",
     ],
 
-    parser : "babel-eslint",
+    parser : "@babel/eslint-parser",
 
     env : {
         node : true,
