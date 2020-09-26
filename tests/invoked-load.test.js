@@ -262,4 +262,8 @@ describe("xstate-component-tree", () => {
 
         expect(runs).toMatchSnapshot();
     });
+
+    // TODO: How can this happen? It does in real apps, but haven't been able to write a test
+    // for it yet 😬😬😬
+    it.todo("should avoid re-running disposed children they send another update");
 });
