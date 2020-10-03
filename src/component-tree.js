@@ -13,7 +13,7 @@ const loadComponent = async ({ item, load, context, event }) => {
 
 const loadChild = async ({ child, root }) => {
     const { _tree } = child;
-    
+
     const children = await _tree;
 
     // Will attach to the state itself if it has a component,
@@ -52,7 +52,7 @@ class ComponentTree {
         this._children = new Map();
 
         // Expose walk result as a property
-        this._tree = false;
+        this._tree = [];
 
         // Last event this saw, used to re-create the tree when a child transitions
         this._data = false;
@@ -67,7 +67,10 @@ class ComponentTree {
         this._invokables.clear();
         this._children.clear();
         this._cache.clear();
-        
+
+        // Ensure no more runs can ever happen, we're *done*
+        this._counter = Infinity;
+
         this._tree = null;
         this._data = null;
         this.options = null;
@@ -104,7 +107,7 @@ class ComponentTree {
     // Subscribe to an interpreter
     _watch() {
         const { _interpreter } = this;
-    
+
         // Subscribing will start a run of the machine, so no need to manually
         // kick one off
         const { unsubscribe } = _interpreter.subscribe((data) => this._state(data));
@@ -123,13 +126,20 @@ class ComponentTree {
            _cache,
            _stable,
            _counter,
-           _data : { value, context, event },
+           _data,
         } = this;
-        
+
+        // Don't do any work here if it's impossible for a component
+        // to be needed
+        if(!_paths.size) {
+            return [];
+        }
+
+        const { value, context, event } = _data;
         const loads = [];
         const root = {
             __proto__ : null,
-            
+
             id,
             children : [],
         };
@@ -162,13 +172,13 @@ class ComponentTree {
 
                 if(_cache.has(path)) {
                     cached = _cache.get(path);
-                    
+
                     // Only cache items from the previous run are valid
                     if(cached.counter === this._counter - 1) {
                         cached.counter = this._counter;
                     } else {
                         cached = false;
-                        
+
                         _cache.delete(path);
                     }
                 }
@@ -179,7 +189,7 @@ class ComponentTree {
                     __proto__ : null,
 
                     path,
-                    
+
                     component : cached ? cached.item.component : component,
                     props     : cached ? cached.item.props : props,
                     children  : [],
@@ -213,7 +223,7 @@ class ComponentTree {
                 if(details.cache && !cached) {
                     _cache.set(path, {
                         __proto__ : null,
-                        
+
                         item,
                         counter : this._counter,
                         loaded  : false,
@@ -252,8 +262,10 @@ class ComponentTree {
             ));
         }
 
-        // await all the load functions
-        await Promise.all(loads);
+        // await any load functions
+        if(loads.length) {
+            await Promise.all(loads);
+        }
 
         return root.children;
     }
@@ -264,7 +276,7 @@ class ComponentTree {
 
         // Cancel any previous walks, we're the captain now
         const run = ++this._counter;
-        
+
         this._tree = this._walk();
 
         const [ tree ] = await Promise.all([
@@ -276,10 +288,10 @@ class ComponentTree {
         if(run !== this._counter) {
             return;
         }
-        
+
         _callback(tree, { data : this._data });
     }
-    
+
     // Callback for statechart transitions to sync up child machine states
     _state(data) {
         const { changed, children } = data;
@@ -300,18 +312,6 @@ class ComponentTree {
         };
 
         const { _children } = this;
-        
-        // Clear out any old children that are no longer being tracked
-        _children.forEach((child, key) => {
-            if(key in children) {
-                return;
-            }
-
-            child.teardown();
-            child = null;
-
-            _children.delete(key);
-        });
 
         // Add any new children to be tracked
         Object.keys(children).forEach((id) => {
@@ -326,12 +326,23 @@ class ComponentTree {
                 return;
             }
 
-            // Create the child ComponentTree instance, trigger re-walks of the parent after it chnages
-            _children.set(id, new ComponentTree(service, () =>
-                this._run()
-            ));
+            // Create the child ComponentTree instance
+            let child = new ComponentTree(service, () => {
+                // trigger re-walk of the parent after any children change
+                this._run();
+            });
+
+            _children.set(id, child);
+
+            // Clean up child once it finishes
+            service.onStop(() => {
+                child.teardown();
+                child = null;
+
+                _children.delete(id);
+            });
         });
-    
+
         return this._run();
     }
 }
