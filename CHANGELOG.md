@@ -1,3 +1,12 @@
+## [3.3.1](https://github.com/tivac/xstate-component-tree/compare/v3.3.0...v3.3.1) (2020-10-03)
+
+
+### Bug Fixes
+
+* clear dist when building ([068f209](https://github.com/tivac/xstate-component-tree/commit/068f2093f8d37b7dc431f1ffe7341fbeb2e7e773))
+
+
+
 # [3.3.0](https://github.com/tivac/xstate-component-tree/compare/v3.2.0...v3.3.0) (2020-10-03)
 
 
