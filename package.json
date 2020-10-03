@@ -21,6 +21,7 @@
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^7.0.2",
+    "shx": "^0.3.2",
     "snapshot-diff": "^0.8.1",
     "xstate": "^4.13.0"
   },
@@ -28,7 +29,7 @@
     "xstate": "^4.7.8"
   },
   "scripts": {
-    "build": "rollup --config",
+    "build": "shx rm -rf dist/* && rollup --config",
     "changelog": "conventional-changelog --preset angular --infile CHANGELOG.md --same-file",
     "lint": "eslint .",
     "test": "jest",
