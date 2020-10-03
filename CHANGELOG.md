@@ -1,3 +1,12 @@
+# [3.3.0](https://github.com/tivac/xstate-component-tree/compare/v3.2.0...v3.3.0) (2020-10-03)
+
+
+### Bug Fixes
+
+* prevent zombie children running ([#16](https://github.com/tivac/xstate-component-tree/issues/16)) ([6f49b85](https://github.com/tivac/xstate-component-tree/commit/6f49b8596cc67683b623346487edffde1a850de2))
+
+
+
 # [3.2.0](https://github.com/tivac/xstate-component-tree/compare/v3.1.2...v3.2.0) (2020-08-07)
 
 
