@@ -14,7 +14,7 @@
     "@rollup/plugin-replace": "^2.2.1",
     "rollup": "^1.27.12",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-serve": "^1.0.1",
+    "rollup-plugin-serve": "^1.0.2",
     "rollup-plugin-svelte": "^5.1.1",
     "svelte": "^3.16.4",
     "xstate": "^4.7.3",
