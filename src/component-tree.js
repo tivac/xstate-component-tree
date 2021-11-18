@@ -347,4 +347,6 @@ class ComponentTree {
     }
 }
 
-export default ComponentTree;
+module.exports = ComponentTree;
+
+exports.component = require("./component-helper.js");
