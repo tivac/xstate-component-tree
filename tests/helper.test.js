@@ -4,6 +4,7 @@ const { Machine : createMachine, interpret } = require("xstate");
 
 const trees = require("./util/trees.js");
 const component = require("./util/component.js");
+const loadAsync = require("./util/async-loader.js");
 const { helper } = require("../src/component-helper.js");
 const { helper: fromMain } = require("../src/component-tree.js");
 
@@ -26,7 +27,11 @@ describe("xstate-component-tree component helper", () => {
         expect(typeof helper).toBe("function");
     });
     
-    it("should return the same tree with or without the helper", async () => {
+    it.each([
+        [ "basic component", component("one") ],
+        [ "arrow function", () => component("one") ],
+        [ "async arrow function", loadAsync(component("one")) ],
+    ])("should return the same tree with or without the helper: %s", async (name, load) => {
         const basic = createMachine({
             initial : "one",
 
@@ -34,16 +39,6 @@ describe("xstate-component-tree component helper", () => {
                 one : {
                     meta : {
                         component : component("one"),
-                    },
-
-                    initial : "two",
-
-                    states : {
-                        two : {
-                            meta : {
-                                component : component("two"),
-                            },
-                        },
                     },
                 },
             },
@@ -53,13 +48,7 @@ describe("xstate-component-tree component helper", () => {
             initial : "one",
 
             states : {
-                one : helper(component("one"), {
-                    initial : "two",
-
-                    states : {
-                        two : helper(component("two")),
-                    },
-                }),
+                one : helper(load),
             },
         });
 

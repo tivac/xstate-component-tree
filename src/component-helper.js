@@ -16,10 +16,12 @@ export const helper = (child, node = {}) => {
         
         ...meta
     } = child;
-    
+
     // meta will always be an object since it's a rest param, fine to assign to
     meta.load = (...args) => [
-        component && typeof component === "function" ?
+        // Run arrow functions (function w/o a prototype), anything else is assumed to be
+        // already a component
+        component && typeof component === "function" && !component.prototype ?
             component(...args) :
             component,
         typeof props === "function" ?
