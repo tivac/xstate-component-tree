@@ -39,7 +39,6 @@ module.exports = {
         dir       : "./dist/cjs",
         format    : "cjs",
         sourcemap : true,
-        exports   : "default",
         banner,
         plugins   : [
             stubby("commonjs"),
@@ -49,7 +48,6 @@ module.exports = {
         entryFileNames : "[name]-min.js",
         format         : "cjs",
         sourcemap      : true,
-        exports        : "default",
         plugins        : [
             terser(),
             stubby("commonjs"),

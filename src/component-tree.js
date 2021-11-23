@@ -21,7 +21,7 @@ const loadChild = async ({ child, root }) => {
     root.children.push(...children);
 };
 
-class ComponentTree {
+export class ComponentTree {
     constructor(interpreter, callback, { cache = true, stable = false } = false) {
         // Storing off args + options
         this._interpreter = interpreter;
@@ -346,7 +346,3 @@ class ComponentTree {
         return this._run();
     }
 }
-
-export default ComponentTree;
-
-export * from "./component-helper.js";

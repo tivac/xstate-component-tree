@@ -6,7 +6,6 @@ const trees = require("./util/trees.js");
 const component = require("./util/component.js");
 const loadAsync = require("./util/async-loader.js");
 const { helper } = require("../src/component-helper.js");
-const { helper: fromMain } = require("../src/component-tree.js");
 
 describe("xstate-component-tree component helper", () => {
     let tree;
@@ -17,10 +16,6 @@ describe("xstate-component-tree component helper", () => {
         }
 
         tree = null;
-    });
-
-    it("should be a named export of the main entrypoint", () => {
-        expect(typeof fromMain).toBe("function");
     });
 
     it("should be a named export of the /helper entrypoint", () => {
