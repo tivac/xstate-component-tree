@@ -69,7 +69,7 @@ const statechart = Machine({
 const service = interpret(statechart);
 
 new ComponentTree(service, (tree) => {
-    // 
+    // ...
 });
 ```
 
