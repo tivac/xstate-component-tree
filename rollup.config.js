@@ -3,6 +3,8 @@
 const { writeFileSync } = require("fs");
 const { join } = require("path");
 
+const { nodeResolve } = require("@rollup/plugin-node-resolve");
+const commonjs = require("@rollup/plugin-commonjs");
 const { terser } = require("rollup-plugin-terser");
 
 const pkg = require("./package.json");
@@ -23,6 +25,9 @@ const stubby = (type) => ({
     },
 });
 
+const cjsStub = stubby("commonjs");
+const esmStub = stubby("module");
+
 // ESM & CJS builds
 module.exports = {
     input : [
@@ -31,8 +36,8 @@ module.exports = {
     ],
 
     plugins : [
-        require("rollup-plugin-node-resolve")(),
-        require("rollup-plugin-commonjs")(),
+        nodeResolve(),
+        commonjs(),
     ],
 
     output : [{
@@ -41,7 +46,7 @@ module.exports = {
         sourcemap : true,
         banner,
         plugins   : [
-            stubby("commonjs"),
+            cjsStub,
         ],
     }, {
         dir            : "./dist/cjs",
@@ -50,7 +55,7 @@ module.exports = {
         sourcemap      : true,
         plugins        : [
             terser(),
-            stubby("commonjs"),
+            cjsStub,
         ],
 
         banner,
@@ -60,7 +65,7 @@ module.exports = {
         sourcemap : true,
         banner,
         plugins   : [
-            stubby("module"),
+            esmStub,
         ],
     }, {
         dir            : "./dist/esm",
@@ -82,7 +87,7 @@ module.exports = {
                     },
                 },
             }),
-            stubby("module"),
+            esmStub,
         ],
         banner,
     }],
