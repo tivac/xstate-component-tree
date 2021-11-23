@@ -181,7 +181,7 @@ import { component } from "xstate-component-tree/component";
 + }),
 ```
 
-Both the `component` and `props` key can be a function, they'll be passed the same `context` and `events` args that are normally passed to `load()` methods.
+Both the `component` and `props` key can be a function, they'll be passed the same `context` and `event` args that are normally passed to `load()` methods.
 
 ```diff
 import { component } from "xstate-component-tree/component";
