@@ -1,10 +1,10 @@
 /**
- * 
- * @param {Function} child - 
- * @param {*} node - Xstate node data 
+ *
+ * @param {Function} child - Component instance, or component loader
+ * @param {*} node - Xstate node data
  * @returns an xstate node containing component information in its meta
  */
-const helper = (child, node = {}) => {
+export const helper = (child, node = {}) => {
     /**
      * Handle both bare component & { component, props } via destructuring & default values
      * 1. state : component(UIComponent, {})
@@ -17,6 +17,7 @@ const helper = (child, node = {}) => {
         ...meta
     } = child;
     
+    // meta will always be an object since it's a rest param, fine to assign to
     meta.load = (...args) => [
         component && typeof component === "function" ?
             component(...args) :
@@ -30,5 +31,3 @@ const helper = (child, node = {}) => {
 
     return node;
 };
-
-export default helper;

@@ -1,6 +1,6 @@
 "use strict";
 
-const ComponentTree = require("../../src/component-tree.js");
+const { default: ComponentTree } = require("../../src/component-tree.js");
 const deferred = require("./deferred.js");
 
 // Watch for trees to be built, and provide an easy way

@@ -4,7 +4,8 @@ const { Machine : createMachine, interpret } = require("xstate");
 
 const trees = require("./util/trees.js");
 const component = require("./util/component.js");
-const helper = require("../src/component-helper.js");
+const { helper } = require("../src/component-helper.js");
+const { helper: fromMain } = require("../src/component-tree.js");
 
 describe("xstate-component-tree component helper", () => {
     let tree;
@@ -15,6 +16,14 @@ describe("xstate-component-tree component helper", () => {
         }
 
         tree = null;
+    });
+
+    it("should be a named export of the main entrypoint", () => {
+        expect(typeof fromMain).toBe("function");
+    });
+
+    it("should be a named export of the /helper entrypoint", () => {
+        expect(typeof helper).toBe("function");
     });
     
     it("should return the same tree with or without the helper", async () => {
