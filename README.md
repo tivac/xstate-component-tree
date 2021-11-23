@@ -143,6 +143,35 @@ Dynamic props are also supported. To return props return an array from `load` wh
 
 The `load` function will be passed the `context` and `event` params from xstate.
 
+## The `component` helper
+
+`xstate-component-tree` exposes an optional named export called `component`, which abstracts away the assignment to the `meta` object in each state node that needs a component. It's a convenience wrapper that makes writing with `xstate-component-tree` a little bit cleaner.
+
+Rewriting the examples above to use `component` looks like this:
+
+```js
+    import { component } from "xstate-component-tree";
+
+    // ...
+    one : component(() => import("./my/component/from/here.js"),
+    // ...
+```
+
+```js
+    import { component } from "xstate-component-tree";
+
+    // ...
+    one : component({
+        component : import("./my/component/from/here.js"),
+
+        // The `props` function will also be passed the `context` and `event` params from xstate.
+        props : (context, event) => ({
+            prop1 : context.prop1
+        })
+    }),
+    //...
+```
+
 ## API
 
 ### `new ComponentTree(interpreter, callback, [options])`
