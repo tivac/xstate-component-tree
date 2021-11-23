@@ -33,6 +33,7 @@
     "rollup-plugin-terser": "^7.0.2",
     "shx": "^0.3.2",
     "snapshot-diff": "^0.8.1",
+    "standard-version": "^9.3.2",
     "xstate": "^4.13.0"
   },
   "peerDependencies": {
@@ -43,11 +44,9 @@
     "changelog": "conventional-changelog --preset angular --infile CHANGELOG.md --same-file",
     "lint": "eslint .",
     "test": "jest",
-    "prerelease": "npm run build",
-    "release": "npm version",
-    "preversion": "npm test",
-    "version": "npm run changelog && git add CHANGELOG.md",
-    "postversion": "git push --follow-tags"
+    "prerelease": "npm run build && npm run test",
+    "release": "standard-version",
+    "postrelease": "git push --follow-tags"
   },
   "keywords": [
     "xstate",
