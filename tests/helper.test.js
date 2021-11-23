@@ -5,7 +5,7 @@ const { Machine : createMachine, interpret } = require("xstate");
 const trees = require("./util/trees.js");
 const component = require("./util/component.js");
 const loadAsync = require("./util/async-loader.js");
-const { helper } = require("../src/component-helper.js");
+const { component: helper } = require("../src/component-helper.js");
 
 describe("xstate-component-tree component helper", () => {
     let tree;
