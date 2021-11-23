@@ -131,7 +131,7 @@ Dynamic props are also supported. To return props return an array from `load` wh
     one : {
         meta : {
             load : (context) => [
-                import("./my/component/from/here.js"),, 
+                import("./my/component/from/here.js"), 
                 {
                     prop1 : context.prop1
                 },
@@ -142,6 +142,69 @@ Dynamic props are also supported. To return props return an array from `load` wh
 ```
 
 The `load` function will be passed the `context` and `event` params from xstate.
+
+## The `component` helper
+
+`xstate-component-tree/component` has a named export called `component`, which is a small function to abstract away assignment to the `meta` object in each state node that needs a component. It's a convenience wrapper that makes writing with `xstate-component-tree` a little bit cleaner.
+
+```diff
+import { component } from "xstate-component-tree/component";
+
+// ...
+- one : {
+-     meta: {
+-         component: OneComponent,
+-     },
+- },
++ one : component(OneComponent),
+```
+
+Setting props for the component is handled by passing an object with `component` and `props` keys.
+
+```diff
+import { component } from "xstate-component-tree/component";
+
+// ...
+- one : {
+-     meta: {
+-        component : MyComponent,
+-        props : {
+-            prop1 : 1
+-        },
+-     },
+- },
++ one : component({
++    component : OneComponent,
++    props : {
++        prop1 : 1,
++    },
++ }),
+```
+
+Both the `component` and `props` key can be a function, they'll be passed the same `context` and `events` args that are normally passed to `load()` methods.
+
+```diff
+import { component } from "xstate-component-tree/component";
+
+// ...
+- one : {
+-     meta : {
+-         load : (context, event) => [
+-             import("./my/component/from/here.js"),
+-             {
+-                 prop1 : context.prop1,
+-             },
+-         ],
+-     },
+- },
++ one : component({
++    component : () => import("./my/component/from/here.js"),
++    props : (context) => ({
++        prop1 : context.prop1,
++    }),
++ }),
+```
+
 
 ## API
 
@@ -156,6 +219,16 @@ The `load` function will be passed the `context` and `event` params from xstate.
 - `cache` (default `true`), a boolean determining whether or not the value of `load()` functions should be cached. This can be overriden by setting `meta.cache` on any state in the tree where caching needs to be disabled.
 
 - `stable` (default: `false`), tells the library to sort states alphabetically before walking them at each tier to help ensure that the component output is more consistent between state transitions.
+
+### `component(Component | () => {}, [node])`
+
+- `Component` is either a component or an arrow function that will be executed. It supports functions that return either a component or a `Promise`.
+- `node` is a valid xstate node, the `meta` object will be created and mixed-in by the `component()`.
+
+### `component({ component : Component | () => {}, props : {...} | () => {} })`
+
+- `component` is either a raw Component or an arrow function that will be executed.  It supports returning either a value or a `Promise`.
+- `props` is either a props object or a function that will be executed. It supports function returning either a value or a `Promise`.
 
 ## Rendering Components
 

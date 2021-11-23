@@ -9,26 +9,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: 12
+          node-version: 16
+          cache: 'npm'
       
-      - name: Cache node modules
-        id: cache
-        uses: actions/cache@v1
-        with:
-          path: node_modules
-          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ env.cache-name }}-
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-:  
-
       - name: npm install
-        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
         
       - name: lint
@@ -40,30 +29,19 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [ 10, 12, 14 ]
+        node-version: [ 12, 14, 16, 17 ]
         os: [ ubuntu-latest, windows-latest ]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     
     - name: Setup Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
+        cache: 'npm'
     
-    - name: Cache node_modules
-      id: cache
-      uses: actions/cache@v1
-      with:
-        path: node_modules
-        key: ${{ matrix.os }}-build-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ matrix.os }}-build-${{ env.cache-name }}-
-          ${{ matrix.os }}-build-
-          ${{ matrix.os }}-:  
-
     - name: npm install
-      if: steps.cache.outputs.cache-hit != 'true'
       run: npm ci
     
     - name: npm build
@@ -76,12 +54,12 @@ jobs:
         
     # Run codecov after all builds, and only on a single environment
     - name: Gather Coverage
-      if: matrix.os == 'ubuntu-latest' && matrix.node-version == 14
+      if: matrix.os == 'ubuntu-latest' && matrix.node-version == 16
       run: npm test -- --ci --coverage
 
     - name: Upload Coverage
       uses: codecov/codecov-action@v1.0.2
-      if: matrix.os == 'ubuntu-latest' && matrix.node-version == 14
+      if: matrix.os == 'ubuntu-latest' && matrix.node-version == 16
       with:
         token: ${{secrets.CODECOV_TOKEN}}
         file: ./coverage/coverage-final.json
