@@ -1,6 +1,6 @@
 "use strict";
 
-const { writeFile } = require("fs/promises");
+const { writeFileSync } = require("fs");
 const { join } = require("path");
 
 const { terser } = require("rollup-plugin-terser");
@@ -18,8 +18,8 @@ const banner = `/*! ${pkg.name}@${pkg.version} !*/\n`;
 const stubby = (type) => ({
     name : `stubby-${type}`,
 
-    async writeBundle({ dir },) {
-        await writeFile(join(dir, "package.json"), JSON.stringify({ type }, null, 4));
+    writeBundle({ dir },) {
+        writeFileSync(join(dir, "package.json"), JSON.stringify({ type }, null, 4));
     },
 });
 
