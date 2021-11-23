@@ -46,7 +46,7 @@
     "test": "jest",
     "prerelease": "npm run build && npm run test",
     "release": "standard-version",
-    "postrelease": "git push --follow-tags",
+    "postrelease": "git push --follow-tags"
   },
   "keywords": [
     "xstate",
