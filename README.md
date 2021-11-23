@@ -115,30 +115,30 @@ This data structure can also contain components from any child statecharts you c
 You can dynamically load components or props using whatever functionality you like via the `load` key. To load components asynchronously return a promise or use `async`/`await`.
 
 ```js
-    // ...
-    one : {
-        meta : {
-            load : () => import("./my/component/from/here.js"),
-        },
+// ...
+one : {
+    meta : {
+        load : () => import("./my/component/from/here.js"),
     },
-    // ...
+},
+// ...
 ```
 
 Dynamic props are also supported. To return props return an array from `load` where the first value is the component and the second is the props for the component. Both values support a returned promise.
 
 ```js
-    // ...
-    one : {
-        meta : {
-            load : (context) => [
-                import("./my/component/from/here.js"), 
-                {
-                    prop1 : context.prop1
-                },
-            ],
-        },
+// ...
+one : {
+    meta : {
+        load : (context) => [
+            import("./my/component/from/here.js"), 
+            {
+                prop1 : context.prop1
+            },
+        ],
     },
-    // ...
+},
+// ...
 ```
 
 The `load` function will be passed the `context` and `event` params from xstate.
