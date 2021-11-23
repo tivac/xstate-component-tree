@@ -1,7 +1,7 @@
 "use strict";
 
-const { ComponentTree } = require("../../src/component-tree.js");
-const deferred = require("./deferred.js");
+import { ComponentTree } from "../../src/component-tree.js";
+import deferred from "./deferred.js";
 
 // Watch for trees to be built, and provide an easy way
 // to await each value
@@ -50,4 +50,4 @@ const trees = (service, fn = false, options) => {
     return out;
 };
 
-module.exports = trees;
+export default trees;

@@ -5,4 +5,4 @@ const load = (result, delay = 0) =>
         setTimeout(() => resolve(result), delay)
     );
 
-module.exports = load;
+export default load;

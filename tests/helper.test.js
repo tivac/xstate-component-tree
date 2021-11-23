@@ -1,16 +1,16 @@
 "use strict";
 
-const { Machine : createMachine, interpret } = require("xstate");
+import * as assert from "uvu/assert";
+import { createMachine, interpret } from "xstate";
 
-const trees = require("./util/trees.js");
-const component = require("./util/component.js");
-const loadAsync = require("./util/async-loader.js");
-const { component: helper } = require("../src/component-helper.js");
+import describe from "./util/describe.js";
+import trees from "./util/trees.js";
+import component from "./util/component.js";
+import loadAsync from "./util/async-loader.js";
+import { component as helper } from "../src/component-helper.js";
 
-describe("xstate-component-tree component helper", () => {
-    let tree;
-
-    afterEach(() => {
+describe("xstate-component-tree component helper", (it) => {
+    it.after.each(({ tree }) => {
         if(tree && tree.builder) {
             tree.builder.teardown();
         }
@@ -19,40 +19,44 @@ describe("xstate-component-tree component helper", () => {
     });
 
     it("should be a named export of the /helper entrypoint", () => {
-        expect(typeof helper).toBe("function");
+        assert.is(typeof helper, "function");
     });
-    
-    it.each([
+
+    [
         [ "basic component", component("one") ],
         [ "arrow function", () => component("one") ],
         [ "async arrow function", loadAsync(component("one")) ],
-    ])("should return the same tree with or without the helper: %s", async (name, load) => {
-        const basic = createMachine({
-            initial : "one",
+    ].forEach(([ name, load ]) => {
+        it(`should return the same tree with or without the helper: ${name}`, async () => {
+            const basic = createMachine({
+                initial : "one",
 
-            states : {
-                one : {
-                    meta : {
-                        component : component("one"),
+                states : {
+                    one : {
+                        meta : {
+                            component : component("one"),
+                        },
                     },
                 },
-            },
+            });
+
+            const sugar = createMachine({
+                initial : "one",
+
+                states : {
+                    one : helper(load),
+                },
+            });
+
+            const b = interpret(basic);
+            const s = interpret(sugar);
+
+            const tb = trees(b);
+            const ts = trees(s);
+
+            const [ cb, cs ] = await Promise.all([ tb(), ts() ]);
+
+            assert.equal(cb, cs);
         });
-
-        const sugar = createMachine({
-            initial : "one",
-
-            states : {
-                one : helper(load),
-            },
-        });
-
-        const b = interpret(basic);
-        const s = interpret(sugar);
-
-        const tb = trees(b);
-        const ts = trees(s);
-
-        expect(await tb()).toStrictEqual(await ts());
     });
 });
