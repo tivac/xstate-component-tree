@@ -1,8 +1,12 @@
 "use strict";
 
-const fs = require("fs");
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { resolve, dirname } from "path";
 
-const txt = fs.readFileSync(require.resolve("../CHANGELOG.md"), "utf8");
+const changelog = resolve(dirname(fileURLToPath(import.meta.url)), "../CHANGELOG.md");
+
+const txt = readFileSync(changelog, "utf8");
 
 const parts = txt.trim().split(/^(#+ \[\d+\.\d+\.\d\])/m);
 
