@@ -1,15 +1,17 @@
 const loadComponent = async ({ item, load, context, event }) => {
     const result = await load(context, event);
 
-    if(Array.isArray(result)) {
-        const [ component = false, props = false ] = await Promise.all(result);
+    let component;
+    let props;
 
-        item.component = component;
-        item.props = props;
+    if(Array.isArray(result)) {
+        [ component, props ] = await Promise.all(result);
     } else {
-        item.component = result;
-        item.props = false;
+        component = result;
     }
+
+    item.component = component || false;
+    item.props = props || false;
 };
 
 const loadChild = async ({ child, root }) => {
