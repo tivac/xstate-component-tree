@@ -1,5 +1,3 @@
-"use strict";
-
 import * as assert from "uvu/assert";
 
 import describe from "./util/describe.js";

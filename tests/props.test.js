@@ -1,5 +1,3 @@
-"use strict";
-
 import describe from "./util/describe.js";
 import { getTree } from "./util/trees.js";
 import component from "./util/component.js";

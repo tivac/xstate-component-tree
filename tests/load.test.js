@@ -1,5 +1,3 @@
-"use strict";
-
 import { createMachine, interpret } from "xstate";
 import * as assert from "uvu/assert";
 

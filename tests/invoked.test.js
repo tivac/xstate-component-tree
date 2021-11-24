@@ -1,10 +1,7 @@
-"use strict";
-
 // eslint-disable-next-line no-empty-function
 const NOOP = () => {};
 
 import { createMachine } from "xstate";
-import * as assert from "uvu/assert";
 
 import describe from "./util/describe.js";
 import { createTree, getTree } from "./util/trees.js";
