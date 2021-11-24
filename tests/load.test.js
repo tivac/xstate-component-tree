@@ -130,6 +130,7 @@ describe(".load support", (it) => {
             }
         ]`);
     });
+    
     it("should supprt async.load returning: async component & sync props", async () => {
         const tree = await getTree({
             initial : "one",
@@ -153,6 +154,7 @@ describe(".load support", (it) => {
             }
         ]`);
     });
+    
     it("should supprt async.load returning: sync component & async props", async () => {
         const tree = await getTree({
             initial : "one",
