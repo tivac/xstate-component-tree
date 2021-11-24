@@ -1,58 +1,60 @@
-"use strict";
+import describe from "./util/describe.js";
+import { getTree } from "./util/trees.js";
+import component from "./util/component.js";
+import { snapshot } from "./util/snapshot.js";
 
-const { Machine : createMachine, interpret } = require("xstate");
+describe("props", (it) => {
+    it("should support static props", async () => {
+        const tree = await getTree({
+            initial : "one",
 
-const trees = require("./util/trees.js");
-const component = require("./util/component.js");
-
-describe("xstate-component-tree", () => {
-    let tree;
-
-    afterEach(() => {
-        if(tree && tree.builder) {
-            tree.builder.teardown();
-        }
-
-        tree = null;
-    });
-    
-    describe("props", () => {
-        it("should support static props", async () => {
-            const testMachine = createMachine({
-                initial : "one",
-    
-                states : {
-                    one : {
-                        meta : {
-                            component : component("one"),
-                            props     : {
-                                fooga : 1,
-                                booga : 2,
-                            },
+            states : {
+                one : {
+                    meta : {
+                        component : component("one"),
+                        props     : {
+                            fooga : 1,
+                            booga : 2,
                         },
-    
-                        initial : "two",
-    
-                        states : {
-                            two : {
-                                meta : {
-                                    component : component("two"),
-                                    props     : {
-                                        wooga : 1,
-                                        tooga : 2,
-                                    },
+                    },
+
+                    initial : "two",
+
+                    states : {
+                        two : {
+                            meta : {
+                                component : component("two"),
+                                props     : {
+                                    wooga : 1,
+                                    tooga : 2,
                                 },
                             },
                         },
                     },
                 },
-            });
-    
-            const service = interpret(testMachine);
-    
-            tree = trees(service);
-    
-            expect(await tree()).toMatchSnapshot();
+            },
         });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: {
+                    fooga: 1,
+                    booga: 2
+                },
+                children: [
+                    [Object: null prototype] {
+                        path: "one.two",
+                        component: [Function: two],
+                        props: {
+                            wooga: 1,
+                            tooga: 2
+                        },
+                        children: []
+                    }
+                ]
+            }
+        ]`);
     });
 });

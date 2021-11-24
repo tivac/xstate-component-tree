@@ -1,22 +1,16 @@
-"use strict";
-
 // eslint-disable-next-line no-empty-function
 const NOOP = () => {};
 
-const { Machine : createMachine, interpret } = require("xstate");
-const trees = require("./util/trees.js");
-const component = require("./util/component.js");
+import { createMachine } from "xstate";
 
-describe("xstate component tree", () => {
-    let tree;
+import describe from "./util/describe.js";
+import { createTree, getTree } from "./util/trees.js";
+import component from "./util/component.js";
+import { snapshot, diff } from "./util/snapshot.js";
+import { treeTeardown } from "./util/context.js";
 
-    afterEach(() => {
-        if(tree && tree.builder) {
-            tree.builder.teardown();
-        }
-
-        tree = null;
-    });
+describe("invoked machines", (it) => {
+    it.after.each(treeTeardown);
 
     it("should support invoked child machines", async () => {
         const childMachine = createMachine({
@@ -31,7 +25,7 @@ describe("xstate component tree", () => {
             },
         });
 
-        const testMachine = createMachine({
+        const tree = await getTree({
             initial : "one",
 
             states : {
@@ -48,11 +42,21 @@ describe("xstate component tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-        
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        path: "child",
+                        component: [Function: child],
+                        props: false,
+                        children: []
+                    }
+                ]
+            }
+        ]`);
     });
 
     it("should support invoked child machines in a parallel state", async () => {
@@ -68,7 +72,7 @@ describe("xstate component tree", () => {
             },
         });
 
-        const testMachine = createMachine({
+        const tree = await getTree({
             type : "parallel",
 
             states : {
@@ -91,42 +95,63 @@ describe("xstate component tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-        
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        path: "child",
+                        component: [Function: child],
+                        props: false,
+                        children: []
+                    }
+                ]
+            },
+            [Object: null prototype] {
+                path: "two",
+                component: [Function: two],
+                props: false,
+                children: []
+            }
+        ]`);
     });
 
-    it.each([
+    [
         [ "promise", () => new Promise(NOOP) ],
         [ "callback", () => NOOP ],
-    ])("should ignore non-statechart children (%s)", async (name, src) => {
-        const testMachine = createMachine({
-            initial : "one",
+    ].forEach(([ name, src ]) => {
+        it(`should ignore non-statechart children (${name})`, async () => {
+            const tree = await getTree({
+                initial : "one",
 
-            states : {
-                one : {
-                    invoke : {
-                        id : "child",
-                        src,
-                    },
+                states : {
+                    one : {
+                        invoke : {
+                            id : "child",
+                            src,
+                        },
 
-                    meta : {
-                        component : component("one"),
+                        meta : {
+                            component : component("one"),
+                        },
                     },
                 },
-            },
+            });
+
+            snapshot(tree, `[
+                [Object: null prototype] {
+                    path: "one",
+                    component: [Function: one],
+                    props: false,
+                    children: []
+                }
+            ]`);
         });
-
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-        
-        expect(await tree()).toMatchSnapshot();
     });
     
-    it("should remove data once the invoked child machine is halted", async () => {
+    it("should remove data once the invoked child machine is halted", async (context) => {
         const childMachine = createMachine({
             initial : "child",
 
@@ -139,7 +164,7 @@ describe("xstate component tree", () => {
             },
         });
 
-        const testMachine = createMachine({
+        context.tree = createTree({
             initial : "one",
 
             states : {
@@ -166,19 +191,37 @@ describe("xstate component tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-        tree = trees(service);
+        const before = await context.tree();
         
-        const before = await tree();
+        context.tree.send("NEXT");
         
-        service.send("NEXT");
-        
-        const after = await tree();
+        const after = await context.tree();
 
-        expect(before).toMatchDiffSnapshot(after);
+        diff(before, after, `[
+            [Object: null prototype] {
+        Actual:
+        --        path: "one",
+        --        component: [Function: one],
+        Expected:
+        ++        path: "two",
+        ++        component: [Function: two],
+                props: false,
+        Actual:
+        --        children: [
+        --            [Object: null prototype] {
+        --                path: "child",
+        --                component: [Function: child],
+        --                props: false,
+        --                children: []
+        --            }
+        --        ]
+        Expected:
+        ++        children: []
+            }
+        ]`);
     });
 
-    it("should rebuild on child machine transitions", async () => {
+    it("should rebuild on child machine transitions", async (context) => {
         const childMachine = createMachine({
             initial : "child1",
 
@@ -201,7 +244,7 @@ describe("xstate component tree", () => {
             },
         });
 
-        const testMachine = createMachine({
+        context.tree = createTree({
             initial : "one",
 
             states : {
@@ -220,20 +263,34 @@ describe("xstate component tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-
-        const before = await tree();
+        const before = await context.tree();
         
-        service.send("NEXT");
+        context.tree.send("NEXT");
         
-        const after = await tree();
+        const after = await context.tree();
 
-        expect(before).toMatchDiffSnapshot(after);
+        diff(before, after, `[
+                [Object: null prototype] {
+                    path: "one",
+                    component: [Function: one],
+                    props: false,
+                    children: [
+                        [Object: null prototype] {
+            Actual:
+            --                path: "child1",
+            --                component: [Function: child1],
+            Expected:
+            ++                path: "child2",
+            ++                component: [Function: child2],
+                            props: false,
+                            children: []
+                        }
+                    ]
+                }
+            ]`);
     });
 
-    it("should rebuild on parent transitions", async () => {
+    it("should rebuild on parent transitions", async (context) => {
         const childMachine = createMachine({
             initial : "child",
 
@@ -246,7 +303,7 @@ describe("xstate component tree", () => {
             },
         });
 
-        const testMachine = createMachine({
+        context.tree = createTree({
             initial : "one",
 
             states : {
@@ -283,17 +340,37 @@ describe("xstate component tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
+        const before = await context.tree();
 
-        tree = trees(service);
+        context.tree.send("NEXT");
 
-        const before = await tree();
+        const after = await context.tree();
 
-        service.send("NEXT");
-
-        const after = await tree();
-
-        expect(before).toMatchDiffSnapshot(after);
+        diff(before, after, `[
+                [Object: null prototype] {
+                    path: "one",
+                    component: [Function: one],
+                    props: false,
+                    children: [
+                        [Object: null prototype] {
+            Actual:
+            --                path: "one.oneone",
+            --                component: [Function: oneone],
+            Expected:
+            ++                path: "one.onetwo",
+            ++                component: [Function: onetwo],
+                            props: false,
+                            children: []
+                        },
+                        [Object: null prototype] {
+                            path: "child",
+                            component: [Function: child1],
+                            props: false,
+                            children: []
+                        }
+                    ]
+                }
+            ]`);
     });
 
     it("should support nested invoked machines", async () => {
@@ -328,7 +405,7 @@ describe("xstate component tree", () => {
             },
         });
 
-        const testMachine = createMachine({
+        const tree = await getTree({
             initial : "one",
 
             states : {
@@ -347,14 +424,31 @@ describe("xstate component tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        path: "child",
+                        component: [Function: child],
+                        props: false,
+                        children: [
+                            [Object: null prototype] {
+                                path: "grandchild",
+                                component: [Function: grandchild],
+                                props: false,
+                                children: []
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]`);
     });
 
-    it("should rebuild on nested invoked machine transitions", async () => {
+    it("should rebuild on nested invoked machine transitions", async (context) => {
         const grandchildMachine = createMachine({
             initial : "grandchild1",
 
@@ -396,7 +490,7 @@ describe("xstate component tree", () => {
             },
         });
 
-        const testMachine = createMachine({
+        context.tree = createTree({
             initial : "one",
 
             states : {
@@ -415,16 +509,37 @@ describe("xstate component tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
+        const before = await context.tree();
 
-        tree = trees(service);
-
-        const before = await tree();
-
-        service.send("NEXT");
+        context.tree.send("NEXT");
         
-        const after = await tree();
+        const after = await context.tree();
 
-        expect(before).toMatchDiffSnapshot(after);
+        diff(before, after, `[
+                [Object: null prototype] {
+                    path: "one",
+                    component: [Function: one],
+                    props: false,
+                    children: [
+                        [Object: null prototype] {
+                            path: "child",
+                            component: [Function: child],
+                            props: false,
+                            children: [
+                                [Object: null prototype] {
+            Actual:
+            --                        path: "grandchild1",
+            --                        component: [Function: grandchild1],
+            Expected:
+            ++                        path: "grandchild2",
+            ++                        component: [Function: grandchild2],
+                                    props: false,
+                                    children: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]`);
     });
 });

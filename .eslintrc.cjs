@@ -1,20 +1,19 @@
+"use strict";
+
 module.exports = {
     extends : [
         "@tivac",
-        "plugin:jest/recommended",
     ],
 
-    parser : "@babel/eslint-parser",
-
-    env : {
-        node : true,
-        jest : true,
-        es6  : true,
+    parserOptions : {
+        sourceType : "module",
     },
 
-    plugins : [
-        "jest",
-    ],
+    env : {
+        node    : true,
+        browser : true,
+        es2020  : true,
+    },
 
     rules : {
         "max-statements" : [ "warn", 25 ],
@@ -34,10 +33,5 @@ module.exports = {
                 message  : "Object spread doesn't work in all environments",
             },
         ],
-    },
-
-    // Weird that setting "jest" up above in the env settings doesn't handle this
-    globals : {
-        document : true,
     },
 };

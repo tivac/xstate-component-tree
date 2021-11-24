@@ -1,11 +1,25 @@
-"use strict";
+import { createMachine, interpret } from "xstate";
 
-const { ComponentTree } = require("../../src/component-tree.js");
-const deferred = require("./deferred.js");
+import ComponentTree from "../../src/component-tree.js";
+
+const deferred = () => {
+    let resolve;
+    let reject;
+    
+    const p = new Promise((ok, no) => {
+        resolve = ok;
+        reject = no;
+    });
+
+    p.resolve = resolve;
+    p.reject = reject;
+
+    return p;
+};
 
 // Watch for trees to be built, and provide an easy way
 // to await each value
-const trees = (service, fn = false, options) => {
+export const trees = (service, fn = false, options) => {
     const responses = [];
     let idx = 0;
     let p;
@@ -45,9 +59,29 @@ const trees = (service, fn = false, options) => {
         respond();
     }, options);
 
+    out.send = (...args) => service.send(...args);
+
+    out.service = service;
+
     service.start();
 
     return out;
 };
 
-module.exports = trees;
+export const createTree = (def, ...rest) => {
+    const machine = createMachine(def);
+
+    const service = interpret(machine);
+
+    return trees(service, ...rest);
+};
+
+export const getTree = async (def, ...rest) => {
+    const generator = createTree(def, ...rest);
+
+    const result = await generator();
+
+    generator.builder.teardown();
+
+    return result;
+};

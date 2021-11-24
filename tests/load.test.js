@@ -1,26 +1,19 @@
-"use strict";
+import * as assert from "uvu/assert";
 
-const { Machine : createMachine, interpret } = require("xstate");
-const trees = require("./util/trees.js");
-const component = require("./util/component.js");
-const loadAsync = require("./util/async-loader.js");
+import describe from "./util/describe.js";
+import component from "./util/component.js";
+import { asyncLoad } from "./util/async.js";
+import { getTree, createTree } from "./util/trees.js";
+import { snapshot } from "./util/snapshot.js";
+import { treeTeardown } from "./util/context.js";
 
-describe("xstate-component-tree", () => {
-    let tree;
-
-    afterEach(() => {
-        if(tree && tree.builder) {
-            tree.builder.teardown();
-        }
-
-        tree = null;
-    });
+describe(".load support", (it) => {
+    it.after.each(treeTeardown);
 
     it("should support sync .load methods", async () => {
-        const testMachine = createMachine({
+        const tree = await getTree({
             initial : "one",
-
-            states : {
+            states  : {
                 one : {
                     meta : {
                         load : () => component("one"),
@@ -29,19 +22,21 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: []
+            }
+        ]`);
     });
     
     it("should pass context and event params to .load methods", async () => {
-        const testMachine = createMachine({
+        const tree = await getTree({
             initial : "one",
             context : "context",
-
-            states : {
+            states  : {
                 one : {
                     meta : {
                         load : (ctx, event) => ({ ctx, event }),
@@ -50,18 +45,25 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: {
+                    ctx: "context",
+                    event: {
+                        type: "xstate.init"
+                    }
+                },
+                props: false,
+                children: []
+            }
+        ]`);
     });
 
     it("should support returning a component and props", async () => {
-        const testMachine = createMachine({
+        const tree = await getTree({
             initial : "one",
-
-            states : {
+            states  : {
                 one : {
                     meta : {
                         load : () => [ component("one"), { props : true }],
@@ -70,65 +72,118 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: {
+                    props: true
+                },
+                children: []
+            }
+        ]`);
     });
     
     it("should support async .load methods", async () => {
-        const testMachine = createMachine({
+        const tree = await getTree({
             initial : "one",
 
             states : {
                 one : {
                     meta : {
-                        load : loadAsync(component("one")),
+                        load : asyncLoad(component("one")),
                     },
                 },
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: []
+            }
+        ]`);
     });
 
-    it.each([
-        [ "sync component & sync props", loadAsync([ component("one"), { props : true }]) ],
-        [ "async component & sync props", loadAsync([ loadAsync(component("one"))(), { props : true }]) ],
-        [ "sync component & async props", loadAsync([ component("one"), loadAsync({ props : true })() ]) ],
-    ])("should support async .load methods that return: %s", async (name, load) => {
-        const testMachine = createMachine({
+    it("should supprt async.load returning: sync component & sync props", async () => {
+        const tree = await getTree({
             initial : "one",
-
-            states : {
+            states  : {
                 one : {
                     meta : {
-                        load,
+                        load : asyncLoad([ component("one"), { props : true }]),
                     },
                 },
             },
         });
 
-        const service = interpret(testMachine);
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: {
+                    props: true
+                },
+                children: []
+            }
+        ]`);
+    });
+    it("should supprt async.load returning: async component & sync props", async () => {
+        const tree = await getTree({
+            initial : "one",
+            states  : {
+                one : {
+                    meta : {
+                        load : asyncLoad([ asyncLoad(component("one"))(), { props : true }]),
+                    },
+                },
+            },
+        });
 
-        tree = trees(service);
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: {
+                    props: true
+                },
+                children: []
+            }
+        ]`);
+    });
+    it("should supprt async.load returning: sync component & async props", async () => {
+        const tree = await getTree({
+            initial : "one",
+            states  : {
+                one : {
+                    meta : {
+                        load : asyncLoad([ component("one"), asyncLoad({ props : true })() ]),
+                    },
+                },
+            },
+        });
 
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: {
+                    props: true
+                },
+                children: []
+            }
+        ]`);
     });
 
     it("should support nested async .load methods", async () => {
-        const testMachine = createMachine({
+        const tree = await getTree({
             initial : "one",
-
-            states : {
+            states  : {
                 one : {
                     meta : {
-                        load : loadAsync(component("one")),
+                        load : asyncLoad(component("one")),
                     },
 
                     initial : "two",
@@ -136,7 +191,7 @@ describe("xstate-component-tree", () => {
                     states : {
                         two : {
                             meta : {
-                                load : loadAsync(component("two"), 16),
+                                load : asyncLoad(component("two"), 16),
                             },
                         },
                     },
@@ -144,15 +199,25 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        path: "one.two",
+                        component: [Function: two],
+                        props: false,
+                        children: []
+                    }
+                ]
+            }
+        ]`);
     });
 
-    it("should ignore stale trees if component loads hadn't completed", async () => {
-        const testMachine = createMachine({
+    it("should ignore stale trees if component loads hadn't completed", async (context) => {
+        context.tree = createTree({
             initial : "one",
 
             states : {
@@ -176,20 +241,23 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-
         // Purposefully not awaiting this, it'll never resolve!
-        tree();
+        context.tree();
 
-        expect(await tree()).toMatchSnapshot();
+        snapshot(await context.tree(), `[
+            [Object: null prototype] {
+                path: "two",
+                component: [Function: two],
+                props: false,
+                children: []
+            }
+        ]`);
     });
 
-    it("should only call load when a state is entered", async () => {
+    it("should only call load when a state is entered", async (context) => {
         let runs = 0;
         
-        const testMachine = createMachine({
+        context.tree = createTree({
             initial : "one",
             context : "context",
 
@@ -218,25 +286,21 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
+        await context.tree();
 
-        tree = trees(service);
-
-        await tree();
-
-        expect(runs).toEqual(1);
+        assert.equal(runs, 1);
         
-        service.send("NEXT");
+        context.tree.send("NEXT");
         
-        await tree();
+        await context.tree();
 
-        expect(runs).toEqual(1);
+        assert.equal(runs, 1);
     });
 
-    it("should re-run load functions when transitioning back to a state", async () => {
+    it("should re-run load functions when transitioning back to a state", async (context) => {
         let runs = [];
         
-        const testMachine = createMachine({
+        context.tree = createTree({
             initial : "one",
 
             states : {
@@ -270,35 +334,37 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
+        await context.tree();
 
-        tree = trees(service);
-
-        await tree();
-
-        expect(runs).toMatchSnapshot();
+        assert.equal(runs, [
+            "one",
+        ]);
 
         runs = [];
 
-        service.send("NEXT");
+        context.tree.send("NEXT");
         
-        await tree();
+        await context.tree();
 
-        expect(runs).toMatchSnapshot();
+        assert.equal(runs, [
+            "two",
+        ]);
 
         runs = [];
         
-        service.send("NEXT");
+        context.tree.send("NEXT");
         
-        await tree();
+        await context.tree();
 
-        expect(runs).toMatchSnapshot();
+        assert.equal(runs, [
+            "one",
+        ]);
     });
 
-    it("should allow the caching to be disabled globally", async () => {
+    it("should allow the caching to be disabled globally", async (context) => {
         let runs = [];
         
-        const testMachine = createMachine({
+        const tree = createTree({
             initial : "one",
 
             states : {
@@ -332,29 +398,32 @@ describe("xstate-component-tree", () => {
                     },
                 },
             },
-        });
+        }, false, { cache : false });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service, false, { cache : false });
+        context.tree = tree;
 
         await tree();
 
-        expect(runs).toMatchSnapshot();
+        assert.equal(runs, [
+            "one",
+            "oneone",
+        ]);
 
         runs = [];
 
-        service.send("NEXT");
+        tree.send("NEXT");
         
         await tree();
 
-        expect(runs).toMatchSnapshot();
+        assert.equal(runs, [
+            "one",
+        ]);
     });
     
-    it("should allow the caching to be disabled locally", async () => {
+    it("should allow the caching to be disabled locally", async (context) => {
         let runs = [];
         
-        const testMachine = createMachine({
+        const tree = createTree({
             initial : "one",
 
             states : {
@@ -391,20 +460,23 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service, false);
+        context.tree = tree;
 
         await tree();
 
-        expect(runs).toMatchSnapshot();
+        assert.equal(runs, [
+            "one",
+            "oneone",
+        ]);
 
         runs = [];
 
-        service.send("NEXT");
+        tree.send("NEXT");
         
         await tree();
 
-        expect(runs).toMatchSnapshot();
+        assert.equal(runs, [
+            "one",
+        ]);
     });
 });

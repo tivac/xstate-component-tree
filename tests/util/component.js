@@ -1,6 +1,6 @@
-"use strict";
+// eslint-disable-next-line prefer-arrow-callback
+const component = (name) => Object.defineProperty(function() {
+    return name;
+}, "name", { value : name });
 
-// TODO: figure out how to make this a function w/ a dynamic name
-const component = (name) => name;
-
-module.exports = component;
+export default component;

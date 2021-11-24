@@ -4,7 +4,7 @@
  * @param {*} node - Xstate node data
  * @returns an xstate node containing component information in its meta
  */
-const helper = (child, node = {}) => {
+export default (child, node = {}) => {
     /**
      * Handle both bare component & { component, props } via destructuring & default values
      * 1. state : component(UIComponent, {})
@@ -32,8 +32,4 @@ const helper = (child, node = {}) => {
     node.meta = meta;
 
     return node;
-};
-
-export {
-    helper as component,
 };

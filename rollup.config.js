@@ -1,13 +1,13 @@
 "use strict";
 
-const { writeFileSync } = require("fs");
-const { join } = require("path");
+import { writeFileSync } from "fs";
+import { join } from "path";
 
-const { nodeResolve } = require("@rollup/plugin-node-resolve");
-const commonjs = require("@rollup/plugin-commonjs");
-const { terser } = require("rollup-plugin-terser");
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import { terser } from "rollup-plugin-terser";
 
-const pkg = require("./package.json");
+import pkg from "./package.json";
 
 const banner = `/*! ${pkg.name}@${pkg.version} !*/\n`;
 
@@ -29,7 +29,7 @@ const cjsStub = stubby("commonjs");
 const esmStub = stubby("module");
 
 // ESM & CJS builds
-module.exports = {
+export default {
     input : [
         "./src/component-tree.js",
         "./src/component-helper.js",
@@ -43,6 +43,7 @@ module.exports = {
     output : [{
         dir       : "./dist/cjs",
         format    : "cjs",
+        exports   : "default",
         sourcemap : true,
         banner,
         plugins   : [
@@ -52,6 +53,7 @@ module.exports = {
         dir            : "./dist/cjs",
         entryFileNames : "[name]-min.js",
         format         : "cjs",
+        exports        : "default",
         sourcemap      : true,
         plugins        : [
             terser(),

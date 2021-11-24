@@ -2,12 +2,13 @@ const loadComponent = async ({ item, load, context, event }) => {
     const result = await load(context, event);
 
     if(Array.isArray(result)) {
-        const [ component, props ] = await Promise.all(result);
+        const [ component = false, props = false ] = await Promise.all(result);
 
         item.component = component;
         item.props = props;
     } else {
         item.component = result;
+        item.props = false;
     }
 };
 
@@ -21,7 +22,7 @@ const loadChild = async ({ child, root }) => {
     root.children.push(...children);
 };
 
-export class ComponentTree {
+class ComponentTree {
     constructor(interpreter, callback, { cache = true, stable = false } = false) {
         // Storing off args + options
         this._interpreter = interpreter;
@@ -346,3 +347,5 @@ export class ComponentTree {
         return this._run();
     }
 }
+
+export default ComponentTree;
