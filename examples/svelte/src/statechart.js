@@ -31,7 +31,7 @@ const statechart = createMachine({
 
                 two : {
                     meta : {
-                        load : () => [ import("./two.svelte") ],
+                        load : () => import("./two.svelte"),
                     },
 
                     on : {
@@ -43,7 +43,7 @@ const statechart = createMachine({
 
         other : {
             meta : {
-                load : () => [ import("./other.svelte") ],
+                load : () => import("./other.svelte"),
             },
 
             on : {

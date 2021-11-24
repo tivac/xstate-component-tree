@@ -23,7 +23,5 @@ new ComponentTree(service, (tree) => {
     components = tree;
 });
 
-$: console.log(components);
-
 service.start();
 </script>
