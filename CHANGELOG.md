@@ -1,3 +1,14 @@
+# Changelog
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [3.4.0](https://github.com/tivac/xstate-component-tree/compare/v3.3.1...v3.4.0) (2021-11-24)
+
+
+### Features
+
+* Add component helper to xstate-component-tree package ([#29](https://github.com/tivac/xstate-component-tree/issues/29)) ([6e28384](https://github.com/tivac/xstate-component-tree/commit/6e28384f2483465d9b3fdaaf36b7e988ffb2bdb3))
+
 ## [3.3.1](https://github.com/tivac/xstate-component-tree/compare/v3.3.0...v3.3.1) (2020-10-03)
 
 
