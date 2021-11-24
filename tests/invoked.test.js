@@ -7,17 +7,10 @@ import describe from "./util/describe.js";
 import { createTree, getTree } from "./util/trees.js";
 import component from "./util/component.js";
 import { snapshot, diff } from "./util/snapshot.js";
+import { treeTeardown } from "./util/context.js";
 
 describe("invoked machines", (it) => {
-    it.after.each((context) => {
-        const { tree } = context;
-
-        if(tree && tree.builder) {
-            tree.builder.teardown();
-        }
-
-        context.tree = null;
-    });
+    it.after.each(treeTeardown);
 
     it("should support invoked child machines", async () => {
         const childMachine = createMachine({

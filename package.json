@@ -18,13 +18,13 @@
     }
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.16.3",
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@tivac/eslint-config": "^2.4.0",
     "dedent": "^0.7.0",
     "eslint": "^8.3.0",
     "esm": "^3.2.25",
+    "nanospy": "^0.3.0",
     "node-notifier": "^10.0.0",
     "object-inspect": "^1.11.0",
     "rollup": "^2.60.1",

@@ -1,20 +1,15 @@
 import * as assert from "uvu/assert";
 
+import { component as helper } from "../src/component-helper.js";
+
 import describe from "./util/describe.js";
 import component from "./util/component.js";
 import { asyncValue, asyncLoad } from "./util/async.js";
 import { getTree } from "./util/trees.js";
+import { treeTeardown } from "./util/context.js";
 
-import { component as helper } from "../src/component-helper.js";
-
-describe("xstate-component-tree component helper", (it) => {
-    it.after.each(({ tree }) => {
-        if(tree && tree.builder) {
-            tree.builder.teardown();
-        }
-
-        tree = null;
-    });
+describe("xstate-component-tree/helper", (it) => {
+    it.after.each(treeTeardown);
 
     it("should be a named export of the /helper entrypoint", () => {
         assert.is(typeof helper, "function");

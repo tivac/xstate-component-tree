@@ -1,23 +1,18 @@
-"use strict";
+import * as assert from "uvu/assert";
+import { spy } from "nanospy";
+import { createMachine, interpret } from "xstate";
 
-const { Machine : createMachine, interpret } = require("xstate");
+import describe from "./util/describe.js";
+import { getTree, createTree, trees } from "./util/trees.js";
+import component from "./util/component.js";
+import { treeTeardown } from "./util/context.js";
+import { diff, snapshot } from "./util/snapshot.js";
 
-const trees = require("./util/trees.js");
-const component = require("./util/component.js");
-
-describe("xstate-component-tree", () => {
-    let tree;
-
-    afterEach(() => {
-        if(tree && tree.builder) {
-            tree.builder.teardown();
-        }
-
-        tree = null;
-    });
+describe("basic functionality", (it) => {
+    it.after.each(treeTeardown);
     
     it("should return a tree of components", async () => {
-        const testMachine = createMachine({
+        const tree = await getTree({
             initial : "one",
 
             states : {
@@ -39,15 +34,25 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        path: "one.two",
+                        component: [Function: two],
+                        props: false,
+                        children: []
+                    }
+                ]
+            }
+        ]`);
     });
 
     it("should support parallel states", async () => {
-        const testMachine = createMachine({
+        const tree = await getTree({
             type : "parallel",
 
             states : {
@@ -65,18 +70,24 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: []
+            },
+            [Object: null prototype] {
+                path: "two",
+                component: [Function: two],
+                props: false,
+                children: []
+            }
+        ]`);
     });
 
-    it.each([
-        true,
-        false,
-    ])("should support nested parallel states (stable: %s)", async (stable) => {
-        const testMachine = createMachine({
+    it(`should support nested parallel states (stable: true)`, async () => {
+        const tree = await getTree({
             initial : "one",
 
             states : {
@@ -98,17 +109,67 @@ describe("xstate-component-tree", () => {
                     },
                 },
             },
-        });
+        }, false, { stable : true });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service, false, { stable });
-
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one.three",
+                component: [Function: three],
+                props: false,
+                children: []
+            },
+            [Object: null prototype] {
+                path: "one.two",
+                component: [Function: two],
+                props: false,
+                children: []
+            }
+        ]`);
     });
+    
+    it(`should support nested parallel states (stable: false)`, async () => {
+        const tree = await getTree({
+            initial : "one",
 
+            states : {
+                one : {
+                    type : "parallel",
+
+                    states : {
+                        two : {
+                            meta : {
+                                component : component("two"),
+                            },
+                        },
+        
+                        three : {
+                            meta : {
+                                component : component("three"),
+                            },
+                        },
+                    },
+                },
+            },
+        }, false, { stable : false });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one.two",
+                component: [Function: two],
+                props: false,
+                children: []
+            },
+            [Object: null prototype] {
+                path: "one.three",
+                component: [Function: three],
+                props: false,
+                children: []
+            }
+        ]`);
+    });
+    
     it("should support arbitrary ids", async () => {
-        const testMachine = createMachine({
+        const tree = await getTree({
             initial : "one",
 
             states : {
@@ -134,15 +195,25 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        path: "one.two",
+                        component: [Function: two],
+                        props: false,
+                        children: []
+                    }
+                ]
+            }
+        ]`);
     });
 
     it("should support holes", async () => {
-        const testMachine = createMachine({
+        const tree = await getTree({
             initial : "one",
 
             states : {
@@ -170,15 +241,25 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
-
-        tree = trees(service);
-
-        expect(await tree()).toMatchSnapshot();
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        path: "one.two.three",
+                        component: [Function: three],
+                        props: false,
+                        children: []
+                    }
+                ]
+            }
+        ]`);
     });
     
-    it("should rebuild on machine transition", async () => {
-        const testMachine = createMachine({
+    it("should rebuild on machine transition", async (context) => {
+        const tree = createTree({
             initial : "one",
 
             states : {
@@ -200,20 +281,29 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
+        context.tree = tree;
 
-        tree = trees(service);
-        
         const before = await tree();
         
-        service.send("NEXT");
+        tree.send("NEXT");
 
         const after = await tree();
 
-        expect(before).toMatchDiffSnapshot(after);
+        diff(before, after, `[
+            [Object: null prototype] {
+        Actual:
+        --        path: "one",
+        --        component: [Function: one],
+        Expected:
+        ++        path: "two",
+        ++        component: [Function: two],
+                props: false,
+                children: []
+            }
+        ]`);
     });
 
-    it("shouldn't rebuild on events without changes", async () => {
+    it("shouldn't rebuild on events without changes", async (context) => {
         const testMachine = createMachine({
             initial : "one",
 
@@ -227,22 +317,24 @@ describe("xstate-component-tree", () => {
         });
 
         const service = interpret(testMachine);
-        const eventCounter = jest.fn();
+        const eventCounter = spy();
 
         service.onEvent(eventCounter);
 
-        tree = trees(service);
-        
+        const tree = trees(service);
+
+        context.tree = tree;
+
         await tree();
 
-        service.send("NEXT");
+        tree.send("NEXT");
 
-        // onEvent was called twice, but treeBuilder returned on tree as expected
-        expect(eventCounter.mock.calls.length).toBe(2);
+        // onEvent was called twice, but treeBuilder returned one tree as expected
+        assert.equal(eventCounter.callCount, 2);
     });
 
-    it("should rebuild in a stable order (change before)", async () => {
-        const testMachine = createMachine({
+    it("should rebuild in a stable order (change before)", async (context) => {
+        const tree = createTree({
             type : "parallel",
 
             states : {
@@ -272,21 +364,33 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
+        context.tree = tree;
 
-        tree = trees(service);
-        
         const before = await tree();
         
-        service.send("NEXT");
+        tree.send("NEXT");
 
         const after = await tree();
 
-        expect(before).toMatchDiffSnapshot(after);
+        diff(before, after, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: []
+        Expected:
+        ++    },
+        ++    [Object: null prototype] {
+        ++        path: "b.two",
+        ++        component: [Function: b.two],
+        ++        props: false,
+        ++        children: []
+            }
+        ]`);
     });
 
-    it("should rebuild in a stable order (change after)", async () => {
-        const testMachine = createMachine({
+    it("should rebuild in a stable order (change after)", async (context) => {
+        const tree = createTree({
             type : "parallel",
 
             states : {
@@ -316,21 +420,35 @@ describe("xstate-component-tree", () => {
             },
         });
 
-        const service = interpret(testMachine);
+        context.tree = tree;
 
-        tree = trees(service);
-        
         const before = await tree();
         
-        service.send("NEXT");
+        tree.send("NEXT");
 
         const after = await tree();
 
-        expect(before).toMatchDiffSnapshot(after);
+        diff(before, after, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: []
+        Expected:
+        ++    },
+        ++    [Object: null prototype] {
+        ++        path: "b.two",
+        ++        component: [Function: b.two],
+        ++        props: false,
+        ++        children: []
+            }
+        ]`);
     });
 
     it("should clean up after itself", async () => {
-        const testMachine = createMachine({
+        const callback = spy();
+
+        const tree = createTree({
             initial : "one",
 
             states : {
@@ -350,20 +468,14 @@ describe("xstate-component-tree", () => {
                     },
                 },
             },
-        });
+        }, callback);
 
-        const service = interpret(testMachine);
-
-        const callback = jest.fn();
-        
-        tree = trees(service, callback);
-        
         await tree();
         
         tree.builder.teardown();
 
-        service.send("NEXT");
+        tree.send("NEXT");
 
-        expect(callback.mock.calls.length).toBe(1);
+        assert.equal(callback.callCount, 1);
     });
 });

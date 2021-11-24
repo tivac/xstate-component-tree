@@ -1,14 +1,18 @@
+"use strict";
+
 module.exports = {
     extends : [
         "@tivac",
     ],
 
-    parser : "@babel/eslint-parser",
+    parserOptions : {
+        sourceType : "module",
+    },
 
     env : {
         node    : true,
         browser : true,
-        es6     : true,
+        es2020  : true,
     },
 
     rules : {

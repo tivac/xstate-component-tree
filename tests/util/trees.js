@@ -48,21 +48,23 @@ export const trees = (service, fn = false, options) => {
 
     out.send = (...args) => service.send(...args);
 
+    out.service = service;
+
     service.start();
 
     return out;
 };
 
-export const createTree = (def) => {
+export const createTree = (def, ...rest) => {
     const machine = createMachine(def);
 
     const service = interpret(machine);
 
-    return trees(service);
+    return trees(service, ...rest);
 };
 
-export const getTree = async (def) => {
-    const generator = createTree(def);
+export const getTree = async (def, ...rest) => {
+    const generator = createTree(def, ...rest);
 
     const result = await generator();
 

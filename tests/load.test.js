@@ -1,22 +1,14 @@
-import { createMachine, interpret } from "xstate";
 import * as assert from "uvu/assert";
 
 import describe from "./util/describe.js";
 import component from "./util/component.js";
 import { asyncLoad } from "./util/async.js";
-import { getTree, createTree, trees } from "./util/trees.js";
+import { getTree, createTree } from "./util/trees.js";
 import { snapshot } from "./util/snapshot.js";
+import { treeTeardown } from "./util/context.js";
 
-describe("loading", (it) => {
-    it.after.each((context) => {
-        const { tree } = context;
-
-        if(tree && tree.builder) {
-            tree.builder.teardown();
-        }
-
-        context.tree = null;
-    });
+describe(".load support", (it) => {
+    it.after.each(treeTeardown);
 
     it("should support sync .load methods", async () => {
         const tree = await getTree({
@@ -372,7 +364,7 @@ describe("loading", (it) => {
     it("should allow the caching to be disabled globally", async (context) => {
         let runs = [];
         
-        const testMachine = createMachine({
+        const tree = createTree({
             initial : "one",
 
             states : {
@@ -406,13 +398,11 @@ describe("loading", (it) => {
                     },
                 },
             },
-        });
+        }, false, { cache : false });
 
-        const service = interpret(testMachine);
+        context.tree = tree;
 
-        context.tree = trees(service, false, { cache : false });
-
-        await context.tree();
+        await tree();
 
         assert.equal(runs, [
             "one",
@@ -421,9 +411,9 @@ describe("loading", (it) => {
 
         runs = [];
 
-        service.send("NEXT");
+        tree.send("NEXT");
         
-        await context.tree();
+        await tree();
 
         assert.equal(runs, [
             "one",
@@ -433,7 +423,7 @@ describe("loading", (it) => {
     it("should allow the caching to be disabled locally", async (context) => {
         let runs = [];
         
-        const testMachine = createMachine({
+        const tree = createTree({
             initial : "one",
 
             states : {
@@ -470,11 +460,9 @@ describe("loading", (it) => {
             },
         });
 
-        const service = interpret(testMachine);
+        context.tree = tree;
 
-        context.tree = trees(service, false);
-
-        await context.tree();
+        await tree();
 
         assert.equal(runs, [
             "one",
@@ -483,9 +471,9 @@ describe("loading", (it) => {
 
         runs = [];
 
-        service.send("NEXT");
+        tree.send("NEXT");
         
-        await context.tree();
+        await tree();
 
         assert.equal(runs, [
             "one",
