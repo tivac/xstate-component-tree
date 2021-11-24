@@ -1,4 +1,4 @@
-<p>ONE RENDERED AT {Date.now()}</p>
+<p>TWO RENDERED AT {Date.now()}</p>
 
 <Next />
 

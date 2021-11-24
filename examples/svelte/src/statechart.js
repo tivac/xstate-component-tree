@@ -1,4 +1,4 @@
-import { Machine as createMachine } from "xstate";
+import { createMachine, interpret } from "xstate";
 
 import Home from "./Home.svelte";
 import One from "./One.svelte";
@@ -12,6 +12,10 @@ const statechart = createMachine({
                 component : Home,
             },
 
+            on : {
+                NAV : "other",
+            },
+
             initial : "one",
 
             states : {
@@ -19,10 +23,36 @@ const statechart = createMachine({
                     meta : {
                         component : One,
                     },
+
+                    on : {
+                        NEXT : "two",
+                    },
                 },
+
+                two : {
+                    meta : {
+                        load : () => [ import("./two.svelte") ],
+                    },
+
+                    on : {
+                        NEXT : "one",
+                    },
+                },
+            },
+        },
+
+        other : {
+            meta : {
+                load : () => [ import("./other.svelte") ],
+            },
+
+            on : {
+                NAV : "home",
             },
         },
     },
 });
 
-export default statechart;
+const service = interpret(statechart);
+
+export default service;
