@@ -2,7 +2,20 @@ import { createMachine, interpret } from "xstate";
 
 import ComponentTree from "../../src/component-tree.js";
 
-import deferred from "./deferred.js";
+const deferred = () => {
+    let resolve;
+    let reject;
+    
+    const p = new Promise((ok, no) => {
+        resolve = ok;
+        reject = no;
+    });
+
+    p.resolve = resolve;
+    p.reject = reject;
+
+    return p;
+};
 
 // Watch for trees to be built, and provide an easy way
 // to await each value
