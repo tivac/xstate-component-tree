@@ -1,7 +1,7 @@
 import { createMachine, interpret } from "xstate";
 
-import Home from "./Home.svelte";
-import One from "./One.svelte";
+import Home from "./home.svelte";
+import One from "./one.svelte";
 
 const statechart = createMachine({
     initial : "home",
