@@ -1,6 +1,6 @@
 import { createMachine, interpret } from "xstate";
 
-import { ComponentTree } from "../../src/component-tree.js";
+import ComponentTree from "../../src/component-tree.js";
 
 import deferred from "./deferred.js";
 

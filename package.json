@@ -43,7 +43,6 @@
     "changelog": "conventional-changelog --preset angular --infile CHANGELOG.md --same-file",
     "lint": "eslint .",
     "test": "uvu tests",
-    "test:legacy": "uvu -r esm tests",
     "prerelease": "npm run build && npm run test",
     "release": "standard-version",
     "postrelease": "git push --follow-tags"

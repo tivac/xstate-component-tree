@@ -1,6 +1,6 @@
 import * as assert from "uvu/assert";
 
-import { component as helper } from "../src/component-helper.js";
+import helper from "../src/component-helper.js";
 
 import describe from "./util/describe.js";
 import component from "./util/component.js";
