@@ -1,12 +1,12 @@
 "use strict";
 
 import * as assert from "uvu/assert";
-import { createMachine, interpret } from "xstate";
 
 import describe from "./util/describe.js";
-import trees from "./util/trees.js";
 import component from "./util/component.js";
-import loadAsync from "./util/async-loader.js";
+import { asyncValue, asyncLoad } from "./util/async.js";
+import { getTree } from "./util/trees.js";
+
 import { component as helper } from "../src/component-helper.js";
 
 describe("xstate-component-tree component helper", (it) => {
@@ -22,41 +22,76 @@ describe("xstate-component-tree component helper", (it) => {
         assert.is(typeof helper, "function");
     });
 
-    [
-        [ "basic component", component("one") ],
-        [ "arrow function", () => component("one") ],
-        [ "async arrow function", loadAsync(component("one")) ],
-    ].forEach(([ name, load ]) => {
-        it(`should return the same tree with or without the helper: ${name}`, async () => {
-            const basic = createMachine({
-                initial : "one",
+    const One = component("one");
+    const props = { foo : "bar" };
 
+    [
+        [
+            "basic component",
+            { component : One },
+            One,
+        ],
+        [
+            "basic component + basic props",
+            { component : One, props },
+            { component : One, props },
+        ],
+        [
+            "basic component + arrow fn props",
+            { load : () => [ One, props ] },
+            { component : One, props : () => props },
+        ],
+        [
+            "arrow function",
+            { load : () => One },
+            () => One,
+        ],
+        [
+            "arrow function + basic props",
+            { load : () => [ One, props ] },
+            { component : () => One, props },
+        ],
+        [
+            "arrow function + arrow fn props",
+            { load : () => [ One, props ] },
+            { component : () => One, props : () => props },
+        ],
+        [
+            "async arrow function",
+            { load : () => [ asyncValue(One) ] },
+            asyncLoad(One),
+        ],
+        [
+            "async arrow function + basic props",
+            { load : () => [ asyncValue(One), props ] },
+            { component : asyncLoad(One), props },
+        ],
+        [
+            "async arrow function + arrow fn props",
+            { load : () => [ asyncValue(One), props ] },
+            { component : asyncLoad(One), props : () => props },
+        ],
+    ].forEach(([ name, meta, helpered ]) => {
+        it(`should be the same: ${name}`, async () => {
+            const basic = await getTree({
+                initial : "one",
+    
                 states : {
                     one : {
-                        meta : {
-                            component : component("one"),
-                        },
+                        meta,
                     },
                 },
             });
-
-            const sugar = createMachine({
+    
+            const sugar = await getTree({
                 initial : "one",
-
+    
                 states : {
-                    one : helper(load),
+                    one : helper(helpered),
                 },
             });
 
-            const b = interpret(basic);
-            const s = interpret(sugar);
-
-            const tb = trees(b);
-            const ts = trees(s);
-
-            const [ cb, cs ] = await Promise.all([ tb(), ts() ]);
-
-            assert.equal(cb, cs);
+            assert.equal(basic, sugar);
         });
     });
 });
