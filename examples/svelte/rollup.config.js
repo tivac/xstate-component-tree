@@ -3,14 +3,19 @@
 module.exports = {
     input : "src/index.js",
 
+    preserveEntrySignatures : false,
+
     output : {
-        file   : "dist/bundle.js",
-        format : "esm",
+        dir            : "dist",
+        format         : "esm",
+        chunkFileNames : "[name].js",
     },
 
     plugins : [
         require("@rollup/plugin-replace")({
             "process.env.NODE_ENV" : JSON.stringify("debug"),
+
+            preventAssignment : true,
         }),
         require("rollup-plugin-node-resolve")({
             mainFields : [ "module", "browser" ],

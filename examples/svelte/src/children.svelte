@@ -1,5 +1,5 @@
 {#each children as { component, props, children }}
-    <svelte:component this={component} {children} {...props} />
+    <svelte:component this={component.default || component} {children} {...props} />
 {/each}
 
 <script>

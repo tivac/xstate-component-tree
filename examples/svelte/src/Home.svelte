@@ -1,4 +1,4 @@
-HOME
+<p>HOME RENDERED AT {Date.now()}</p>
 
 <Children {children} />
 
