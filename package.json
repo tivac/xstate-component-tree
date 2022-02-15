@@ -12,7 +12,7 @@
       "import": "./dist/esm/component-tree.js",
       "require": "./dist/cjs/component-tree.js"
     },
-    "/component": {
+    "./component": {
       "import": "./dist/esm/component-helper.js",
       "require": "./dist/cjs/component-helper.js"
     }
