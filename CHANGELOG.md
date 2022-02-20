@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.4.2](https://github.com/tivac/xstate-component-tree/compare/v3.4.1...v3.4.2) (2022-02-20)
+
+
+### Bug Fixes
+
+* Use `./components` instead of `/components` for package.json subpath export. ([#34](https://github.com/tivac/xstate-component-tree/issues/34)) ([99b0e68](https://github.com/tivac/xstate-component-tree/commit/99b0e68319420013ab03d35c0a8165ced8e1ddac))
+
 ### [3.4.1](https://github.com/tivac/xstate-component-tree/compare/v3.4.0...v3.4.1) (2021-11-24)
 
 ## [3.4.0](https://github.com/tivac/xstate-component-tree/compare/v3.3.1...v3.4.0) (2021-11-24)
