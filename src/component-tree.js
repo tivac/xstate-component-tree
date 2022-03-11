@@ -1,3 +1,10 @@
+/**
+ * @typedef {import("xstate").AnyInterpreter} Interpreter
+ * @typedef {import("xstate").AnyEventObject} Event
+ * @typedef {import("xstate").SendActionOptions} SendActionOptions
+ * @typedef {{ cache?: boolean; stable?: boolean}} Options
+ */
+
 const loadComponent = async ({ item, load, context, event }) => {
     const result = await load(context, event);
 
@@ -25,6 +32,12 @@ const loadChild = async ({ child, root }) => {
 };
 
 class ComponentTree {
+    /**
+     * @constructor
+     * @param {Interpreter} interpreter
+     * @param {Function} callback
+     * @param {Options} options
+     */
     constructor(interpreter, callback, { cache = true, stable = false } = false) {
         // Storing off args + options
         this._interpreter = interpreter;
@@ -58,7 +71,7 @@ class ComponentTree {
         this._tree = [];
 
         // Last event this saw, used to re-create the tree when a child transitions
-        this._data = false;
+        this._state = false;
 
         // Get goin
         this._prep();
@@ -75,10 +88,36 @@ class ComponentTree {
         this._counter = Infinity;
 
         this._tree = null;
-        this._data = null;
+        this._state = null;
         this.options = null;
 
         this._unsubscribe();
+    }
+
+    /**
+     * Send an event to the service and all its children
+     *
+     * @param {Event | string} event
+     * @param {SendActionOptions} [options]
+     */
+    broadcast(event, options) {
+        const { _children } = this;
+
+        this._interpreter.send(event, options);
+
+        _children.forEach((child) => {
+            child.broadcast(event, options);
+        });
+    }
+
+    /**
+     * Check if the current state or any child states have a tag set
+     *
+     * @param {string} tag
+     * @returns boolean
+     */
+    hasTag(tag) {
+        return [ this._state, ...this._children ].some((state) => state.hasTag(tag));
     }
 
     // Walk the machine and build up maps of paths to meta info as
@@ -113,7 +152,7 @@ class ComponentTree {
 
         // Subscribing will start a run of the machine, so no need to manually
         // kick one off
-        const { unsubscribe } = _interpreter.subscribe((data) => this._state(data));
+        const { unsubscribe } = _interpreter.subscribe((state) => this._onState(state));
 
         this._unsubscribe = unsubscribe;
     }
@@ -129,7 +168,7 @@ class ComponentTree {
            _cache,
            _stable,
            _counter,
-           _data,
+           _state,
         } = this;
 
         // Don't do any work here if it's impossible for a component
@@ -138,7 +177,7 @@ class ComponentTree {
             return [];
         }
 
-        const { value, context, event } = _data;
+        const { value, context, event } = _state;
         const loads = [];
         const root = {
             __proto__ : null,
@@ -292,12 +331,12 @@ class ComponentTree {
             return;
         }
 
-        _callback(tree, { data : this._data });
+        _callback(tree, { data : this._state });
     }
 
     // Callback for statechart transitions to sync up child machine states
-    _state(data) {
-        const { changed, children } = data;
+    _onState(state) {
+        const { changed, children } = state;
 
         // Need to specifically check for false because this value is undefined
         // when a machine first boots up
@@ -306,12 +345,14 @@ class ComponentTree {
         }
 
         // Save off the event, but only the fields we need
-        this._data = {
+        this._state = {
             __proto__ : null,
 
-            value   : data.value,
-            event   : data.event,
-            context : data.context,
+            value   : state.value,
+            event   : state.event,
+            context : state.context,
+            tags    : state.tags,
+            hasTag  : state.hasTag,
         };
 
         const { _children } = this;

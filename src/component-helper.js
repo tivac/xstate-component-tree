@@ -1,8 +1,13 @@
 /**
- *
- * @param {Function} child - Component instance, or component loader
- * @param {*} node - Xstate node data
- * @returns an xstate node containing component information in its meta
+ * @typedef {import("xstate").AnyStateNodeDefinition} StateNode
+ * @typedef {() => object | object} Props
+ * @typedef {{ component: Function, props: Props }} ComponentAndProps
+ */
+
+/**
+ * @param {Function | ComponentAndProps} child - Component instance, or component loader
+ * @param {StateNode} node - Xstate node data
+ * @returns {StateNode} an xstate node containing component information in its meta
  */
 export default (child, node = {}) => {
     /**
