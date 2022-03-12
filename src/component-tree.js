@@ -5,6 +5,9 @@
  * @typedef {{ cache?: boolean; stable?: boolean}} Options
  */
 
+// eslint-disable-next-line no-empty-function
+const noop = () => {};
+
 const loadComponent = async ({ item, load, context, event }) => {
     const result = await load(context, event);
 
@@ -38,8 +41,15 @@ class ComponentTree {
      * @param {Function} callback
      * @param {Options} options
      */
-    constructor(interpreter, callback, { cache = true, stable = false } = false) {
+    constructor(interpreter, callback, options = false) {
+        const {
+            cache = true,
+            stable = false,
+            verbose = false,
+        } = options;
+
         // Storing off args + options
+        this._options = options;
         this._interpreter = interpreter;
         this._callback = callback;
 
@@ -73,12 +83,17 @@ class ComponentTree {
         // Last event this saw, used to re-create the tree when a child transitions
         this._state = false;
 
+        // eslint-disable-next-line no-console
+        this._log = verbose ? console.log.bind(console, `[${this.id}]`) : noop;
+
         // Get goin
         this._prep();
         this._watch();
     }
 
     teardown() {
+        this._log(`[teardown] destroying`);
+        
         this._paths.clear();
         this._invokables.clear();
         this._children.clear();
@@ -87,11 +102,17 @@ class ComponentTree {
         // Ensure no more runs can ever happen, we're *done*
         this._counter = Infinity;
 
+        this._unsubscribe();
+        
         this._tree = null;
         this._state = null;
-        this.options = null;
-
-        this._unsubscribe();
+        this._options = null;
+        this._children = null;
+        this._paths = null;
+        this._log = null;
+        this._cache = null;
+        this._interpreter = null;
+        this._callback = null;
     }
 
     /**
@@ -117,13 +138,23 @@ class ComponentTree {
      * @returns boolean
      */
     hasTag(tag) {
-        return [ this._state, ...this._children ].some((state) => state.hasTag(tag));
+        return [ this._state, ...this._children.values() ].some((state) => state.hasTag(tag));
+    }
+
+    /**
+     * Check if the current state or any child states match a path
+     *
+     * @param {string} path
+     * @returns boolean
+     */
+    matches(path) {
+        return [ this._state, ...this._children.values() ].some((state) => state.matches(path));
     }
 
     // Walk the machine and build up maps of paths to meta info as
     // well as prepping any load functions for usage later
     _prep() {
-        const { _paths, _invokables, _interpreter, _caching } = this;
+        const { _paths, _invokables, _interpreter, _caching, _log } = this;
         const { idMap : ids } = _interpreter.machine;
 
         // xstate maps ids to state nodes, but the value object only
@@ -144,15 +175,24 @@ class ComponentTree {
             // .invoke is always an array
             invoke.forEach(({ id : invokeid }) => _invokables.set(key, invokeid));
         }
+
+        _log(`[_prep] _paths`, Array.from(_paths.keys()));
+        _log(`[_prep] _invokables`, Array.from(_invokables.entries()));
     }
 
     // Subscribe to an interpreter
     _watch() {
-        const { _interpreter } = this;
+        const { _interpreter, _log } = this;
+
+        _log(`[_watch] subscribing`);
 
         // Subscribing will start a run of the machine, so no need to manually
         // kick one off
-        const { unsubscribe } = _interpreter.subscribe((state) => this._onState(state));
+        const { unsubscribe } = _interpreter.subscribe((state) => {
+            _log(`[_watch] updated `);
+
+            this._onState(state);
+        });
 
         this._unsubscribe = unsubscribe;
     }
@@ -169,6 +209,7 @@ class ComponentTree {
            _stable,
            _counter,
            _state,
+           _log,
         } = this;
 
         // Don't do any work here if it's impossible for a component
@@ -176,6 +217,8 @@ class ComponentTree {
         if(!_paths.size) {
             return [];
         }
+
+        _log(`[_walk #${_counter}] walking`);
 
         const { value, context, event } = _state;
         const loads = [];
@@ -306,20 +349,30 @@ class ComponentTree {
 
         // await any load functions
         if(loads.length) {
+            _log(`[_walk #${_counter}] waiting for loaders`);
+
             await Promise.all(loads);
+
+            _log(`[_walk #${_counter}] loaders complete`);
         }
+
+        _log(`[_walk #${_counter}] done`);
 
         return root.children;
     }
 
     // Kicks off tree walks & handles overlapping walk behaviors
     async _run() {
-        const { _children, _callback } = this;
+        const { _children, _callback, _log } = this;
 
         // Cancel any previous walks, we're the captain now
         const run = ++this._counter;
 
+        _log(`[_run #${run}] starting`);
+
         this._tree = this._walk();
+
+        _log(`[_run #${run}] awaiting children`);
 
         const [ tree ] = await Promise.all([
             this._tree,
@@ -328,8 +381,12 @@ class ComponentTree {
 
         // New run started since this finished, abort
         if(run !== this._counter) {
+            _log(`[_run #${run}] aborted`);
+
             return;
         }
+
+        _log(`[_run #${run}] finished`);
 
         _callback(tree, { data : this._state });
     }
@@ -344,18 +401,12 @@ class ComponentTree {
             return false;
         }
 
-        // Save off the event, but only the fields we need
-        this._state = {
-            __proto__ : null,
+        // Save off the state
+        this._state = state;
 
-            value   : state.value,
-            event   : state.event,
-            context : state.context,
-            tags    : state.tags,
-            hasTag  : state.hasTag,
-        };
+        const { _children, _log, _options } = this;
 
-        const { _children } = this;
+        _log(`[_onState] checking children`);
 
         // Add any new children to be tracked
         Object.keys(children).forEach((id) => {
@@ -372,14 +423,18 @@ class ComponentTree {
 
             // Create the child ComponentTree instance
             let child = new ComponentTree(service, () => {
+                _log(`[_onState] ${id} updated`);
+
                 // trigger re-walk of the parent after any children change
                 this._run();
-            });
+            }, _options);
 
             _children.set(id, child);
 
             // Clean up child once it finishes
             service.onStop(() => {
+                _log(`[_onState] ${id} stopped, tearing down`);
+
                 child.teardown();
                 child = null;
 
