@@ -1,18 +1,17 @@
 import * as assert from "uvu/assert";
-import { spy } from "nanospy";
-import { createMachine, interpret } from "xstate";
+import { createMachine } from "xstate";
 
 import describe from "./util/describe.js";
-import { getTree, createTree, trees } from "./util/trees.js";
+import { createTree, waitForPath } from "./util/trees.js";
 import component from "./util/component.js";
 import { treeTeardown } from "./util/context.js";
-import { diff, snapshot } from "./util/snapshot.js";
+import { diff } from "./util/snapshot.js";
 
 describe("broadcast", (it) => {
     it.after.each(treeTeardown);
     
     it("should send to the root tree", async (context) => {
-        const tree = createTree({
+        const tree = context.tree = createTree({
             initial : "one",
 
             states : {
@@ -34,13 +33,11 @@ describe("broadcast", (it) => {
             },
         });
 
-        context.tree = tree;
-
         const before = await tree();
         
         tree.builder.broadcast("NEXT");
 
-        const after = await tree();
+        const after = await waitForPath(tree, "two");
 
         diff(before, after, `[
             [Object: null prototype] {
@@ -56,101 +53,94 @@ describe("broadcast", (it) => {
         ]`);
     });
 
-    it.skip("should send to child trees", async (context) => {
-        const grandchildOneMachine = createMachine({
-            initial : "grandchild",
-
-            states : {
-                grandchild : {
-                    meta : {
-                        component : component("grandchild"),
-                    },
-
-                    on : {
-                        NEXT : "next",
-                    },
-                },
-
-                next : {
-                    meta : {
-                        component : component("grandchild-next"),
-                    },
-                },
-            },
-        });
-
-        const childOneMachine = createMachine({
+    it("should send to child trees", async (context) => {
+        const childMachine = createMachine({
             initial : "child",
-
+            
             states : {
                 child : {
-                    invoke : {
-                        id  : "grandchild-machine",
-                        src : grandchildOneMachine,
-                    },
+                    initial : "one",
 
-                    meta : {
-                        component : component("child"),
-                    },
-
-                    on : {
-                        NEXT : "next",
-                    },
-                },
-
-                next : {
-                    meta : {
-                        component : component("child-next"),
+                    states : {
+                        one : {
+                            meta : {
+                                component : component("child-one"),
+                            },
+        
+                            on : {
+                                NEXT : "two",
+                            },
+                        },
+        
+                        two : {
+                            meta : {
+                                component : component("child-two"),
+                            },
+                        },
                     },
                 },
             },
         });
         
-        const tree = createTree({
-            initial : "one",
+        const tree = context.tree = createTree({
+            id      : "root",
+            initial : "root",
 
             states : {
-                one : {
+                root : {
                     invoke : {
-                        id  : "child-one-machine",
-                        src : childOneMachine,
+                        id  : "child",
+                        src : childMachine,
                     },
 
-                    meta : {
-                        component : component("one"),
-                    },
+                    initial : "one",
 
-                    on : {
-                        NEXT : "two",
-                    },
-                },
-
-                two : {
-                    meta : {
-                        component : component("two"),
+                    states : {
+                        one : {
+                            meta : {
+                                component : component("one"),
+                            },
+        
+                            on : {
+                                NEXT : "two",
+                            },
+                        },
+        
+                        two : {
+                            meta : {
+                                component : component("two"),
+                            },
+                        },
                     },
                 },
             },
         });
 
-        context.tree = tree;
-
         const before = await tree();
-
-        console.log(before);
         
         tree.builder.broadcast("NEXT");
 
-        const after = await tree();
+        const after = await waitForPath(tree, "child.two");
 
-        diff(before, after, `[
+        diff(before, after, `
+        [
             [Object: null prototype] {
         Actual:
-        --        path: "one",
+        --        path: "root.one",
         --        component: [Function: one],
         Expected:
-        ++        path: "two",
+        ++        path: "root.two",
         ++        component: [Function: two],
+                props: false,
+                children: []
+            },
+            [Object: null prototype] {
+        Actual:
+        --        path: "child.one",
+        --        component: [Function: child-one],
+        Expected:
+        ++        path: "child.two",
+        ++        component: [Function: child-two],
                 props: false,
                 children: []
             }
@@ -158,12 +148,11 @@ describe("broadcast", (it) => {
     });
 });
 
-
 describe("hasTag", (it) => {
     it.after.each(treeTeardown);
     
     it("should check the root tree", async (context) => {
-        const tree = createTree({
+        const tree = context.tree = createTree({
             initial : "one",
 
             states : {
@@ -177,10 +166,104 @@ describe("hasTag", (it) => {
             },
         });
 
-        context.tree = tree;
-
         assert.equal(tree.builder.hasTag("tag"), true);
     });
 
-    it.skip("should check to child trees", async (context) => {});
+    it("should check child trees", async (context) => {
+        const childMachine = createMachine({
+            initial : "child",
+            
+            states : {
+                child : {
+                    tags : "child",
+                },
+            },
+        });
+        
+        const tree = context.tree = createTree({
+            id      : "root",
+            initial : "root",
+
+            states : {
+                root : {
+                    invoke : {
+                        id  : "child",
+                        src : childMachine,
+                    },
+
+                    tags : "root",
+                },
+            },
+        });
+
+        await tree();
+
+        assert.equal(tree.builder.hasTag("root"), true);
+        assert.equal(tree.builder.hasTag("child"), true);
+    });
+});
+
+describe("matches", (it) => {
+    it.after.each(treeTeardown);
+    
+    it("should check the root tree", async (context) => {
+        const tree = context.tree = createTree({
+            initial : "one",
+
+            states : {
+                one : {
+                    initial : "two",
+
+                    states : {
+                        two : {
+                            type : "parallel",
+                            
+                            states : {
+                                three : {},
+                                four  : {},
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        assert.equal(tree.builder.matches("one"), true);
+        assert.equal(tree.builder.matches("one.two"), true);
+        assert.equal(tree.builder.matches("one.two.three"), true);
+        assert.equal(tree.builder.matches("one.two.four"), true);
+    });
+
+    it("should check child trees", async (context) => {
+        const childMachine = createMachine({
+            initial : "child",
+            
+            states : {
+                child : {
+                    tags : "child",
+                },
+            },
+        });
+        
+        const tree = context.tree = createTree({
+            id      : "root",
+            initial : "root",
+
+            states : {
+                root : {
+                    invoke : {
+                        id  : "child",
+                        src : childMachine,
+                    },
+
+                    tags : "root",
+                },
+            },
+        });
+
+        await tree();
+
+        assert.equal(tree.builder.matches("root"), true);
+        assert.equal(tree.builder.matches("child"), true);
+    });
 });
