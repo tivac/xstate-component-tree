@@ -2,7 +2,7 @@
  * @typedef {import("xstate").AnyInterpreter} Interpreter
  * @typedef {import("xstate").AnyEventObject} Event
  * @typedef {import("xstate").SendActionOptions} SendActionOptions
- * @typedef {{ cache?: boolean; stable?: boolean}} Options
+ * @typedef {{ cache?: boolean; stable?: boolean; verbose?: boolean}} Options
  */
 
 // eslint-disable-next-line no-empty-function
@@ -91,6 +91,9 @@ class ComponentTree {
         this._watch();
     }
 
+    /**
+     * Remove all subscribers and null out all properties
+     */
     teardown() {
         this._log(`[teardown] destroying`);
         
