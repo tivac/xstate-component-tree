@@ -219,7 +219,7 @@ describe(".load support", (it) => {
     });
 
     it("should ignore stale trees if component loads hadn't completed", async (context) => {
-        context.tree = createTree({
+        const tree = context.tree = createTree({
             initial : "one",
 
             states : {
@@ -259,7 +259,7 @@ describe(".load support", (it) => {
     it("should only call load when a state is entered", async (context) => {
         let runs = 0;
         
-        context.tree = createTree({
+        const tree = context.tree = createTree({
             initial : "one",
             context : "context",
 
@@ -288,13 +288,13 @@ describe(".load support", (it) => {
             },
         });
 
-        await context.tree();
+        await tree();
 
         assert.equal(runs, 1);
         
-        context.tree.send("NEXT");
+        tree.service.send("NEXT");
         
-        await context.tree();
+        await tree();
 
         assert.equal(runs, 1);
     });
@@ -302,7 +302,7 @@ describe(".load support", (it) => {
     it("should re-run load functions when transitioning back to a state", async (context) => {
         let runs = [];
         
-        context.tree = createTree({
+        const tree = context.tree = createTree({
             initial : "one",
 
             states : {
@@ -336,7 +336,7 @@ describe(".load support", (it) => {
             },
         });
 
-        await context.tree();
+        await tree();
 
         assert.equal(runs, [
             "one",
@@ -344,9 +344,9 @@ describe(".load support", (it) => {
 
         runs = [];
 
-        context.tree.send("NEXT");
+        tree.service.send("NEXT");
         
-        await context.tree();
+        await tree();
 
         assert.equal(runs, [
             "two",
@@ -354,9 +354,9 @@ describe(".load support", (it) => {
 
         runs = [];
         
-        context.tree.send("NEXT");
+        tree.service.send("NEXT");
         
-        await context.tree();
+        await tree();
 
         assert.equal(runs, [
             "one",
@@ -366,7 +366,7 @@ describe(".load support", (it) => {
     it("should allow the caching to be disabled globally", async (context) => {
         let runs = [];
         
-        const tree = createTree({
+        const tree = context.tree = createTree({
             initial : "one",
 
             states : {
@@ -400,9 +400,7 @@ describe(".load support", (it) => {
                     },
                 },
             },
-        }, false, { cache : false });
-
-        context.tree = tree;
+        }, { cache : false });
 
         await tree();
 
@@ -413,7 +411,7 @@ describe(".load support", (it) => {
 
         runs = [];
 
-        tree.send("NEXT");
+        tree.service.send("NEXT");
         
         await tree();
 
@@ -425,7 +423,7 @@ describe(".load support", (it) => {
     it("should allow the caching to be disabled locally", async (context) => {
         let runs = [];
         
-        const tree = createTree({
+        const tree = context.tree = createTree({
             initial : "one",
 
             states : {
@@ -462,8 +460,6 @@ describe(".load support", (it) => {
             },
         });
 
-        context.tree = tree;
-
         await tree();
 
         assert.equal(runs, [
@@ -473,7 +469,7 @@ describe(".load support", (it) => {
 
         runs = [];
 
-        tree.send("NEXT");
+        tree.service.send("NEXT");
         
         await tree();
 

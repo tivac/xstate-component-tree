@@ -109,7 +109,7 @@ describe("basic functionality", (it) => {
                     },
                 },
             },
-        }, false, { stable : true });
+        }, { stable : true });
 
         snapshot(tree, `[
             [Object: null prototype] {
@@ -150,7 +150,7 @@ describe("basic functionality", (it) => {
                     },
                 },
             },
-        }, false, { stable : false });
+        }, { stable : false });
 
         snapshot(tree, `[
             [Object: null prototype] {
@@ -285,7 +285,7 @@ describe("basic functionality", (it) => {
 
         const before = await tree();
         
-        tree.send("NEXT");
+        tree.service.send("NEXT");
 
         const after = await tree();
 
@@ -327,7 +327,7 @@ describe("basic functionality", (it) => {
 
         await tree();
 
-        tree.send("NEXT");
+        tree.service.send("NEXT");
 
         // onEvent was called twice, but treeBuilder returned one tree as expected
         assert.equal(eventCounter.callCount, 2);
@@ -368,7 +368,7 @@ describe("basic functionality", (it) => {
 
         const before = await tree();
         
-        tree.send("NEXT");
+        tree.service.send("NEXT");
 
         const after = await tree();
 
@@ -424,7 +424,7 @@ describe("basic functionality", (it) => {
 
         const before = await tree();
         
-        tree.send("NEXT");
+        tree.service.send("NEXT");
 
         const after = await tree();
 
@@ -468,13 +468,13 @@ describe("basic functionality", (it) => {
                     },
                 },
             },
-        }, callback);
+        }, {}, callback);
 
         await tree();
         
         tree.builder.teardown();
 
-        tree.send("NEXT");
+        tree.service.send("NEXT");
 
         assert.equal(callback.callCount, 1);
     });

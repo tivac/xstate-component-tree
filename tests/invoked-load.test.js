@@ -291,7 +291,7 @@ describe(".load in invoked machines", (it) => {
 
         runs = [];
 
-        tree.send("PARENT");
+        tree.service.send("PARENT");
         
         await tree();
 
@@ -301,7 +301,7 @@ describe(".load in invoked machines", (it) => {
 
         runs = [];
         
-        tree.send("CHILD");
+        tree.service.send("CHILD");
         
         await tree();
 

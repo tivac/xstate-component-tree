@@ -19,7 +19,7 @@ const deferred = () => {
 
 // Watch for trees to be built, and provide an easy way
 // to await each value
-export const trees = (service, fn = false, options) => {
+export const trees = (service, options = {}, fn = false) => {
     const responses = [];
     let idx = 0;
     let p;
@@ -84,4 +84,29 @@ export const getTree = async (def, ...rest) => {
     generator.builder.teardown();
 
     return result;
+};
+
+export const waitForPath = async (tree, path) => {
+    let found = false;
+    let val;
+
+    do {
+        // eslint-disable-next-line no-await-in-loop
+        val = await tree();
+
+        const searching = [ ...val ];
+
+        while(searching.length) {
+            const item = searching.shift();
+
+            if(item.path === path) {
+                found = true;
+                break;
+            }
+
+            searching.push(...item.children);
+        }
+    } while(!found);
+
+    return val;
 };
