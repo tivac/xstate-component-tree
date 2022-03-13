@@ -43,6 +43,7 @@
     "lint": "eslint .",
     "test": "uvu tests",
     "test:coverage": "c8 --check-coverage --100 uvu tests",
+    "test:report": "c8 report --reporter=text-lcov > coverage/tests.lcov",
     "prerelease": "npm run test && npm run build",
     "release": "standard-version",
     "postrelease": "git push --follow-tags"
