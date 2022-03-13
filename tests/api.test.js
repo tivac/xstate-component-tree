@@ -1,11 +1,58 @@
 import * as assert from "uvu/assert";
 import { createMachine } from "xstate";
+import { spyOn, restoreAll } from "nanospy";
 
 import describe from "./util/describe.js";
 import { createTree, waitForPath } from "./util/trees.js";
 import component from "./util/component.js";
 import { treeTeardown } from "./util/context.js";
-import { diff } from "./util/snapshot.js";
+import { diff, snapshot } from "./util/snapshot.js";
+
+describe("verbose", (it) => {
+    it.after.each(restoreAll);
+
+    it("should log information", async () => {
+        // eslint-disable-next-line no-empty-function
+        const log = spyOn(console, "log", () => {});
+        
+        const child = createMachine({
+            initial : "child",
+            
+            states : {
+                child : {
+                    meta : {
+                        component : component("child-one"),
+                    },
+                },
+            },
+        });
+        
+        const tree = createTree({
+            initial : "one",
+
+            states : {
+                one : {
+                    invoke : {
+                        id  : "child",
+                        src : child,
+                    },
+
+                    meta : {
+                        component : component("one"),
+                    },
+                },
+            },
+        }, { verbose : true });
+
+        await tree();
+
+        restoreAll();
+
+        // Only check first & last for now
+        snapshot(log.calls.at(0), `[ "[(machine)]", "[_prep] _paths", [ "one" ] ]`);
+        snapshot(log.calls.at(-1), `[ "[(machine)]", "[_run #2] finished" ]`);
+    });
+});
 
 describe("broadcast", (it) => {
     it.after.each(treeTeardown);

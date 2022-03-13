@@ -244,7 +244,7 @@ describe(".load support", (it) => {
         });
 
         // Purposefully not awaiting this, it'll never resolve!
-        context.tree();
+        tree();
 
         snapshot(await context.tree(), `[
             [Object: null prototype] {
@@ -476,5 +476,28 @@ describe(".load support", (it) => {
         assert.equal(runs, [
             "one",
         ]);
+    });
+
+    it("should ignore falsey components", async () => {
+        const tree = await getTree({
+            initial : "one",
+            
+            states : {
+                one : {
+                    meta : {
+                        load : () => [ null, 0 ],
+                    },
+                },
+            },
+        });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: false,
+                props: false,
+                children: []
+            }
+        ]`);
     });
 });
