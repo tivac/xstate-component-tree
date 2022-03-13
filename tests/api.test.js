@@ -49,8 +49,8 @@ describe("verbose", (it) => {
         restoreAll();
 
         // Only check first & last for now
-        snapshot(log.calls.at(0), `[ "[(machine)]", "[_prep] _paths", [ "one" ] ]`);
-        snapshot(log.calls.at(-1), `[ "[(machine)]", "[_run #2] finished" ]`);
+        snapshot(log.calls[0], `[ "[(machine)]", "[_prep] _paths", [ "one" ] ]`);
+        snapshot(log.calls[log.calls.length - 1], `[ "[(machine)]", "[_run #2] finished" ]`);
     });
 });
 
