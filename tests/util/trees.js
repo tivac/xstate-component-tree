@@ -69,7 +69,7 @@ export const trees = (service, options = {}, fn = false) => {
 };
 
 export const createTree = (def, ...rest) => {
-    const machine = createMachine(def);
+    const machine = def.__xstatenode ? def : createMachine(def);
 
     const service = interpret(machine);
 
