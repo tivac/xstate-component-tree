@@ -39,7 +39,8 @@ describe("broadcast", (it) => {
 
         const after = await waitForPath(tree, "two");
 
-        diff(before, after, `[
+        diff(before, after, `
+        [
             [Object: null prototype] {
         Actual:
         --        path: "one",
@@ -239,9 +240,7 @@ describe("matches", (it) => {
             initial : "child",
             
             states : {
-                child : {
-                    tags : "child",
-                },
+                child : {},
             },
         });
         
@@ -255,8 +254,6 @@ describe("matches", (it) => {
                         id  : "child",
                         src : childMachine,
                     },
-
-                    tags : "root",
                 },
             },
         });
