@@ -26,7 +26,7 @@ export const trees = (service, options = {}, fn = false) => {
     let resolved;
 
     const respond = () => {
-        if(resolved || idx >= responses.length) {
+        if(resolved || idx >= responses.length || !p) {
             return;
         }
 

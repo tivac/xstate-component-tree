@@ -24,10 +24,8 @@ const loadComponent = async ({ item, load, context, event }) => {
     item.props = props || false;
 };
 
-const loadChild = async ({ child, root }) => {
-    const { _tree } = child;
-
-    const children = await _tree;
+const loadChild = async ({ tree, root }) => {
+    const children = await tree;
 
     // Will attach to the state itself if it has a component,
     // otherwise will attach to the parent
@@ -48,9 +46,12 @@ class ComponentTree {
             verbose = false,
         } = options;
 
+        // identifier!
+        this.id = interpreter.id;
+
         // Storing off args + options
         this._options = options;
-        this._interpreter = interpreter;
+        this._interpreters = new Map([[ this.id, interpreter ]]);
         this._callback = callback;
 
         // Whether or not to cache the result of dynamic component/prop functions
@@ -59,11 +60,9 @@ class ComponentTree {
         // Whether or not to sort keys to ensure component output order is more stable
         this._stable = stable;
 
-        // identifier!
-        this.id = interpreter.id;
 
         // Count # of times tree has been walked, used by cache & for walk cancellation
-        this._counter = 0;
+        this._counters = new Map();
 
         // Caching for results of previous walks
         this._cache = new Map();
@@ -74,21 +73,20 @@ class ComponentTree {
         // path -> invoked id
         this._invokables = new Map();
 
-        // invoked id -> child machine
-        this._children = new Map();
-
         // Expose walk result as a property
-        this._tree = [];
+        this._trees = new Map();
 
-        // Last event this saw, used to re-create the tree when a child transitions
-        this._state = false;
+        // Unsubscribe functions
+        this._unsubscribes = new Set();
+
+        // Stored events, used to re-create the tree when a child transitions
+        this._states = new Map();
 
         // eslint-disable-next-line no-console
-        this._log = verbose ? console.log.bind(console, `[${this.id}]`) : noop;
+        this._log = verbose ? console.log : noop;
 
         // Get goin
-        this._prep();
-        this._watch();
+        this._watch(this.id);
     }
 
     /**
@@ -99,18 +97,16 @@ class ComponentTree {
         
         this._paths.clear();
         this._invokables.clear();
-        this._children.clear();
         this._cache.clear();
+        this._states.clear();
 
         // Ensure no more runs can ever happen, we're *done*
         this._counter = Infinity;
 
-        this._unsubscribe();
+        this._unsubscribes.forEach((unsub) => unsub());
         
         this._tree = null;
-        this._state = null;
         this._options = null;
-        this._children = null;
         this._paths = null;
         this._log = null;
         this._cache = null;
@@ -125,12 +121,8 @@ class ComponentTree {
      * @param {SendActionOptions} [options]
      */
     broadcast(event, options) {
-        const { _children } = this;
-
-        this._interpreter.send(event, options);
-
-        _children.forEach((child) => {
-            child.broadcast(event, options);
+        this._interpreters.forEach((service) => {
+            service.send(event, options);
         });
     }
 
@@ -141,7 +133,7 @@ class ComponentTree {
      * @returns boolean
      */
     hasTag(tag) {
-        return [ this._state, ...this._children.values() ].some((state) => state.hasTag(tag));
+        return [ ...this._states.values() ].some((state) => state.hasTag(tag));
     }
 
     /**
@@ -151,67 +143,165 @@ class ComponentTree {
      * @returns boolean
      */
     matches(path) {
-        return [ this._state, ...this._children.values() ].some((state) => state.matches(path));
+        return [ ...this._states.values() ].some((state) => state.matches(path));
     }
 
-    // Walk the machine and build up maps of paths to meta info as
-    // well as prepping any load functions for usage later
-    _prep() {
-        const { _paths, _invokables, _interpreter, _caching, _log } = this;
-        const { idMap : ids } = _interpreter.machine;
+    // Subscribe to an interpreter
+    _watch(path) {
+        const { _paths, _interpreters, _invokables, _caching, _log } = this;
+        
+        _log(`[${path}][_prep] prepping`);
+
+        // Build up maps of paths to meta info as well as noting any invokable machines for later
+        const { idMap : ids } = _interpreters.get(path).machine;
 
         // xstate maps ids to state nodes, but the value object only
         // has paths, so need to create our own path-only map here
         for(const id in ids) {
-            const { path, meta = false, invoke } = ids[id];
+            const item = ids[id];
 
-            const key = path.join(".");
+            const key = [ path, ...item.path ].join(".");
 
-            if(meta) {
+            if(item.meta) {
                 _paths.set(key, Object.assign({
                     __proto__ : null,
 
                     cache : _caching,
-                }, meta));
+                }, item.meta));
             }
 
             // .invoke is always an array
-            invoke.forEach(({ id : invokeid }) => _invokables.set(key, invokeid));
+            item.invoke.forEach(({ id : invokeid }) => _invokables.set(key, `${path}.${invokeid}`));
         }
 
-        _log(`[_prep] _paths`, Array.from(_paths.keys()));
-        _log(`[_prep] _invokables`, Array.from(_invokables.entries()));
-    }
+        _log(`[${path}][_prep] _paths`, [ ..._paths.keys() ]);
+        _log(`[${path}][_prep] _invokables`, [ ..._invokables.entries() ]);
+        
+        _log(`[${path}][_watch] subscribing`);
 
-    // Subscribe to an interpreter
-    _watch() {
-        const { _interpreter, _log } = this;
+        const service = _interpreters.get(path);
 
-        _log(`[_watch] subscribing`);
+        // Subscribing will start a run of the machine,
+        // so no need to manually kick one off
+        const { unsubscribe } = service.subscribe((state) => {
+            _log(`[${path}][_watch] update`);
 
-        // Subscribing will start a run of the machine, so no need to manually
-        // kick one off
-        const { unsubscribe } = _interpreter.subscribe((state) => {
-            _log(`[_watch] updated `);
-
-            this._onState(state);
+            this._onState(path, state);
         });
 
-        this._unsubscribe = unsubscribe;
+        this._unsubscribes.add(unsubscribe);
+
+        // Clean up once the service finishes
+        service.onStop(() => {
+            _log(`[${path}][_onState] stopped, tearing down`);
+
+            unsubscribe();
+
+            this._unsubscribes.delete(unsubscribe);
+            _interpreters.delete(path);
+        });
+    }
+
+    // Callback for statechart transitions to sync up child machine states
+    // TODO: deep child machines are running *too soon* somehow?
+    _onStat(path, state) {
+        const { changed, children } = state;
+
+        // Need to specifically check for false because this value is undefined
+        // when a machine first boots up
+        if(changed === false) {
+            return;
+        }
+
+        // Save off the state
+        this._states.set(path, state);
+
+        const { _interpreters, _log } = this;
+
+        _log(`[${path}][_onState] checking children`);
+
+        // Add any new children to be tracked
+        Object.keys(children).forEach((child) => {
+            const id = [ path, child ].join(".");
+
+            if(_interpreters.has(id)) {
+                return;
+            }
+
+            const service = children[child];
+
+            // Not a statechart, abort!
+            if(!service.initialized || !service.state) {
+                return;
+            }
+
+            _log(`[${path}][_onState] Tracking child ${id}`);
+
+            _interpreters.set(id, service);
+
+            // Start watching the child
+            this._watch(id, service);
+        });
+
+        this._run(path);
+
+        // TODO: is this necessary?
+        this._run(this.id);
+    }
+
+    // Kicks off tree walks & handles overlapping walk behaviors
+    async _run(path) {
+        const { _callback, _log } = this;
+
+        // Cancel any previous walks, we're the captain now
+        if(!this._counters.has(path)) {
+            this._counters.set(path, 0);
+        }
+
+        const run = this._counters.get(path) + 1;
+
+        this._counters.set(path, run);
+
+        _log(`[${path}][_run #${run}] starting`);
+
+        this._trees.set(path, this._walk(path));
+
+        _log(`[${path}][_run #${run}] awaiting walks`);
+
+        const [ tree ] = await Promise.all([
+            this._trees.get(path),
+            ...this._trees.values(),
+        ]);
+
+        // New run started since this finished, abort
+        if(run !== this._counters.get(path)) {
+            _log(`[${path}][_run #${run}] aborted`);
+
+            return;
+        }
+
+        _log(`[${path}][_run #${run}] finished`);
+
+        if(path !== this.id) {
+            return;
+        }
+
+        _log(`[${path}][_run #${run}] returning data`);
+
+        _callback(tree, { data : this._state });
     }
 
     // Walk a machine via BFS, collecting meta information to build a tree
     // eslint-disable-next-line max-statements, complexity
-    async _walk() {
+    async _walk(path) {
         const {
-            id,
            _paths,
            _invokables,
-           _children,
+           _interpreters,
            _cache,
            _stable,
-           _counter,
-           _state,
+           _counters,
+           _states,
            _log,
         } = this;
 
@@ -221,14 +311,16 @@ class ComponentTree {
             return [];
         }
 
-        _log(`[_walk #${_counter}] walking`);
+        const counter = _counters.get(path);
 
-        const { value, context, event } = _state;
+        _log(`[${path}][_walk #${counter}] walking`);
+
+        const { value, context, event } = _states.get(path);
         const loads = [];
         const root = {
             __proto__ : null,
 
-            id,
+            id       : this.id,
             children : [],
         };
 
@@ -245,29 +337,31 @@ class ComponentTree {
             );
         }
 
-        // _counter === this._counter is to kill looping if state
-        // transitions before it finishes
-        // eslint-disable-next-line no-unmodified-loop-condition
-        while(queue.length && _counter === this._counter) {
-            const [ parent, path, values ] = queue.shift();
+        // _counter check is to kill looping if state transitions before the walk finishes
+        while(queue.length && counter === this._counters.get(path)) {
+            const [ parent, node, values ] = queue.shift();
+
+            const id = `${path}.${node}`;
+
+            _log(`[${path}][_walk #${counter}] walking ${node}`);
 
             // Using let since it can be reassigned if we add a new child
             let pointer = parent;
 
-            if(_paths.has(path)) {
-                const details = _paths.get(path);
+            if(_paths.has(id)) {
+                const details = _paths.get(id);
                 let cached = false;
 
-                if(_cache.has(path)) {
-                    cached = _cache.get(path);
+                if(_cache.has(id)) {
+                    cached = _cache.get(id);
 
                     // Only cache items from the previous run are valid
-                    if(cached.counter === this._counter - 1) {
-                        cached.counter = this._counter;
+                    if(cached.counter === counter - 1) {
+                        cached.counter = counter;
                     } else {
                         cached = false;
 
-                        _cache.delete(path);
+                        _cache.delete(id);
                     }
                 }
 
@@ -276,7 +370,8 @@ class ComponentTree {
                 const item = {
                     __proto__ : null,
 
-                    path,
+                    // Purposefully *not* prefixing w/ path here, end-users don't care about it
+                    path : node,
 
                     component : cached ? cached.item.component : component,
                     props     : cached ? cached.item.props : props,
@@ -294,7 +389,7 @@ class ComponentTree {
 
                     // Mark this state loaded in the cache once its actually done
                     loading.then(() => {
-                        const saved = _cache.get(path);
+                        const saved = _cache.get(id);
 
                         if(saved) {
                             saved.loaded = true;
@@ -304,16 +399,14 @@ class ComponentTree {
                     loads.push(loading);
                 }
 
-                // Check if this node is
-                // 1) allowed to be cached
-                // 2) not already cached
-                // and then save the result
+                // Check if this node is allowed to be cached && not already cached,
+                // then save the result
                 if(details.cache && !cached) {
-                    _cache.set(path, {
+                    _cache.set(id, {
                         __proto__ : null,
 
                         item,
-                        counter : this._counter,
+                        counter,
                         loaded  : false,
                     });
                 }
@@ -322,13 +415,13 @@ class ComponentTree {
                 pointer = item;
             }
 
-            if(_invokables.has(path)) {
-                const invokable = _invokables.get(path);
+            if(_invokables.has(id)) {
+                const invokable = _invokables.get(id);
 
-                if(_children.has(invokable)) {
+                if(_interpreters.has(invokable)) {
                     loads.push(loadChild({
-                        child : _children.get(invokable),
-                        root  : pointer,
+                        tree : this._trees.get(invokable),
+                        root : pointer,
                     }));
                 }
             }
@@ -338,7 +431,7 @@ class ComponentTree {
             }
 
             if(typeof values === "string") {
-                queue.push([ pointer, `${path}.${values}`, false ]);
+                queue.push([ pointer, `${node}.${values}`, false ]);
 
                 continue;
             }
@@ -346,106 +439,22 @@ class ComponentTree {
             const keys = Object.keys(values);
 
             queue.push(...(_stable ? keys.sort() : keys).map((child) =>
-                [ pointer, `${path}.${child}`, values[child] ]
+                [ pointer, `${node}.${child}`, values[child] ]
             ));
         }
 
         // await any load functions
         if(loads.length) {
-            _log(`[_walk #${_counter}] waiting for loaders`);
+            _log(`[${path}][_walk #${counter}] waiting for ${loads.length} loaders`);
 
             await Promise.all(loads);
 
-            _log(`[_walk #${_counter}] loaders complete`);
+            _log(`[${path}][_walk #${counter}] loaders complete`);
         }
 
-        _log(`[_walk #${_counter}] done`);
+        _log(`[${path}][_walk #${counter}] done`);
 
         return root.children;
-    }
-
-    // Kicks off tree walks & handles overlapping walk behaviors
-    async _run() {
-        const { _children, _callback, _log } = this;
-
-        // Cancel any previous walks, we're the captain now
-        const run = ++this._counter;
-
-        _log(`[_run #${run}] starting`);
-
-        this._tree = this._walk();
-
-        _log(`[_run #${run}] awaiting children`);
-
-        const [ tree ] = await Promise.all([
-            this._tree,
-            [ ..._children.values() ].map(({ _tree }) => _tree),
-        ]);
-
-        // New run started since this finished, abort
-        if(run !== this._counter) {
-            _log(`[_run #${run}] aborted`);
-
-            return;
-        }
-
-        _log(`[_run #${run}] finished`);
-
-        _callback(tree, { data : this._state });
-    }
-
-    // Callback for statechart transitions to sync up child machine states
-    _onState(state) {
-        const { changed, children } = state;
-
-        // Need to specifically check for false because this value is undefined
-        // when a machine first boots up
-        if(changed === false) {
-            return false;
-        }
-
-        // Save off the state
-        this._state = state;
-
-        const { _children, _log, _options } = this;
-
-        _log(`[_onState] checking children`);
-
-        // Add any new children to be tracked
-        Object.keys(children).forEach((id) => {
-            if(_children.has(id)) {
-                return;
-            }
-
-            const service = children[id];
-
-            // Not a statechart, abort!
-            if(!service.initialized || !service.state) {
-                return;
-            }
-
-            // Create the child ComponentTree instance
-            let child = new ComponentTree(service, () => {
-                _log(`[_onState] ${id} updated`);
-
-                // trigger re-walk of the parent after any children change
-                this._run();
-            }, _options);
-
-            _children.set(id, child);
-
-            // Clean up child once it finishes
-            service.onStop(() => {
-                _log(`[_onState] ${id} stopped, tearing down`);
-
-                child.teardown();
-                child = null;
-
-                _children.delete(id);
-            });
-        });
-
-        return this._run();
     }
 }
 

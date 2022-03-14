@@ -51,6 +51,60 @@ describe("basic functionality", (it) => {
         ]`);
     });
 
+    it("should support props", async () => {
+        const tree = await getTree({
+            initial : "one",
+
+            states : {
+                one : {
+                    meta : {
+                        component : component("one"),
+                        props     : {
+                            fooga : 1,
+                            booga : 2,
+                        },
+                    },
+
+                    initial : "two",
+
+                    states : {
+                        two : {
+                            meta : {
+                                component : component("two"),
+                                props     : {
+                                    wooga : 1,
+                                    tooga : 2,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: {
+                    fooga: 1,
+                    booga: 2
+                },
+                children: [
+                    [Object: null prototype] {
+                        path: "one.two",
+                        component: [Function: two],
+                        props: {
+                            wooga: 1,
+                            tooga: 2
+                        },
+                        children: []
+                    }
+                ]
+            }
+        ]`);
+    });
+
     it("should support parallel states", async () => {
         const tree = await getTree({
             type : "parallel",
