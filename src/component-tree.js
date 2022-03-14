@@ -204,7 +204,7 @@ class ComponentTree {
 
     // Callback for statechart transitions to sync up child machine states
     // TODO: deep child machines are running *too soon* somehow?
-    _onStat(path, state) {
+    _onState(path, state) {
         const { changed, children } = state;
 
         // Need to specifically check for false because this value is undefined
@@ -244,29 +244,26 @@ class ComponentTree {
         });
 
         this._run(path);
-
-        // TODO: is this necessary?
-        this._run(this.id);
     }
 
     // Kicks off tree walks & handles overlapping walk behaviors
     async _run(path) {
         const { _callback, _log } = this;
 
-        // Cancel any previous walks, we're the captain now
         if(!this._counters.has(path)) {
             this._counters.set(path, 0);
         }
 
         const run = this._counters.get(path) + 1;
-
+        
+        // Cancel any previous walks, we're the captain now
         this._counters.set(path, run);
 
         _log(`[${path}][_run #${run}] starting`);
 
         this._trees.set(path, this._walk(path));
 
-        _log(`[${path}][_run #${run}] awaiting walks`);
+        _log(`[${path}][_run #${run}] awaiting trees`);
 
         const [ tree ] = await Promise.all([
             this._trees.get(path),
@@ -277,18 +274,18 @@ class ComponentTree {
         if(run !== this._counters.get(path)) {
             _log(`[${path}][_run #${run}] aborted`);
 
-            return;
+            return false;
         }
 
         _log(`[${path}][_run #${run}] finished`);
 
         if(path !== this.id) {
-            return;
+            return this._run(this.id);
         }
 
         _log(`[${path}][_run #${run}] returning data`);
 
-        _callback(tree, { data : this._state });
+        return _callback(tree, { data : this._state });
     }
 
     // Walk a machine via BFS, collecting meta information to build a tree
