@@ -1,10 +1,10 @@
-import describe from "./util/describe.js";
-import { createTree, waitForPath } from "./util/trees.js";
-import { treeTeardown } from "./util/context.js";
-import { diff } from "./util/snapshot.js";
+import describe from "../util/describe.js";
+import { createTree, waitForPath } from "../util/trees.js";
+import { treeTeardown } from "../util/context.js";
+import { diff } from "../util/snapshot.js";
 
-import single from "./specimens/single.js";
-import grandchild from "./specimens/grandchild.js";
+import single from "../specimens/single.js";
+import grandchild from "../specimens/grandchild.js";
 
 describe("broadcast", (it) => {
     it.after.each(treeTeardown);
@@ -36,15 +36,21 @@ describe("broadcast", (it) => {
     it.only("should send to child trees", async (context) => {
         const tree = context.tree = createTree(grandchild, { verbose : true });
 
-        console.log("awaiting tree for before");
+        console.log("\n\nAWAITING TREE FOR BEFORE\n\n");
 
         const before = await tree();
-        
+
+        console.log("\n\nGOT TREE FOR BEFORE\n\n");
+
+        console.log("\n\nSENDING NEXT TO TREE\n\n")
+
         tree.builder.broadcast("NEXT");
 
-        console.log("awaiting tree for after");
+        console.log("\n\nAWAITING TREE FOR AFTER\n\n");
 
         const after = await waitForPath(tree, "grandchild.two");
+
+        console.log("\n\nGOT TREE FOR AFTER\n\n");
 
         diff(before, after, `
         [
