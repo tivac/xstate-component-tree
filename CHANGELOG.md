@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.5.0](https://github.com/tivac/xstate-component-tree/compare/v3.4.2...v3.5.0) (2022-03-15)
+
+
+### Features
+
+* add .hasTag(), .matches(), and .broadcast() ([#41](https://github.com/tivac/xstate-component-tree/issues/41)) ([108ec3e](https://github.com/tivac/xstate-component-tree/commit/108ec3ee4f59c469c34f57d6265d8781e4c55a0b))
+
 ### [3.4.2](https://github.com/tivac/xstate-component-tree/compare/v3.4.1...v3.4.2) (2022-02-20)
 
 
