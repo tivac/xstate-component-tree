@@ -1,8 +1,8 @@
 import { spyOn, restoreAll } from "nanospy";
 
-import describe from "./util/describe.js";
-import { createTree } from "./util/trees.js";
-import { snapshot } from "./util/snapshot.js";
+import describe from "../util/describe.js";
+import { createTree } from "../util/trees.js";
+import { snapshot } from "../util/snapshot.js";
 
 import child from "./specimens/child.js";
 
@@ -21,6 +21,6 @@ describe("verbose", (it) => {
 
         // Only check first & last for now
         snapshot(log.calls[0], `[ "[root][_prep] prepping" ]`);
-        snapshot(log.calls[log.calls.length - 1], `[ "[root][_run #1] finished" ]`);
+        snapshot(log.calls[log.calls.length - 1], `[ "[root][_run #2] returning data" ]`);
     });
 });

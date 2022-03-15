@@ -1,6 +1,6 @@
 import { createMachine } from "xstate";
 
-import component from "../util/component.js";
+import component from "../../util/component.js";
 
 const child = createMachine({
     id      : "child",

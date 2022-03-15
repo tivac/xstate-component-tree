@@ -1,8 +1,8 @@
 import * as assert from "uvu/assert";
 
-import describe from "./util/describe.js";
-import { createTree } from "./util/trees.js";
-import { treeTeardown } from "./util/context.js";
+import describe from "../util/describe.js";
+import { createTree } from "../util/trees.js";
+import { treeTeardown } from "../util/context.js";
 
 import single from "./specimens/single.js";
 import child from "./specimens/child.js";
