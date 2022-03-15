@@ -44,9 +44,6 @@ jobs:
     - name: npm install
       run: npm ci
     
-    - name: npm build
-      run: npm run build --if-present
-    
     - name: test
       run: npm test
       env:
@@ -55,10 +52,12 @@ jobs:
     # Run codecov after all builds, and only on a single environment
     - name: Gather Coverage
       if: matrix.os == 'ubuntu-latest' && matrix.node-version == 16
-      run: npm test -- --ci --coverage
+      run: npm run test:coverage
+
+    - name: Create Coverage Report
+      if: matrix.os == 'ubuntu-latest' && matrix.node-version == 16
+      run: npm run test:report
 
     - name: Upload Coverage
       uses: codecov/codecov-action@v2
       if: matrix.os == 'ubuntu-latest' && matrix.node-version == 16
-      with:
-        files: ./coverage/coverage-final.json

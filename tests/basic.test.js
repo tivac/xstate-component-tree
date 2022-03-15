@@ -51,6 +51,60 @@ describe("basic functionality", (it) => {
         ]`);
     });
 
+    it("should support props", async () => {
+        const tree = await getTree({
+            initial : "one",
+
+            states : {
+                one : {
+                    meta : {
+                        component : component("one"),
+                        props     : {
+                            fooga : 1,
+                            booga : 2,
+                        },
+                    },
+
+                    initial : "two",
+
+                    states : {
+                        two : {
+                            meta : {
+                                component : component("two"),
+                                props     : {
+                                    wooga : 1,
+                                    tooga : 2,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: {
+                    fooga: 1,
+                    booga: 2
+                },
+                children: [
+                    [Object: null prototype] {
+                        path: "one.two",
+                        component: [Function: two],
+                        props: {
+                            wooga: 1,
+                            tooga: 2
+                        },
+                        children: []
+                    }
+                ]
+            }
+        ]`);
+    });
+
     it("should support parallel states", async () => {
         const tree = await getTree({
             type : "parallel",
@@ -109,7 +163,7 @@ describe("basic functionality", (it) => {
                     },
                 },
             },
-        }, false, { stable : true });
+        }, { stable : true });
 
         snapshot(tree, `[
             [Object: null prototype] {
@@ -150,7 +204,7 @@ describe("basic functionality", (it) => {
                     },
                 },
             },
-        }, false, { stable : false });
+        }, { stable : false });
 
         snapshot(tree, `[
             [Object: null prototype] {
@@ -285,7 +339,7 @@ describe("basic functionality", (it) => {
 
         const before = await tree();
         
-        tree.send("NEXT");
+        tree.service.send("NEXT");
 
         const after = await tree();
 
@@ -327,7 +381,7 @@ describe("basic functionality", (it) => {
 
         await tree();
 
-        tree.send("NEXT");
+        tree.service.send("NEXT");
 
         // onEvent was called twice, but treeBuilder returned one tree as expected
         assert.equal(eventCounter.callCount, 2);
@@ -368,7 +422,7 @@ describe("basic functionality", (it) => {
 
         const before = await tree();
         
-        tree.send("NEXT");
+        tree.service.send("NEXT");
 
         const after = await tree();
 
@@ -424,7 +478,7 @@ describe("basic functionality", (it) => {
 
         const before = await tree();
         
-        tree.send("NEXT");
+        tree.service.send("NEXT");
 
         const after = await tree();
 
@@ -468,13 +522,13 @@ describe("basic functionality", (it) => {
                     },
                 },
             },
-        }, callback);
+        }, {}, callback);
 
         await tree();
         
         tree.builder.teardown();
 
-        tree.send("NEXT");
+        tree.service.send("NEXT");
 
         assert.equal(callback.callCount, 1);
     });

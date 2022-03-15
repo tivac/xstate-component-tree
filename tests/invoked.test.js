@@ -164,7 +164,7 @@ describe("invoked machines", (it) => {
             },
         });
 
-        context.tree = createTree({
+        const tree = context.tree = createTree({
             initial : "one",
 
             states : {
@@ -191,11 +191,11 @@ describe("invoked machines", (it) => {
             },
         });
 
-        const before = await context.tree();
+        const before = await tree();
         
-        context.tree.send("NEXT");
+        tree.service.send("NEXT");
         
-        const after = await context.tree();
+        const after = await tree();
 
         diff(before, after, `[
             [Object: null prototype] {
@@ -244,7 +244,7 @@ describe("invoked machines", (it) => {
             },
         });
 
-        context.tree = createTree({
+        const tree = context.tree = createTree({
             initial : "one",
 
             states : {
@@ -263,11 +263,11 @@ describe("invoked machines", (it) => {
             },
         });
 
-        const before = await context.tree();
+        const before = await tree();
         
-        context.tree.send("NEXT");
+        tree.service.send("NEXT");
         
-        const after = await context.tree();
+        const after = await tree();
 
         diff(before, after, `[
                 [Object: null prototype] {
@@ -303,7 +303,7 @@ describe("invoked machines", (it) => {
             },
         });
 
-        context.tree = createTree({
+        const tree = context.tree = createTree({
             initial : "one",
 
             states : {
@@ -340,11 +340,11 @@ describe("invoked machines", (it) => {
             },
         });
 
-        const before = await context.tree();
+        const before = await tree();
 
-        context.tree.send("NEXT");
+        tree.service.send("NEXT");
 
-        const after = await context.tree();
+        const after = await tree();
 
         diff(before, after, `[
                 [Object: null prototype] {
@@ -490,7 +490,7 @@ describe("invoked machines", (it) => {
             },
         });
 
-        context.tree = createTree({
+        const tree = context.tree = createTree({
             initial : "one",
 
             states : {
@@ -509,11 +509,11 @@ describe("invoked machines", (it) => {
             },
         });
 
-        const before = await context.tree();
+        const before = await tree();
 
-        context.tree.send("NEXT");
+        tree.service.send("NEXT");
         
-        const after = await context.tree();
+        const after = await tree();
 
         diff(before, after, `[
                 [Object: null prototype] {

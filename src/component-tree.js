@@ -1,3 +1,13 @@
+/**
+ * @typedef {import("xstate").AnyInterpreter} Interpreter
+ * @typedef {import("xstate").AnyEventObject} Event
+ * @typedef {import("xstate").SendActionOptions} SendActionOptions
+ * @typedef {{ cache?: boolean; stable?: boolean; verbose?: boolean}} Options
+ */
+
+// eslint-disable-next-line no-empty-function
+const noop = () => {};
+
 const loadComponent = async ({ item, load, context, event }) => {
     const result = await load(context, event);
 
@@ -14,10 +24,8 @@ const loadComponent = async ({ item, load, context, event }) => {
     item.props = props || false;
 };
 
-const loadChild = async ({ child, root }) => {
-    const { _tree } = child;
-
-    const children = await _tree;
+const loadChild = async ({ tree, root }) => {
+    const children = await tree;
 
     // Will attach to the state itself if it has a component,
     // otherwise will attach to the parent
@@ -25,23 +33,40 @@ const loadChild = async ({ child, root }) => {
 };
 
 class ComponentTree {
-    constructor(interpreter, callback, { cache = true, stable = false } = false) {
-        // Storing off args + options
-        this._interpreter = interpreter;
-        this._callback = callback;
+    /**
+     * @constructor
+     * @param {Interpreter} service The xstate Interpreter root instance to monitor
+     * @param {Function} callback The function to call when updated component trees are generated
+     * @param {Options} options Configuration
+     */
+    constructor(service, callback, options = false) {
+        const {
+            // Whether or not to cache the result of dynamic component/prop functions
+            cache = true,
 
-        // Whether or not to cache the result of dynamic component/prop functions
-        this._caching = cache;
+            // Whether or not to sort keys to ensure component output order is more stable
+            stable = false,
 
-        // Whether or not to sort keys to ensure component output order is more stable
-        this._stable = stable;
+            // How noisy should we be?
+            verbose = false,
+        } = options;
 
         // identifier!
-        this.id = interpreter.id;
+        this.id = service.id;
 
-        // Count # of times tree has been walked, used by cache & for walk cancellation
-        this._counter = 0;
+        // Storing off args + options
+        this._options = {
+            cache,
+            stable,
+            verbose,
+            callback,
+        };
 
+        this._services = new Map();
+
+        this._addService({ path : this.id, service });
+        
+        
         // Caching for results of previous walks
         this._cache = new Map();
 
@@ -51,99 +76,215 @@ class ComponentTree {
         // path -> invoked id
         this._invokables = new Map();
 
-        // invoked id -> child machine
-        this._children = new Map();
+        // Unsubscribe functions
+        this._unsubscribes = new Set();
 
-        // Expose walk result as a property
-        this._tree = [];
-
-        // Last event this saw, used to re-create the tree when a child transitions
-        this._data = false;
+        // eslint-disable-next-line no-console
+        this._log = verbose ? console.log : noop;
 
         // Get goin
-        this._prep();
-        this._watch();
+        this._watch(this.id);
     }
 
-    teardown() {
-        this._paths.clear();
-        this._invokables.clear();
-        this._children.clear();
-        this._cache.clear();
+    _addService({ path, service, parent = false }) {
+        this._services.set(path, {
+            interpreter : service,
+            parent,
 
-        // Ensure no more runs can ever happen, we're *done*
-        this._counter = Infinity;
+            // Count # of times tree has been walked, used by cache & for walk cancellation
+            run : 0,
 
-        this._tree = null;
-        this._data = null;
-        this.options = null;
+            // Stored transition result, used to re-create the tree when a child transitions
+            state : false,
 
-        this._unsubscribe();
+            // Walk results
+            tree : [],
+        });
     }
 
-    // Walk the machine and build up maps of paths to meta info as
-    // well as prepping any load functions for usage later
-    _prep() {
-        const { _paths, _invokables, _interpreter, _caching } = this;
-        const { idMap : ids } = _interpreter.machine;
+    // Subscribe to an interpreter
+    _watch(path) {
+        const { _paths, _services, _invokables, _options, _log } = this;
+        
+        _log(`[${path}][_prep] prepping`);
+
+        const { interpreter } = _services.get(path);
+
+        // Build up maps of paths to meta info as well as noting any invokable machines for later
+        const { idMap : ids } = interpreter.machine;
 
         // xstate maps ids to state nodes, but the value object only
         // has paths, so need to create our own path-only map here
         for(const id in ids) {
-            const { path, meta = false, invoke } = ids[id];
+            const item = ids[id];
 
-            const key = path.join(".");
+            const key = [ path, ...item.path ].join(".");
 
-            if(meta) {
+            if(item.meta) {
                 _paths.set(key, Object.assign({
                     __proto__ : null,
 
-                    cache : _caching,
-                }, meta));
+                    cache : _options.cache,
+                }, item.meta));
             }
 
             // .invoke is always an array
-            invoke.forEach(({ id : invokeid }) => _invokables.set(key, invokeid));
+            item.invoke.forEach(({ id : invokeid }) => _invokables.set(key, `${path}.${invokeid}`));
         }
+
+        _log(`[${path}][_prep] _paths`, [ ..._paths.keys() ]);
+        _log(`[${path}][_prep] _invokables`, [ ..._invokables.entries() ]);
+        
+        _log(`[${path}][_watch] subscribing`);
+
+        // Subscribing will start a run of the machine,
+        // so no need to manually kick one off
+        const { unsubscribe } = interpreter.subscribe((state) => {
+            _log(`[${path}][_watch] update`);
+
+            this._onState(path, state);
+        });
+
+        this._unsubscribes.add(unsubscribe);
+
+        // Clean up once the service finishes
+        interpreter.onStop(() => {
+            _log(`[${path}][_onState] stopped, tearing down`);
+
+            unsubscribe();
+
+            this._unsubscribes.delete(unsubscribe);
+            _services.delete(path);
+        });
     }
 
-    // Subscribe to an interpreter
-    _watch() {
-        const { _interpreter } = this;
+    // Callback for statechart transitions to sync up child machine states
+    _onState(path, state) {
+        const { changed, children } = state;
 
-        // Subscribing will start a run of the machine, so no need to manually
-        // kick one off
-        const { unsubscribe } = _interpreter.subscribe((data) => this._state(data));
+        // Need to specifically check for false because this value is undefined
+        // when a machine first boots up
+        if(changed === false) {
+            return;
+        }
 
-        this._unsubscribe = unsubscribe;
+        const { _services, _log } = this;
+
+        // Save off the state
+        this._services.get(path).state = state;
+
+        _log(`[${path}][_onState] checking children`);
+
+        // Add any new children to be tracked
+        Object.keys(children).forEach((child) => {
+            const id = [ path, child ].join(".");
+
+            if(_services.has(id)) {
+                return;
+            }
+
+            const service = children[child];
+
+            // Not a statechart, abort!
+            if(!service.initialized || !service.state) {
+                return;
+            }
+
+            _log(`[${path}][_onState] Tracking child ${id}`);
+
+            // These arg names are... confusing
+            this._addService({ path : id, service, parent : path });
+
+            // Start watching the child
+            this._watch(id);
+        });
+
+        // Rebuild this particular tree in case it changed
+        this._run(path);
+    }
+
+    _shouldRun(path, run) {
+        const { _services } = this;
+
+        return Boolean(_services && _services.get(path).run === run);
+    }
+
+    // Kicks off tree walks & handles overlapping walk behaviors
+    async _run(path) {
+        const { _options, _services, _log } = this;
+
+        const root = path === this.id;
+        const service = _services.get(path);
+
+        // Cancel any previous walks, we're the captain now
+        const run = ++service.run;
+        
+        _log(`[${path}][_run #${run}] starting`);
+
+        service.tree = this._walk(path);
+
+        const [ tree ] = await Promise.all([
+            service.tree,
+
+            // Only care about all other trees when we're the root
+            ...(
+                root ?
+                    [ ..._services.values() ].map(({ tree : t }) => t) :
+                    []
+            ),
+        ]);
+
+        // New run started since this finished, abort
+        if(!this._shouldRun(path, run)) {
+            _log(`[${path}][_run #${run}] aborted`);
+
+            return false;
+        }
+
+        _log(`[${path}][_run #${run}] finished`);
+
+        const { parent } = service;
+
+        // Trigger parent run if we got one
+        if(parent) {
+            return this._run(parent);
+        }
+
+        _log(`[${path}][_run #${run}] returning data`);
+
+        return _options.callback(tree, { data : this._state });
     }
 
     // Walk a machine via BFS, collecting meta information to build a tree
     // eslint-disable-next-line max-statements, complexity
-    async _walk() {
+    async _walk(path) {
         const {
-            id,
            _paths,
            _invokables,
-           _children,
+           _services,
            _cache,
-           _stable,
-           _counter,
-           _data,
+           _options,
+           _log,
         } = this;
 
-        // Don't do any work here if it's impossible for a component
-        // to be needed
+        /* c8 ignore start */
         if(!_paths.size) {
             return [];
         }
+        /* c8 ignore stop */
 
-        const { value, context, event } = _data;
+        const service = this._services.get(path);
+
+        const { run, state } = service;
+
+        _log(`[${path}][_walk #${run}] walking`);
+
+        const { value, context, event } = state;
         const loads = [];
         const root = {
             __proto__ : null,
 
-            id,
+            id       : this.id,
             children : [],
         };
 
@@ -155,34 +296,36 @@ class ComponentTree {
         } else {
             const keys = Object.keys(value);
 
-            queue = (_stable ? keys.sort() : keys).map((child) =>
+            queue = (_options.stable ? keys.sort() : keys).map((child) =>
                 [ root, child, value[child] ]
             );
         }
 
-        // _counter === this._counter is to kill looping if state
-        // transitions before it finishes
-        // eslint-disable-next-line no-unmodified-loop-condition
-        while(queue.length && _counter === this._counter) {
-            const [ parent, path, values ] = queue.shift();
+        // service.run check is to kill looping if state transitions before the walk finishes
+        while(queue.length && this._shouldRun(path, run)) {
+            const [ parent, node, values ] = queue.shift();
+
+            const id = `${path}.${node}`;
+
+            _log(`[${path}][_walk #${run}] walking ${node}`);
 
             // Using let since it can be reassigned if we add a new child
             let pointer = parent;
 
-            if(_paths.has(path)) {
-                const details = _paths.get(path);
+            if(_paths.has(id)) {
+                const details = _paths.get(id);
                 let cached = false;
 
-                if(_cache.has(path)) {
-                    cached = _cache.get(path);
+                if(_cache.has(id)) {
+                    cached = _cache.get(id);
 
                     // Only cache items from the previous run are valid
-                    if(cached.counter === this._counter - 1) {
-                        cached.counter = this._counter;
+                    if(cached.counter === run - 1) {
+                        cached.counter = run;
                     } else {
                         cached = false;
 
-                        _cache.delete(path);
+                        _cache.delete(id);
                     }
                 }
 
@@ -191,7 +334,8 @@ class ComponentTree {
                 const item = {
                     __proto__ : null,
 
-                    path,
+                    // Purposefully *not* prefixing w/ path here, end-users don't care about it
+                    path : node,
 
                     component : cached ? cached.item.component : component,
                     props     : cached ? cached.item.props : props,
@@ -209,7 +353,7 @@ class ComponentTree {
 
                     // Mark this state loaded in the cache once its actually done
                     loading.then(() => {
-                        const saved = _cache.get(path);
+                        const saved = _cache.get(id);
 
                         if(saved) {
                             saved.loaded = true;
@@ -219,16 +363,14 @@ class ComponentTree {
                     loads.push(loading);
                 }
 
-                // Check if this node is
-                // 1) allowed to be cached
-                // 2) not already cached
-                // and then save the result
+                // Check if this node is allowed to be cached && not already cached,
+                // then save the result
                 if(details.cache && !cached) {
-                    _cache.set(path, {
+                    _cache.set(id, {
                         __proto__ : null,
 
                         item,
-                        counter : this._counter,
+                        counter : run,
                         loaded  : false,
                     });
                 }
@@ -237,13 +379,14 @@ class ComponentTree {
                 pointer = item;
             }
 
-            if(_invokables.has(path)) {
-                const invokable = _invokables.get(path);
+            if(_invokables.has(id)) {
+                const invokable = _invokables.get(id);
 
-                if(_children.has(invokable)) {
+                if(_services.has(invokable)) {
                     loads.push(loadChild({
-                        child : _children.get(invokable),
-                        root  : pointer,
+                        tree : _services.get(invokable).tree,
+                        root : pointer,
+                        path,
                     }));
                 }
             }
@@ -253,16 +396,14 @@ class ComponentTree {
             }
 
             if(typeof values === "string") {
-                queue.push([ pointer, `${path}.${values}`, false ]);
-
-                continue;
+                queue.push([ pointer, `${node}.${values}`, false ]);
+            } else {
+                const keys = Object.keys(values);
+    
+                queue.push(...(_options.stable ? keys.sort() : keys).map((child) =>
+                    [ pointer, `${node}.${child}`, values[child] ]
+                ));
             }
-
-            const keys = Object.keys(values);
-
-            queue.push(...(_stable ? keys.sort() : keys).map((child) =>
-                [ pointer, `${path}.${child}`, values[child] ]
-            ));
         }
 
         // await any load functions
@@ -270,83 +411,63 @@ class ComponentTree {
             await Promise.all(loads);
         }
 
+        _log(`[${path}][_walk #${run}] done`);
+
         return root.children;
     }
 
-    // Kicks off tree walks & handles overlapping walk behaviors
-    async _run() {
-        const { _children, _callback } = this;
+    /**
+     * Remove all subscribers and null out all properties
+     */
+     teardown() {
+        this._log(`[${this.id}][teardown] destroying`);
+        
+        this._paths.clear();
+        this._invokables.clear();
+        this._cache.clear();
+        this._services.clear();
+        
+        this._paths = null;
+        this._invokables = null;
+        this._cache = null;
+        this._services = null;
 
-        // Cancel any previous walks, we're the captain now
-        const run = ++this._counter;
-
-        this._tree = this._walk();
-
-        const [ tree ] = await Promise.all([
-            this._tree,
-            [ ..._children.values() ].map(({ _tree }) => _tree),
-        ]);
-
-        // New run started since this finished, abort
-        if(run !== this._counter) {
-            return;
-        }
-
-        _callback(tree, { data : this._data });
+        this._unsubscribes.forEach((unsub) => unsub());
+        
+        this._options = null;
+        this._log = null;
     }
 
-    // Callback for statechart transitions to sync up child machine states
-    _state(data) {
-        const { changed, children } = data;
-
-        // Need to specifically check for false because this value is undefined
-        // when a machine first boots up
-        if(changed === false) {
-            return false;
-        }
-
-        // Save off the event, but only the fields we need
-        this._data = {
-            __proto__ : null,
-
-            value   : data.value,
-            event   : data.event,
-            context : data.context,
-        };
-
-        const { _children } = this;
-
-        // Add any new children to be tracked
-        Object.keys(children).forEach((id) => {
-            if(_children.has(id)) {
-                return;
-            }
-
-            const service = children[id];
-
-            // Not a statechart, abort!
-            if(!service.initialized || !service.state) {
-                return;
-            }
-
-            // Create the child ComponentTree instance
-            let child = new ComponentTree(service, () => {
-                // trigger re-walk of the parent after any children change
-                this._run();
-            });
-
-            _children.set(id, child);
-
-            // Clean up child once it finishes
-            service.onStop(() => {
-                child.teardown();
-                child = null;
-
-                _children.delete(id);
-            });
+    /**
+     * Send an event to the service and all its children
+     *
+     * @param {Event | string} event
+     * @param {SendActionOptions} [options]
+     */
+    broadcast(event, options) {
+        this._services.forEach(({ interpreter }) => {
+            interpreter.send(event, options);
         });
+    }
 
-        return this._run();
+    /**
+     * Check if the current state or any child states have a tag set
+     *
+     * @param {string} tag
+     * @returns boolean
+     */
+    hasTag(tag) {
+        return [ ...this._services.values() ].some(({ state }) => state.hasTag(tag));
+    }
+
+    /**
+     * Check if the current state or any child states match a path
+     *
+     * @param {string} path
+     * @returns boolean
+     */
+    matches(path) {
+        return [ ...this._services.values() ].some(({ state }) => state.matches(path));
     }
 }
 
