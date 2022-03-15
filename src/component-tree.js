@@ -24,11 +24,8 @@ const loadComponent = async ({ item, load, context, event }) => {
     item.props = props || false;
 };
 
-const loadChild = async ({ tree, root, path }) => {
-    console.log(`[loadChild] waiting on ${path}`);
+const loadChild = async ({ tree, root }) => {
     const children = await tree;
-
-    console.log(`[loadChild] got data for ${path}`, JSON.stringify(children, null, 4));
 
     // Will attach to the state itself if it has a component,
     // otherwise will attach to the parent
@@ -67,7 +64,7 @@ class ComponentTree {
 
         this._services = new Map();
 
-        this._addService(this.id, service);
+        this._addService({ path : this.id, service });
         
         
         // Caching for results of previous walks
@@ -89,9 +86,10 @@ class ComponentTree {
         this._watch(this.id);
     }
 
-    _addService(path, service) {
+    _addService({ path, service, parent = false }) {
         this._services.set(path, {
             interpreter : service,
+            parent,
 
             // Count # of times tree has been walked, used by cache & for walk cancellation
             run : 0,
@@ -194,15 +192,21 @@ class ComponentTree {
 
             _log(`[${path}][_onState] Tracking child ${id}`);
 
-            this._addService(id, service);
+            // These arg names are... confusing
+            this._addService({ path : id, service, parent : path });
 
             // Start watching the child
             this._watch(id);
         });
 
-        _log(`[${path}][_onState] triggering _run(${path})`);
-
+        // Rebuild this particular tree in case it changed
         this._run(path);
+    }
+
+    _shouldRun(path, run) {
+        const { _services } = this;
+
+        return Boolean(_services && _services.get(path).run === run);
     }
 
     // Kicks off tree walks & handles overlapping walk behaviors
@@ -219,8 +223,6 @@ class ComponentTree {
 
         service.tree = this._walk(path);
 
-        _log(`[${path}][_run #${run}] awaiting trees`);
-
         const [ tree ] = await Promise.all([
             service.tree,
 
@@ -233,7 +235,7 @@ class ComponentTree {
         ]);
 
         // New run started since this finished, abort
-        if(run !== service.run) {
+        if(!this._shouldRun(path, run)) {
             _log(`[${path}][_run #${run}] aborted`);
 
             return false;
@@ -241,11 +243,11 @@ class ComponentTree {
 
         _log(`[${path}][_run #${run}] finished`);
 
-        console.log(JSON.stringify(tree, null, 4));
+        const { parent } = service;
 
-        // Trigger root run if we ain't it
-        if(!root) {
-            return this._run(this.id);
+        // Trigger parent run if we got one
+        if(parent) {
+            return this._run(parent);
         }
 
         _log(`[${path}][_run #${run}] returning data`);
@@ -265,9 +267,11 @@ class ComponentTree {
            _log,
         } = this;
 
+        /* c8 ignore start */
         if(!_paths.size) {
             return [];
         }
+        /* c8 ignore stop */
 
         const service = this._services.get(path);
 
@@ -298,7 +302,7 @@ class ComponentTree {
         }
 
         // service.run check is to kill looping if state transitions before the walk finishes
-        while(queue.length && run === service.run) {
+        while(queue.length && this._shouldRun(path, run)) {
             const [ parent, node, values ] = queue.shift();
 
             const id = `${path}.${node}`;
@@ -404,11 +408,7 @@ class ComponentTree {
 
         // await any load functions
         if(loads.length) {
-            _log(`[${path}][_walk #${run}] waiting for ${loads.length} loaders`);
-
             await Promise.all(loads);
-
-            _log(`[${path}][_walk #${run}] loaders complete`);
         }
 
         _log(`[${path}][_walk #${run}] done`);
@@ -426,13 +426,16 @@ class ComponentTree {
         this._invokables.clear();
         this._cache.clear();
         this._services.clear();
+        
+        this._paths = null;
+        this._invokables = null;
+        this._cache = null;
+        this._services = null;
 
         this._unsubscribes.forEach((unsub) => unsub());
         
         this._options = null;
-        this._paths = null;
         this._log = null;
-        this._cache = null;
     }
 
     /**
@@ -442,11 +445,7 @@ class ComponentTree {
      * @param {SendActionOptions} [options]
      */
     broadcast(event, options) {
-        // TODO: this version works but is stupid
-        // [ ...this._services.values() ].reverse().forEach(({ interpreter }) => {
         this._services.forEach(({ interpreter }) => {
-            console.log(`SENDING ${event} TO ${interpreter.id}`);
-            
             interpreter.send(event, options);
         });
     }
