@@ -220,9 +220,9 @@ import { component } from "xstate-component-tree/component";
 The `callback` functions receives two arguments, the first is your assembled tree of components & props. The second is an object with some useful information on it:
 
 - `.state`, the returned xstate `State` object for the root machine
-- `.matches()`, a bound version of the `.matches()` API documented below
-- `.hasTag()`, a bound version of the `.hasTag()` API documented below
-- `.broadcast()`, a bound version of the `.broadcast()` API documented below
+- `.matches()`, a bound version of the [`.matches()` API documented below](#matchesstatename)
+- `.hasTag()`, a bound version of the [`.hasTag()` API documented below](#hastagtag)
+- `.broadcast()`, a bound version of the [`.broadcast()` API documented below](#broadcasteventname--eventobject-payload)
 
 #### `options`
 
