@@ -56,13 +56,17 @@ describe("broadcast", (it) => {
     it("should send to child trees", async (context) => {
         const tree = context.tree = createTree(grandchild);
 
-        const { tree : before } = await tree();
+        const { tree : one } = await tree();
 
         tree.builder.broadcast("NEXT");
 
-        const { tree : after } = await waitForPath(tree, "grandchild.two");
+        const { tree : two, extra } = await waitForPath(tree, "grandchild.two");
 
-        diff(before, after, `
+        extra.broadcast("NEXT");
+
+        const { tree : three } = await waitForPath(tree, "grandchild.three");
+
+        diff(one, two, `
         [
             [Object: null prototype] {
         Actual:
@@ -91,6 +95,40 @@ describe("broadcast", (it) => {
         Expected:
         ++        path: "grandchild.two",
         ++        component: [Function: grandchild-two],
+                props: false,
+                children: []
+            }
+        ]`);
+
+        diff(two, three, `
+        [
+            [Object: null prototype] {
+        Actual:
+        --        path: "root.two",
+        --        component: [Function: two],
+        Expected:
+        ++        path: "root.three",
+        ++        component: [Function: three],
+                props: false,
+                children: []
+            },
+            [Object: null prototype] {
+        Actual:
+        --        path: "child.two",
+        --        component: [Function: child-two],
+        Expected:
+        ++        path: "child.three",
+        ++        component: [Function: child-three],
+                props: false,
+                children: []
+            },
+            [Object: null prototype] {
+        Actual:
+        --        path: "grandchild.two",
+        --        component: [Function: grandchild-two],
+        Expected:
+        ++        path: "grandchild.three",
+        ++        component: [Function: grandchild-three],
                 props: false,
                 children: []
             }

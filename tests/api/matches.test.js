@@ -13,18 +13,26 @@ describe("matches", (it) => {
     it("should check the root tree", async (context) => {
         const tree = context.tree = createTree(parallel);
 
+        const { extra } = await tree();
+
         assert.equal(tree.builder.matches("one"), true);
         assert.equal(tree.builder.matches("one.one_one"), true);
         assert.equal(tree.builder.matches("one.one_one.one_one_one"), true);
         assert.equal(tree.builder.matches("one.one_one.one_one_two"), true);
+        assert.equal(extra.matches("one"), true);
+        assert.equal(extra.matches("one.one_one"), true);
+        assert.equal(extra.matches("one.one_one.one_one_one"), true);
+        assert.equal(extra.matches("one.one_one.one_one_two"), true);
     });
 
     it("should check child trees", async (context) => {
         const tree = context.tree = createTree(child);
 
-        await tree();
+        const { extra } = await tree();
 
         assert.equal(tree.builder.matches("root.one"), true);
         assert.equal(tree.builder.matches("child.one"), true);
+        assert.equal(extra.matches("root.one"), true);
+        assert.equal(extra.matches("child.one"), true);
     });
 });
