@@ -41,6 +41,7 @@ Machine({
     },
 });
 ```
+
 Props for the components are also supported via the `props` key.
 
 ```js
@@ -108,7 +109,7 @@ new ComponentTree(service, (tree) => {
 });
 ```
 
-This data structure can also contain components from any child statecharts you created using `invoke`, they will be correctly walked & monitored for transitions.
+This data structure can also contain components from any child statecharts you created using `invoke`, they will be correctly walked & monitored for transitions and appear in their expected position within the hierarchy. This lets you compose a larger statechart from several smaller ones and still have them all contribute components to the app.
 
 ## Advanced Usage
 
@@ -208,11 +209,20 @@ import { component } from "xstate-component-tree/component";
 
 ## API
 
-### `new ComponentTree(interpreter, callback, [options])`
+### `ComponentTree`
+
+#### `new ComponentTree(interpreter, callback, [options])`
 
 - `interpreter`, and instance of a xstate interpreter
 - `callback`, a function that will be executed each time a new tree of components is ready
 - `options`, an optional object containing [configuration values](#options) for the library.
+
+The `callback` functions receives two arguments, the first is your assembled tree of components & props. The second is an object with some useful information on it:
+
+- `.state`, the returned xstate `State` object for the root machine
+- `.matches()`, a bound version of the `.matches()` API documented below
+- `.hasTag()`, a bound version of the `.hasTag()` API documented below
+- `.broadcast()`, a bound version of the `.broadcast()` API documented below
 
 #### `options`
 
@@ -220,12 +230,40 @@ import { component } from "xstate-component-tree/component";
 
 - `stable` (default: `false`), tells the library to sort states alphabetically before walking them at each tier to help ensure that the component output is more consistent between state transitions.
 
-### `component(Component | () => {}, [node])`
+- `verbose` (default: `false`), logs out info about the internal workings & decisions.
+
+### `ComponentTree` instance methods
+
+#### `.broadcast(eventName | eventObject, payload)`
+
+Calls the xstate `.send()` method on every running interpreter in the hierarchy. This is especially useful to avoid the use of the `autoforward` option on all of your invoked child machines.
+
+- `eventName` is a string event to be sent
+- `eventObject` is an object with a `type` property of the event name, along with other optional fields
+- `payload` is an object of optional fields to be added to the event object
+
+#### `.matches(stateName)`
+
+- `stateName` is a full or partial state value specified as a string
+
+Calls the [xstate `.matches()` method](https://xstate.js.org/docs/guides/states.html#state-matches-parentstatevalue) against all the running machines and returns the result, stopping at the first successful match.
+
+#### `.hasTag(tag)`
+
+- `tag` is a string, which can be defined on states using the `tags` property
+
+Calls the [xstate `.hasTag()` method](https://xstate.js.org/docs/guides/states.html#state-hastag-tag) against all the running machines and returns the result, stopping at the first successful match.
+
+### `component()` helper
+
+The `component` helper returns an `xstate` node as an object literal, it is solely a convenience method for statechart authors.
+
+#### `component(Component | () => {}, [node])`
 
 - `Component` is either a component or an arrow function that will be executed. It supports functions that return either a component or a `Promise`.
 - `node` is a valid xstate node, the `meta` object will be created and mixed-in by the `component()`.
 
-### `component({ component : Component | () => {}, props : {...} | () => {} })`
+#### `component({ component : Component | () => {}, props : {...} | () => {} })`
 
 - `component` is either a raw Component or an arrow function that will be executed.  It supports returning either a value or a `Promise`.
 - `props` is either a props object or a function that will be executed. It supports function returning either a value or a `Promise`.
