@@ -66,7 +66,6 @@ class ComponentTree {
 
         this._addService({ path : this.id, service });
         
-        
         // Caching for results of previous walks
         this._cache = new Map();
 
@@ -81,6 +80,12 @@ class ComponentTree {
 
         // eslint-disable-next-line no-console
         this._log = verbose ? console.log : noop;
+
+        this._boundApis = {
+            matches   : this.matches.bind(this),
+            hasTag    : this.hasTag.bind(this),
+            broadcast : this.broadcast.bind(this),
+        };
 
         // Get goin
         this._watch(this.id);
@@ -252,7 +257,11 @@ class ComponentTree {
 
         _log(`[${path}][_run #${run}] returning data`);
 
-        return _options.callback(tree, { data : this._state });
+        return _options.callback(tree, {
+            __proto__ : null,
+            state     : service.state,
+            ...this._boundApis,
+        });
     }
 
     // Walk a machine via BFS, collecting meta information to build a tree
@@ -436,6 +445,7 @@ class ComponentTree {
         
         this._options = null;
         this._log = null;
+        this._boundApis = null;
     }
 
     /**

@@ -25,6 +25,18 @@ const single = createMachine({
             },
 
             tags : "two",
+
+            on : {
+                NEXT : "three",
+            },
+        },
+
+        three : {
+            meta : {
+                component : component("three"),
+            },
+
+            tags : "three",
         },
     },
 });

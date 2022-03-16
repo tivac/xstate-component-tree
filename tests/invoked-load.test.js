@@ -24,7 +24,7 @@ describe(".load in invoked machines", (it) => {
             },
         });
 
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
 
             states : {
@@ -71,7 +71,7 @@ describe(".load in invoked machines", (it) => {
             },
         });
 
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
 
             states : {
@@ -118,7 +118,7 @@ describe(".load in invoked machines", (it) => {
             },
         });
 
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
 
             states : {
@@ -169,7 +169,7 @@ describe(".load in invoked machines", (it) => {
             },
         });
 
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
 
             context : "parent context",

@@ -25,6 +25,16 @@ const grandchild = createMachine({
                     meta : {
                         component : component("grandchild-two"),
                     },
+
+                    on : {
+                        NEXT : "three",
+                    },
+                },
+
+                three : {
+                    meta : {
+                        component : component("grandchild-three"),
+                    },
                 },
             },
         },
@@ -60,6 +70,16 @@ const child = createMachine({
                     meta : {
                         component : component("child-two"),
                     },
+
+                    on : {
+                        NEXT : "three",
+                    },
+                },
+
+                three : {
+                    meta : {
+                        component : component("child-three"),
+                    },
                 },
             },
         },
@@ -93,6 +113,16 @@ const root = createMachine({
                 two : {
                     meta : {
                         component : component("two"),
+                    },
+
+                    on : {
+                        NEXT : "three",
+                    },
+                },
+
+                three : {
+                    meta : {
+                        component : component("three"),
                     },
                 },
             },

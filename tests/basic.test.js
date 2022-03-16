@@ -12,7 +12,76 @@ describe("basic functionality", (it) => {
     it.after.each(treeTeardown);
     
     it("should return a tree of components", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
+            initial : "one",
+
+            states : {
+                one : {
+                    meta : {
+                        component : component("one"),
+                    },
+
+                    initial : "two",
+
+                    states : {
+                        two : {
+                            meta : {
+                                component : component("two"),
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        path: "one.two",
+                        component: [Function: two],
+                        props: false,
+                        children: []
+                    }
+                ]
+            }
+        ]`);
+    });
+
+    it("should return state info and APIs", async () => {
+        const { extra } = await getTree({
+            initial : "one",
+
+            states : {
+                one : {
+                    meta : {
+                        component : component("one"),
+                    },
+
+                    initial : "two",
+
+                    states : {
+                        two : {
+                            meta : {
+                                component : component("two"),
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        assert.type(extra.state, "object");
+        assert.type(extra.matches, "function");
+        assert.type(extra.hasTag, "function");
+        assert.type(extra.broadcast, "function");
+    });
+
+    it("should return a tree of components", async () => {
+        const { tree } = await getTree({
             initial : "one",
 
             states : {
@@ -52,7 +121,7 @@ describe("basic functionality", (it) => {
     });
 
     it("should support props", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
 
             states : {
@@ -106,7 +175,7 @@ describe("basic functionality", (it) => {
     });
 
     it("should support parallel states", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             type : "parallel",
 
             states : {
@@ -141,7 +210,7 @@ describe("basic functionality", (it) => {
     });
 
     it(`should support nested parallel states (stable: true)`, async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
 
             states : {
@@ -182,7 +251,7 @@ describe("basic functionality", (it) => {
     });
     
     it(`should support nested parallel states (stable: false)`, async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
 
             states : {
@@ -223,7 +292,7 @@ describe("basic functionality", (it) => {
     });
     
     it("should support arbitrary ids", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
 
             states : {
@@ -267,7 +336,7 @@ describe("basic functionality", (it) => {
     });
 
     it("should support holes", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
 
             states : {
@@ -337,11 +406,11 @@ describe("basic functionality", (it) => {
 
         context.tree = tree;
 
-        const before = await tree();
+        const { tree : before } = await tree();
         
         tree.service.send("NEXT");
 
-        const after = await tree();
+        const { tree : after } = await tree();
 
         diff(before, after, `[
             [Object: null prototype] {
@@ -420,11 +489,11 @@ describe("basic functionality", (it) => {
 
         context.tree = tree;
 
-        const before = await tree();
+        const { tree : before } = await tree();
         
         tree.service.send("NEXT");
 
-        const after = await tree();
+        const { tree : after } = await tree();
 
         diff(before, after, `[
             [Object: null prototype] {
@@ -476,11 +545,11 @@ describe("basic functionality", (it) => {
 
         context.tree = tree;
 
-        const before = await tree();
+        const { tree : before } = await tree();
         
         tree.service.send("NEXT");
 
-        const after = await tree();
+        const { tree : after } = await tree();
 
         diff(before, after, `[
             [Object: null prototype] {

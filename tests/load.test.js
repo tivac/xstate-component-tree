@@ -11,7 +11,7 @@ describe(".load support", (it) => {
     it.after.each(treeTeardown);
 
     it("should support sync .load methods", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
             states  : {
                 one : {
@@ -33,7 +33,7 @@ describe(".load support", (it) => {
     });
     
     it("should pass context and event params to .load methods", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
             context : "context",
             states  : {
@@ -61,7 +61,7 @@ describe(".load support", (it) => {
     });
 
     it("should support returning a component and props", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
             states  : {
                 one : {
@@ -85,7 +85,7 @@ describe(".load support", (it) => {
     });
     
     it("should support async .load methods", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
 
             states : {
@@ -108,7 +108,7 @@ describe(".load support", (it) => {
     });
 
     it("should supprt async.load returning: sync component & sync props", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
             states  : {
                 one : {
@@ -132,7 +132,7 @@ describe(".load support", (it) => {
     });
     
     it("should supprt async.load returning: async component & sync props", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
             states  : {
                 one : {
@@ -156,7 +156,7 @@ describe(".load support", (it) => {
     });
     
     it("should supprt async.load returning: sync component & async props", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
             states  : {
                 one : {
@@ -180,7 +180,7 @@ describe(".load support", (it) => {
     });
 
     it("should support nested async .load methods", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
             states  : {
                 one : {
@@ -246,7 +246,9 @@ describe(".load support", (it) => {
         // Purposefully not awaiting this, it'll never resolve!
         tree();
 
-        snapshot(await context.tree(), `[
+        const { tree : result } = await tree();
+
+        snapshot(result, `[
             [Object: null prototype] {
                 path: "two",
                 component: [Function: two],
@@ -479,7 +481,7 @@ describe(".load support", (it) => {
     });
 
     it("should ignore falsey components", async () => {
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
             
             states : {

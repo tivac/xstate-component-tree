@@ -30,7 +30,9 @@ export const trees = (service, options = {}, fn = false) => {
             return;
         }
 
-        p.resolve(responses[idx++]);
+        const response = responses[idx++];
+
+        p.resolve({ tree : response[0], extra : response[1] });
     };
 
     const out = () => {
@@ -49,11 +51,11 @@ export const trees = (service, options = {}, fn = false) => {
     out.responses = responses;
     
     // Push new tree states onto array and respond if a request is waiting
-    out.builder = new ComponentTree(service, (tree) => {
-        responses.push(tree);
+    out.builder = new ComponentTree(service, (...other) => {
+        responses.push(other);
 
         if(fn) {
-            fn(tree);
+            fn(other);
         }
 
         respond();
@@ -94,7 +96,7 @@ export const waitForPath = async (tree, path) => {
         // eslint-disable-next-line no-await-in-loop
         val = await tree();
 
-        const searching = [ ...val ];
+        const searching = [ ...val.tree ];
 
         while(searching.length) {
             const item = searching.shift();

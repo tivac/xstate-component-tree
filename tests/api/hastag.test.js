@@ -13,15 +13,20 @@ describe("hasTag", (it) => {
     it("should check the root tree", async (context) => {
         const tree = context.tree = createTree(single);
 
+        const { extra } = await tree();
+
         assert.equal(tree.builder.hasTag("one"), true);
+        assert.equal(extra.hasTag("one"), true);
     });
 
     it("should check child trees", async (context) => {
         const tree = context.tree = createTree(child);
 
-        await tree();
+        const { extra } = await tree();
 
         assert.equal(tree.builder.hasTag("one"), true);
         assert.equal(tree.builder.hasTag("child-one"), true);
+        assert.equal(extra.hasTag("one"), true);
+        assert.equal(extra.hasTag("child-one"), true);
     });
 });
