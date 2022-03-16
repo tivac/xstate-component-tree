@@ -8,17 +8,23 @@ import grandchild from "./specimens/grandchild.js";
 
 describe("broadcast", (it) => {
     it.after.each(treeTeardown);
-    
+
     it("should send to the root tree", async (context) => {
         const tree = context.tree = createTree(single);
 
-        const before = await tree();
+        const { tree : one } = await tree();
         
+        // API on instance
         tree.builder.broadcast("NEXT");
 
-        const after = await waitForPath(tree, "two");
+        const { tree : two, extra } = await waitForPath(tree, "two");
 
-        diff(before, after, `
+        // API from extra
+        extra.broadcast("NEXT");
+
+        const { tree : three } = await waitForPath(tree, "three");
+
+        diff(one, two, `
         [
             [Object: null prototype] {
         Actual:
@@ -31,16 +37,30 @@ describe("broadcast", (it) => {
                 children: []
             }
         ]`);
+
+        diff(two, three, `
+        [
+            [Object: null prototype] {
+        Actual:
+        --        path: "two",
+        --        component: [Function: two],
+        Expected:
+        ++        path: "three",
+        ++        component: [Function: three],
+                props: false,
+                children: []
+            }
+        ]`);
     });
 
     it("should send to child trees", async (context) => {
         const tree = context.tree = createTree(grandchild);
 
-        const before = await tree();
+        const { tree : before } = await tree();
 
         tree.builder.broadcast("NEXT");
 
-        const after = await waitForPath(tree, "grandchild.two");
+        const { tree : after } = await waitForPath(tree, "grandchild.two");
 
         diff(before, after, `
         [

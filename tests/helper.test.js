@@ -66,7 +66,7 @@ describe("xstate-component-tree/helper", (it) => {
         ],
     ].forEach(([ name, meta, helpered ]) => {
         it(`should be the same: ${name}`, async () => {
-            const basic = await getTree({
+            const { tree : basic } = await getTree({
                 initial : "one",
     
                 states : {
@@ -76,7 +76,7 @@ describe("xstate-component-tree/helper", (it) => {
                 },
             });
     
-            const sugar = await getTree({
+            const { tree : sugar } = await getTree({
                 initial : "one",
     
                 states : {

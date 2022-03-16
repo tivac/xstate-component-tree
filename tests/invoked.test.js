@@ -25,7 +25,7 @@ describe("invoked machines", (it) => {
             },
         });
 
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
 
             states : {
@@ -72,7 +72,7 @@ describe("invoked machines", (it) => {
             },
         });
 
-        const tree = await getTree({
+        const { tree } = await getTree({
             type : "parallel",
 
             states : {
@@ -123,7 +123,7 @@ describe("invoked machines", (it) => {
         [ "callback", () => NOOP ],
     ].forEach(([ name, src ]) => {
         it(`should ignore non-statechart children (${name})`, async () => {
-            const tree = await getTree({
+            const { tree } = await getTree({
                 initial : "one",
 
                 states : {
@@ -191,11 +191,11 @@ describe("invoked machines", (it) => {
             },
         });
 
-        const before = await tree();
+        const { tree : before } = await tree();
         
         tree.service.send("NEXT");
         
-        const after = await tree();
+        const { tree : after } = await tree();
 
         diff(before, after, `[
             [Object: null prototype] {
@@ -263,11 +263,11 @@ describe("invoked machines", (it) => {
             },
         });
 
-        const before = await tree();
+        const { tree : before } = await tree();
         
         tree.service.send("NEXT");
         
-        const after = await tree();
+        const { tree : after } = await tree();
 
         diff(before, after, `[
                 [Object: null prototype] {
@@ -340,11 +340,11 @@ describe("invoked machines", (it) => {
             },
         });
 
-        const before = await tree();
+        const { tree : before } = await tree();
 
         tree.service.send("NEXT");
 
-        const after = await tree();
+        const { tree : after } = await tree();
 
         diff(before, after, `[
                 [Object: null prototype] {
@@ -405,7 +405,7 @@ describe("invoked machines", (it) => {
             },
         });
 
-        const tree = await getTree({
+        const { tree } = await getTree({
             initial : "one",
 
             states : {
@@ -509,11 +509,11 @@ describe("invoked machines", (it) => {
             },
         });
 
-        const before = await tree();
+        const { tree : before } = await tree();
 
         tree.service.send("NEXT");
         
-        const after = await tree();
+        const { tree : after } = await tree();
 
         diff(before, after, `[
                 [Object: null prototype] {
