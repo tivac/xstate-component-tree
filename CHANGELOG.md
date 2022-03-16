@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0](https://github.com/tivac/xstate-component-tree/compare/v3.5.0...v4.0.0) (2022-03-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* previously the second arg to the callback function had a single `data` property on it representing the last `State` object seen by the top-level machine. Now it has `state` (same as data was previously), and some bound APIs for interacting with the statechart: `.hasTag()`, `.broadcast()`, and `.matches()`. These are the same APIs available on the `ComponentTree` instance but made available through the callback args for convenience.
+
+### Features
+
+* make second callback arg useful ([#42](https://github.com/tivac/xstate-component-tree/issues/42)) ([0db0340](https://github.com/tivac/xstate-component-tree/commit/0db03406c8da42fe0d5b43e331d249710a4550f9))
+
 ## [3.5.0](https://github.com/tivac/xstate-component-tree/compare/v3.4.2...v3.5.0) (2022-03-15)
 
 
