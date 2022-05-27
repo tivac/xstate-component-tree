@@ -16,7 +16,7 @@
             "args": ["tests"],
         },
         {
-            "type": "pwa-node",
+            "type": "node",
             "request": "launch",
             "name": "Run uvu (current file)",
             "console": "integratedTerminal",
@@ -24,7 +24,10 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/node_modules/uvu/bin.js",
-            "args": ["tests", "${fileBasenameNoExtension}"]
+            "args": [
+                "tests",
+                "${fileBasenameNoExtension}"
+            ]
         }
     ]
 }
