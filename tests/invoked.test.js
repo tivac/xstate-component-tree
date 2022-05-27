@@ -3,6 +3,9 @@ const NOOP = () => {};
 
 import { createMachine } from "xstate";
 
+// TODO: failing to import?
+import { fromPromise, fromCallback } from "xstate/actors";
+
 import describe from "./util/describe.js";
 import { createTree, getTree } from "./util/trees.js";
 import component from "./util/component.js";
@@ -119,8 +122,8 @@ describe("invoked machines", (it) => {
     });
 
     [
-        [ "promise", () => new Promise(NOOP) ],
-        [ "callback", () => NOOP ],
+        [ "promise", () => fromPromise(new Promise(NOOP)) ],
+        [ "callback", () => fromCallback(NOOP) ],
     ].forEach(([ name, src ]) => {
         it(`should ignore non-statechart children (${name})`, async () => {
             const { tree } = await getTree({
