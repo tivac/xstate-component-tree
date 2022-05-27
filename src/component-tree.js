@@ -120,9 +120,7 @@ class ComponentTree {
 
         // xstate maps ids to state nodes, but the value object only
         // has paths, so need to create our own path-only map here
-        for(const id in ids) {
-            const item = ids[id];
-
+        ids.forEach((item) => {
             const key = [ path, ...item.path ].join(".");
 
             if(item.meta) {
@@ -135,7 +133,7 @@ class ComponentTree {
 
             // .invoke is always an array
             item.invoke.forEach(({ id : invokeid }) => _invokables.set(key, `${path}.${invokeid}`));
-        }
+        });
 
         _log(`[${path}][_prep] _paths`, [ ..._paths.keys() ]);
         _log(`[${path}][_prep] _invokables`, [ ..._invokables.entries() ]);

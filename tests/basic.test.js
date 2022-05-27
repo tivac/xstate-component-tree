@@ -442,7 +442,7 @@ describe("basic functionality", (it) => {
         const service = interpret(testMachine);
         const eventCounter = spy();
 
-        service.onEvent(eventCounter);
+        service.subscribe(eventCounter);
 
         const tree = trees(service);
 
