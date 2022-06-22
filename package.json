@@ -42,7 +42,7 @@
   "scripts": {
     "build": "shx rm -rf dist/* && rollup --config",
     "lint": "eslint . --max-warnings=0",
-    "test": "uvu",
+    "test": "uvu tests",
     "test:coverage": "c8 --check-coverage --100 --reporter=html --reporter=text uvu",
     "test:report": "c8 report --reporter=text-lcov > coverage/tests.lcov",
     "test:watch": "chokidar \"**/*.js\" -c \"npm test\"",
