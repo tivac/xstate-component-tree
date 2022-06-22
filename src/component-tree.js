@@ -52,7 +52,7 @@ class ComponentTree {
         } = options;
 
         // identifier!
-        this.id = service.id || "root";
+        this.id = service.id;
 
         // Storing off args + options
         this._options = {
