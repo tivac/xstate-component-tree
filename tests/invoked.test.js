@@ -248,8 +248,8 @@ describe("invoked machines", (it) => {
             states : {
                 one : {
                     invoke : {
-                        id  : "child",
-                        src : childMachine,
+                        id     : "child",
+                        src    : childMachine,
                         onDone : "two",
                     },
 
