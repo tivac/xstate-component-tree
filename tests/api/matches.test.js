@@ -52,5 +52,4 @@ describe("matches", (it) => {
         assert.ok(extra.matches("root.one"));
         assert.ok(extra.matches("child.one"));
     });
-    
 });
