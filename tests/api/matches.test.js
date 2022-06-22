@@ -6,6 +6,7 @@ import { treeTeardown } from "../util/context.js";
 
 import parallel from "./specimens/parallel.js";
 import child from "./specimens/child.js";
+import noComponents from "./specimens/no-components.js";
 
 describe("matches", (it) => {
     it.after.each(treeTeardown);
@@ -15,14 +16,30 @@ describe("matches", (it) => {
 
         const { extra } = await tree();
 
-        assert.equal(tree.builder.matches("one"), true);
-        assert.equal(tree.builder.matches("one.one_one"), true);
-        assert.equal(tree.builder.matches("one.one_one.one_one_one"), true);
-        assert.equal(tree.builder.matches("one.one_one.one_one_two"), true);
-        assert.equal(extra.matches("one"), true);
-        assert.equal(extra.matches("one.one_one"), true);
-        assert.equal(extra.matches("one.one_one.one_one_one"), true);
-        assert.equal(extra.matches("one.one_one.one_one_two"), true);
+        assert.ok(tree.builder.matches("one"));
+        assert.ok(tree.builder.matches("one.one_one"));
+        assert.ok(tree.builder.matches("one.one_one.one_one_one"));
+        assert.ok(tree.builder.matches("one.one_one.one_one_two"));
+        assert.ok(extra.matches("one"));
+        assert.ok(extra.matches("one.one_one"));
+        assert.ok(extra.matches("one.one_one.one_one_one"));
+        assert.ok(extra.matches("one.one_one.one_one_two"));
+    });
+
+    it("should check trees without components", async (context) => {
+        const tree = context.tree = createTree(noComponents);
+
+        let { extra } = await tree();
+
+        assert.ok(tree.builder.matches("one"));
+        assert.ok(extra.matches("one"));
+
+        tree.service.send("NEXT");
+
+        ({ extra } = await tree());
+
+        assert.ok(tree.builder.matches("two"));
+        assert.ok(extra.matches("two"));
     });
 
     it("should check child trees", async (context) => {
@@ -30,9 +47,9 @@ describe("matches", (it) => {
 
         const { extra } = await tree();
 
-        assert.equal(tree.builder.matches("root.one"), true);
-        assert.equal(tree.builder.matches("child.one"), true);
-        assert.equal(extra.matches("root.one"), true);
-        assert.equal(extra.matches("child.one"), true);
+        assert.ok(tree.builder.matches("root.one"));
+        assert.ok(tree.builder.matches("child.one"));
+        assert.ok(extra.matches("root.one"));
+        assert.ok(extra.matches("child.one"));
     });
 });

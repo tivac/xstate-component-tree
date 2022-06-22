@@ -6,6 +6,7 @@ import { treeTeardown } from "../util/context.js";
 
 import single from "./specimens/single.js";
 import child from "./specimens/child.js";
+import noComponents from "./specimens/no-components.js";
 
 describe("hasTag", (it) => {
     it.after.each(treeTeardown);
@@ -13,10 +14,17 @@ describe("hasTag", (it) => {
     it("should check the root tree", async (context) => {
         const tree = context.tree = createTree(single);
 
-        const { extra } = await tree();
+        let { extra } = await tree();
 
-        assert.equal(tree.builder.hasTag("one"), true);
-        assert.equal(extra.hasTag("one"), true);
+        assert.ok(tree.builder.hasTag("one"));
+        assert.ok(extra.hasTag("one"));
+
+        tree.service.send("NEXT");
+
+        ({ extra } = await tree());
+
+        assert.ok(tree.builder.hasTag("two"));
+        assert.ok(extra.hasTag("two"));
     });
 
     it("should check child trees", async (context) => {
@@ -24,9 +32,25 @@ describe("hasTag", (it) => {
 
         const { extra } = await tree();
 
-        assert.equal(tree.builder.hasTag("one"), true);
-        assert.equal(tree.builder.hasTag("child-one"), true);
-        assert.equal(extra.hasTag("one"), true);
-        assert.equal(extra.hasTag("child-one"), true);
+        assert.ok(tree.builder.hasTag("one"));
+        assert.ok(tree.builder.hasTag("child-one"));
+        assert.ok(extra.hasTag("one"));
+        assert.ok(extra.hasTag("child-one"));
+    });
+
+    it("should work without components", async (context) => {
+        const tree = context.tree = createTree(noComponents);
+
+        let { extra } = await tree();
+
+        assert.ok(tree.builder.hasTag("one"));
+        assert.ok(extra.hasTag("one"));
+
+        tree.service.send("NEXT");
+
+        ({ extra } = await tree());
+
+        assert.ok(tree.builder.hasTag("two"));
+        assert.ok(extra.hasTag("two"));
     });
 });
