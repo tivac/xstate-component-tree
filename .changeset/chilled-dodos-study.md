@@ -2,7 +2,7 @@
 "xstate-component-tree": minor
 ---
 
-## Added observable API
+Added observable API
 
 Available on the `ComponentTree` instance as `.subscribe(callback)`, calls the callback function immediately with the most recent result and then will re-call it each time a build completes.
 
