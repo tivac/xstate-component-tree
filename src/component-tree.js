@@ -36,7 +36,7 @@ class ComponentTree {
     /**
      * @constructor
      * @param {Interpreter} service The xstate Interpreter root instance to monitor
-     * @param {Function} callback The function to call when updated component trees are generated
+     * @param {Function | undefined} callback The function to call when updated component trees are generated
      * @param {Options} options Configuration
      */
     constructor(service, callback, options = false) {
@@ -52,7 +52,7 @@ class ComponentTree {
         } = options;
 
         // identifier!
-        this.id = service.id;
+        this.id = service.id || "root";
 
         // Storing off args + options
         this._options = {
@@ -62,9 +62,11 @@ class ComponentTree {
             callback,
         };
 
+        // References to all the services being tracked
         this._services = new Map();
 
-        this._addService({ path : this.id, service });
+        // Active subscribers
+        this._listeners = new Set();
         
         // Caching for results of previous walks
         this._cache = new Map();
@@ -78,14 +80,21 @@ class ComponentTree {
         // Unsubscribe functions
         this._unsubscribes = new Set();
 
+        // Store off previous results in case new subscribers show up
+        this._result = false;
+
         // eslint-disable-next-line no-console
         this._log = verbose ? console.log : noop;
 
+        // Save off bound versions of the APIs for mixing into results
         this._boundApis = {
             matches   : this.matches.bind(this),
             hasTag    : this.hasTag.bind(this),
             broadcast : this.broadcast.bind(this),
         };
+
+        // Add the main service to be tracked
+        this._addService({ path : this.id, service });
 
         // Get goin
         this._watch(this.id);
@@ -228,16 +237,14 @@ class ComponentTree {
 
         service.tree = this._walk(path);
 
-        const [ tree ] = await Promise.all([
-            service.tree,
+        const trees = [ service.tree ];
 
-            // Only care about all other trees when we're the root
-            ...(
-                root ?
-                    [ ..._services.values() ].map(({ tree : t }) => t) :
-                    []
-            ),
-        ]);
+        // Only care about all other trees when we're the root
+        if(root) {
+            _services.forEach(({ tree : t }) => trees.push(t));
+        }
+
+        const [ tree ] = await Promise.all(trees);
 
         // New run started since this finished, abort
         if(!this._shouldRun(path, run)) {
@@ -257,11 +264,21 @@ class ComponentTree {
 
         _log(`[${path}][_run #${run}] returning data`);
 
-        return _options.callback(tree, {
+        this._result = {
             __proto__ : null,
-            state     : service.state,
+
+            tree,
+            state : service.state,
             ...this._boundApis,
-        });
+        };
+
+        if(_options.callback) {
+            _options.callback(tree, this._result);
+        }
+
+        this._listeners.forEach((cb) => cb(this._result));
+
+        return true;
     }
 
     // Walk a machine via BFS, collecting meta information to build a tree
@@ -430,19 +447,22 @@ class ComponentTree {
      */
      teardown() {
         this._log(`[${this.id}][teardown] destroying`);
+
+        this._unsubscribes.forEach((unsub) => unsub());
         
         this._paths.clear();
         this._invokables.clear();
         this._cache.clear();
         this._services.clear();
+        this._listeners.clear();
+        this._unsubscribes.clear();
         
         this._paths = null;
         this._invokables = null;
         this._cache = null;
         this._services = null;
-
-        this._unsubscribes.forEach((unsub) => unsub());
-        
+        this._listeners = null;
+        this._unsubscribes = null;
         this._options = null;
         this._log = null;
         this._boundApis = null;
@@ -478,6 +498,21 @@ class ComponentTree {
      */
     matches(path) {
         return [ ...this._services.values() ].some(({ state }) => state.matches(path));
+    }
+
+    /**
+     * Provides an observable API, matches the svelte store contract
+     * https://svelte.dev/docs#component-format-script-4-prefix-stores-with-$-to-access-their-values-store-contract
+     *
+     * @param {Function} callback function to be called whenever a new tree is generated
+     * @returns Function unsubscribe function
+     */
+    subscribe(callback) {
+        this._listeners.add(callback);
+
+        callback(this._result);
+
+        return () => this._listeners.delete(callback);
     }
 }
 
