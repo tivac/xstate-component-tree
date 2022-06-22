@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.1.1
+
+### Patch Changes
+
+- [#65](https://github.com/tivac/xstate-component-tree/pull/65) [`1f93bbc`](https://github.com/tivac/xstate-component-tree/commit/1f93bbcbb9279f696d0480eac8ad00b0dd3280cb) Thanks [@tivac](https://github.com/tivac)! - Fix for handling the case where a child machine has already been destroyed but `xstate-component-tree` hasn't gotten that notice yet.
+
+  Mostly comes up when you have `{ type : "final" }` states in the child machine and an `invoke.onDone` transition in the parent.
+
 ## 4.1.0
 
 ### Minor Changes
