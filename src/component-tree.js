@@ -220,7 +220,11 @@ class ComponentTree {
     _shouldRun(path, run) {
         const { _services } = this;
 
-        return Boolean(_services && _services.get(path).run === run);
+        return (
+            Boolean(_services) &&
+            _services.has(path) &&
+            _services.get(path).run === run
+        );
     }
 
     // Kicks off tree walks & handles overlapping walk behaviors

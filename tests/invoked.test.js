@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-empty-function
-const NOOP = () => {};
-
 import { createMachine } from "xstate";
 
 import describe from "./util/describe.js";
@@ -8,6 +5,9 @@ import { createTree, getTree } from "./util/trees.js";
 import component from "./util/component.js";
 import { snapshot, diff } from "./util/snapshot.js";
 import { treeTeardown } from "./util/context.js";
+
+// eslint-disable-next-line no-empty-function
+const NOOP = () => {};
 
 describe("invoked machines", (it) => {
     it.after.each(treeTeardown);
@@ -194,6 +194,81 @@ describe("invoked machines", (it) => {
         const { tree : before } = await tree();
         
         tree.service.send("NEXT");
+        
+        const { tree : after } = await tree();
+
+        diff(before, after, `[
+            [Object: null prototype] {
+        Actual:
+        --        path: "one",
+        --        component: [Function: one],
+        Expected:
+        ++        path: "two",
+        ++        component: [Function: two],
+                props: false,
+        Actual:
+        --        children: [
+        --            [Object: null prototype] {
+        --                path: "child",
+        --                component: [Function: child],
+        --                props: false,
+        --                children: []
+        --            }
+        --        ]
+        Expected:
+        ++        children: []
+            }
+        ]`);
+    });
+
+    it("should remove data once the invoked child machine is halted via onDone", async (context) => {
+        const childMachine = createMachine({
+            initial : "child",
+
+            states : {
+                child : {
+                    meta : {
+                        component : component("child"),
+                    },
+
+                    on : {
+                        NEXT : "done",
+                    },
+                },
+
+                done : {
+                    type : "final",
+                },
+            },
+        });
+
+        const tree = context.tree = createTree({
+            initial : "one",
+
+            states : {
+                one : {
+                    invoke : {
+                        id     : "child",
+                        src    : childMachine,
+                        onDone : "two",
+                    },
+
+                    meta : {
+                        component : component("one"),
+                    },
+                },
+
+                two : {
+                    meta : {
+                        component : component("two"),
+                    },
+                },
+            },
+        });
+
+        const { tree : before } = await tree();
+        
+        tree.builder.broadcast("NEXT");
         
         const { tree : after } = await tree();
 
