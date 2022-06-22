@@ -1,144 +1,124 @@
 # Changelog
 
+## 4.1.0
+
+### Minor Changes
+
+- [#63](https://github.com/tivac/xstate-component-tree/pull/63) [`d9d3820`](https://github.com/tivac/xstate-component-tree/commit/d9d38206146e3fb4f58da0f72985f9a016041df4) Thanks [@tivac](https://github.com/tivac)! - Added observable API
+
+  Available on the `ComponentTree` instance as `.subscribe(callback)`, calls the callback function immediately with the most recent result and then will re-call it each time a build completes.
+
+  Follows the [svelte store contract](https://svelte.dev/docs#component-format-script-4-prefix-stores-with-$-to-access-their-values-store-contract) which isn't _strictly_ compliant with any official observable APIs but is extremely simple and usable.
+
+  The `callback` passed to `.subscribe(...)` will immediately be called with the most recent result of building the component tree (or `false` if it hasn't finished yet), and then for each complete tree building run after that the `callback` will be called with a single argument. The arg is an `Object` with a `null` prototype and the following properties:
+
+  - `tree`, nested component structures. This is the same as the first argument to the older `new ComponentTree(service, callback)` API.
+  - `state`, an [XState `State` instance](https://paka.dev/npm/xstate@4.32.1/api#36a51e9234ff1a4d) representing the most recent state of the root statechart.
+  - `matches(<state>)`, [`state.matches()`](https://xstate.js.org/docs/guides/states.html#state-matches-parentstatevalue) but for every statechart instance including any invoked statecharts.
+  - `hasTag(<tag>)`, [`state.hasTag()`](https://xstate.js.org/docs/guides/states.html#state-hastag-tag) but for every statechart instance including any invoked statecharts.
+  - `broadcast(<event>)`, [`service.send()`](https://xstate.js.org/docs/guides/interpretation.html#sending-events) but for every statechart instance including any invoked statecharts. Prefer using this instead of setting `invoke.autoForward` because it'll reduce the amount of junk events sent to invoked children.
+
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ## [4.0.0](https://github.com/tivac/xstate-component-tree/compare/v3.5.0...v4.0.0) (2022-03-16)
 
-
 ### ⚠ BREAKING CHANGES
 
-* previously the second arg to the callback function had a single `data` property on it representing the last `State` object seen by the top-level machine. Now it has `state` (same as data was previously), and some bound APIs for interacting with the statechart: `.hasTag()`, `.broadcast()`, and `.matches()`. These are the same APIs available on the `ComponentTree` instance but made available through the callback args for convenience.
+- previously the second arg to the callback function had a single `data` property on it representing the last `State` object seen by the top-level machine. Now it has `state` (same as data was previously), and some bound APIs for interacting with the statechart: `.hasTag()`, `.broadcast()`, and `.matches()`. These are the same APIs available on the `ComponentTree` instance but made available through the callback args for convenience.
 
 ### Features
 
-* make second callback arg useful ([#42](https://github.com/tivac/xstate-component-tree/issues/42)) ([0db0340](https://github.com/tivac/xstate-component-tree/commit/0db03406c8da42fe0d5b43e331d249710a4550f9))
+- make second callback arg useful ([#42](https://github.com/tivac/xstate-component-tree/issues/42)) ([0db0340](https://github.com/tivac/xstate-component-tree/commit/0db03406c8da42fe0d5b43e331d249710a4550f9))
 
 ## [3.5.0](https://github.com/tivac/xstate-component-tree/compare/v3.4.2...v3.5.0) (2022-03-15)
 
-
 ### Features
 
-* add .hasTag(), .matches(), and .broadcast() ([#41](https://github.com/tivac/xstate-component-tree/issues/41)) ([108ec3e](https://github.com/tivac/xstate-component-tree/commit/108ec3ee4f59c469c34f57d6265d8781e4c55a0b))
+- add .hasTag(), .matches(), and .broadcast() ([#41](https://github.com/tivac/xstate-component-tree/issues/41)) ([108ec3e](https://github.com/tivac/xstate-component-tree/commit/108ec3ee4f59c469c34f57d6265d8781e4c55a0b))
 
 ### [3.4.2](https://github.com/tivac/xstate-component-tree/compare/v3.4.1...v3.4.2) (2022-02-20)
 
-
 ### Bug Fixes
 
-* Use `./components` instead of `/components` for package.json subpath export. ([#34](https://github.com/tivac/xstate-component-tree/issues/34)) ([99b0e68](https://github.com/tivac/xstate-component-tree/commit/99b0e68319420013ab03d35c0a8165ced8e1ddac))
+- Use `./components` instead of `/components` for package.json subpath export. ([#34](https://github.com/tivac/xstate-component-tree/issues/34)) ([99b0e68](https://github.com/tivac/xstate-component-tree/commit/99b0e68319420013ab03d35c0a8165ced8e1ddac))
 
 ### [3.4.1](https://github.com/tivac/xstate-component-tree/compare/v3.4.0...v3.4.1) (2021-11-24)
 
 ## [3.4.0](https://github.com/tivac/xstate-component-tree/compare/v3.3.1...v3.4.0) (2021-11-24)
 
-
 ### Features
 
-* Add component helper to xstate-component-tree package ([#29](https://github.com/tivac/xstate-component-tree/issues/29)) ([6e28384](https://github.com/tivac/xstate-component-tree/commit/6e28384f2483465d9b3fdaaf36b7e988ffb2bdb3))
+- Add component helper to xstate-component-tree package ([#29](https://github.com/tivac/xstate-component-tree/issues/29)) ([6e28384](https://github.com/tivac/xstate-component-tree/commit/6e28384f2483465d9b3fdaaf36b7e988ffb2bdb3))
 
 ## [3.3.1](https://github.com/tivac/xstate-component-tree/compare/v3.3.0...v3.3.1) (2020-10-03)
 
-
 ### Bug Fixes
 
-* clear dist when building ([068f209](https://github.com/tivac/xstate-component-tree/commit/068f2093f8d37b7dc431f1ffe7341fbeb2e7e773))
-
-
+- clear dist when building ([068f209](https://github.com/tivac/xstate-component-tree/commit/068f2093f8d37b7dc431f1ffe7341fbeb2e7e773))
 
 # [3.3.0](https://github.com/tivac/xstate-component-tree/compare/v3.2.0...v3.3.0) (2020-10-03)
 
-
 ### Bug Fixes
 
-* prevent zombie children running ([#16](https://github.com/tivac/xstate-component-tree/issues/16)) ([6f49b85](https://github.com/tivac/xstate-component-tree/commit/6f49b8596cc67683b623346487edffde1a850de2))
-
-
+- prevent zombie children running ([#16](https://github.com/tivac/xstate-component-tree/issues/16)) ([6f49b85](https://github.com/tivac/xstate-component-tree/commit/6f49b8596cc67683b623346487edffde1a850de2))
 
 # [3.2.0](https://github.com/tivac/xstate-component-tree/compare/v3.1.2...v3.2.0) (2020-08-07)
 
-
 ### Features
 
-* add stable option ([#14](https://github.com/tivac/xstate-component-tree/issues/14)) ([e37e1db](https://github.com/tivac/xstate-component-tree/commit/e37e1dbda3ffc05d9d404a6b99aa26c510ecaee9))
-
-
+- add stable option ([#14](https://github.com/tivac/xstate-component-tree/issues/14)) ([e37e1db](https://github.com/tivac/xstate-component-tree/commit/e37e1dbda3ffc05d9d404a6b99aa26c510ecaee9))
 
 ## [3.1.2](https://github.com/tivac/xstate-component-tree/compare/v3.1.1...v3.1.2) (2020-08-06)
 
-
-
 ## [3.1.1](https://github.com/tivac/xstate-component-tree/compare/v3.1.0...v3.1.1) (2020-08-06)
-
 
 ### Bug Fixes
 
-* remove object spread ([#12](https://github.com/tivac/xstate-component-tree/issues/12)) ([3770ca4](https://github.com/tivac/xstate-component-tree/commit/3770ca4dadd63584f98ac379840b359df202a611))
-
-
+- remove object spread ([#12](https://github.com/tivac/xstate-component-tree/issues/12)) ([3770ca4](https://github.com/tivac/xstate-component-tree/commit/3770ca4dadd63584f98ac379840b359df202a611))
 
 # [3.1.0](https://github.com/tivac/xstate-component-tree/compare/v3.0.0...v3.1.0) (2020-07-21)
 
-
 ### Features
 
-* add path to return objects ([#11](https://github.com/tivac/xstate-component-tree/issues/11)) ([e6f266b](https://github.com/tivac/xstate-component-tree/commit/e6f266b74bbb946ba808fd21ce00a60a48514316))
-
-
+- add path to return objects ([#11](https://github.com/tivac/xstate-component-tree/issues/11)) ([e6f266b](https://github.com/tivac/xstate-component-tree/commit/e6f266b74bbb946ba808fd21ce00a60a48514316))
 
 # [3.0.0](https://github.com/tivac/xstate-component-tree/compare/v2.0.1...v3.0.0) (2020-03-15)
 
-
 ### Features
 
-* caching load methods ([d534245](https://github.com/tivac/xstate-component-tree/commit/d5342456669c854ae0269798f34f1ac6666658e9))
-
+- caching load methods ([d534245](https://github.com/tivac/xstate-component-tree/commit/d5342456669c854ae0269798f34f1ac6666658e9))
 
 ### BREAKING CHANGES
 
-* - Only 1 callback per tree change, no matter if it was the deepest child or the root machine.
-- Updated `load()` support so it can take either a `component` or `[ component, props ]` as a return and the overall `load()` as well as either `component` or `props` will be `await`ed.
+- - Only 1 callback per tree change, no matter if it was the deepest child or the root machine.
 
-
+* Updated `load()` support so it can take either a `component` or `[ component, props ]` as a return and the overall `load()` as well as either `component` or `props` will be `await`ed.
 
 ## [2.0.1](https://github.com/tivac/xstate-component-tree/compare/v2.0.0...v2.0.1) (2019-12-14)
 
-
 ### Bug Fixes
 
-* svelte example 2.0 compat ([4a7f0da](https://github.com/tivac/xstate-component-tree/commit/4a7f0da3978aba9fdea3eb2a4fbd351dffb818e5))
-
-
+- svelte example 2.0 compat ([4a7f0da](https://github.com/tivac/xstate-component-tree/commit/4a7f0da3978aba9fdea3eb2a4fbd351dffb818e5))
 
 # [2.0.0](https://github.com/tivac/xstate-component-tree/compare/v1.0.0...v2.0.0) (2019-12-13)
 
-
 ### Features
 
-* insert child machine trees into parent tree ([#2](https://github.com/tivac/xstate-component-tree/issues/2)) ([7357d40](https://github.com/tivac/xstate-component-tree/commit/7357d408cd7011f9e9e82aa40ad9922eec818038))
-
+- insert child machine trees into parent tree ([#2](https://github.com/tivac/xstate-component-tree/issues/2)) ([7357d40](https://github.com/tivac/xstate-component-tree/commit/7357d408cd7011f9e9e82aa40ad9922eec818038))
 
 ### BREAKING CHANGES
 
-* The output format has changed to no longer have an array of machines at the top-level, instead it is just the top-level components representing active states. Invoked machines are no longer part of the top-level array but now inserted into the tree of components based on the location of the component that invoked them.
-
-
+- The output format has changed to no longer have an array of machines at the top-level, instead it is just the top-level components representing active states. Invoked machines are no longer part of the top-level array but now inserted into the tree of components based on the location of the component that invoked them.
 
 # [1.0.0](https://github.com/tivac/xstate-component-tree/compare/v0.1.0...v1.0.0) (2019-10-27)
 
-
-
 # [0.1.0](https://github.com/tivac/xstate-component-tree/compare/cc0106fe07f8c7042df3558c50f96349323cb36c...v0.1.0) (2019-10-27)
-
 
 ### Bug Fixes
 
-* invokes removed from output ([cc0106f](https://github.com/tivac/xstate-component-tree/commit/cc0106fe07f8c7042df3558c50f96349323cb36c))
-
+- invokes removed from output ([cc0106f](https://github.com/tivac/xstate-component-tree/commit/cc0106fe07f8c7042df3558c50f96349323cb36c))
 
 ### Features
 
-* add ability to unsub from changes ([5fe766a](https://github.com/tivac/xstate-component-tree/commit/5fe766a0162506936fba3d44fcaad938cb544c36))
-* add props support ([0bc1954](https://github.com/tivac/xstate-component-tree/commit/0bc1954239756ffe9948d3b0818bb5709e07aec3))
-
-
-
+- add ability to unsub from changes ([5fe766a](https://github.com/tivac/xstate-component-tree/commit/5fe766a0162506936fba3d44fcaad938cb544c36))
+- add props support ([0bc1954](https://github.com/tivac/xstate-component-tree/commit/0bc1954239756ffe9948d3b0818bb5709e07aec3))
