@@ -505,6 +505,16 @@ class ComponentTree {
     }
 
     /**
+     * Send an event to the root machine only
+     *
+     * @param  {...any} event Event to send
+     * @returns Updated XState State object
+     */
+    send(...event) {
+        return this._services.get(this.id).interpreter.send(...event);
+    }
+
+    /**
      * Provides an observable API, matches the svelte store contract
      * https://svelte.dev/docs#component-format-script-4-prefix-stores-with-$-to-access-their-values-store-contract
      *
