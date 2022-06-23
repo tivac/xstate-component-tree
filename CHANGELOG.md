@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.2.0
+
+### Minor Changes
+
+- [#67](https://github.com/tivac/xstate-component-tree/pull/67) [`a8aa4ac`](https://github.com/tivac/xstate-component-tree/commit/a8aa4acd4f6c6aa1049f5e9307e297f915da40be) Thanks [@tivac](https://github.com/tivac)! - Added `.send()` API
+
+  The `.send()` API is a simple passthrough to the interpreter for the root statechart being managed by `xstate-component-tree`, and is intended as a convenience function to make it easier to interact with a `ComponentTree` instance instead of a direct XState `Interpreter` reference.
+
+  [XState Docs on .send()](https://xstate.js.org/docs/guides/interpretation.html#sending-events)
+
 ## 4.1.1
 
 ### Patch Changes
