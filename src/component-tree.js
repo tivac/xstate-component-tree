@@ -80,9 +80,6 @@ class ComponentTree {
         // Unsubscribe functions
         this._unsubscribes = new Set();
 
-        // Store off previous results in case new subscribers show up
-        this._result = false;
-
         // eslint-disable-next-line no-console
         this._log = verbose ? console.log : noop;
 
@@ -91,6 +88,16 @@ class ComponentTree {
             matches   : this.matches.bind(this),
             hasTag    : this.hasTag.bind(this),
             broadcast : this.broadcast.bind(this),
+        };
+
+        // Store off previous results in case new subscribers show up
+        this._result = {
+            __proto__ : null,
+
+            tree  : false,
+            state : false,
+            
+            ...this._boundApis,
         };
 
         // Add the main service to be tracked
@@ -170,6 +177,8 @@ class ComponentTree {
             this._unsubscribes.delete(unsubscribe);
             _services.delete(path);
         });
+
+        this._onState(path, interpreter.getSnapshot());
     }
 
     // Callback for statechart transitions to sync up child machine states
