@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.0.1
+
+### Patch Changes
+
+- [#71](https://github.com/tivac/xstate-component-tree/pull/71) [`00dcf48`](https://github.com/tivac/xstate-component-tree/commit/00dcf4899eb7d9d1cde31f02bad3546b346e39aa) Thanks [@tivac](https://github.com/tivac)! - Fix .hasTag & .matches before interpreter is running
+
 ## 5.0.0
 
 ### Major Changes
