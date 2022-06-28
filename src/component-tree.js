@@ -94,8 +94,8 @@ class ComponentTree {
         this._result = {
             __proto__ : null,
 
-            tree  : false,
-            state : false,
+            tree  : [],
+            state : service.getSnapshot(),
             
             ...this._boundApis,
         };
@@ -177,8 +177,6 @@ class ComponentTree {
             this._unsubscribes.delete(unsubscribe);
             _services.delete(path);
         });
-
-        this._onState(path, interpreter.getSnapshot());
     }
 
     // Callback for statechart transitions to sync up child machine states
