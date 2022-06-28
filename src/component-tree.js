@@ -116,7 +116,7 @@ class ComponentTree {
             run : 0,
 
             // Stored transition result, used to re-create the tree when a child transitions
-            state : false,
+            state : service.getSnapshot(),
 
             // Walk results
             tree : [],
