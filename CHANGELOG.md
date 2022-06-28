@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.0.0
+
+### Major Changes
+
+- [#69](https://github.com/tivac/xstate-component-tree/pull/69) [`b6c9fc8`](https://github.com/tivac/xstate-component-tree/commit/b6c9fc85c00e25fc068724ce21cebe82a56b7848) Thanks [@tivac](https://github.com/tivac)! - Always provide a valid initial value to subscribers
+
+  Previously if you called the `.subscribe()` method on a `ComponentTree` instance before the statechart had been processed the return value would be `false`. This meant that subscribers would have to add checks to do anything against the returned value, since they couldn't depend on the `.matches`/`.hasTag`/`.broadcast` APIs existing.
+
+  This change fixes that, and ensures that even if the statechart hasn't been walked yet the initial value stored has all the expected APIs, along with a reasonable value for the `tree` property of `[]`. There isn't a great fallback value for `.state` at this time though.
+
 ## 4.2.0
 
 ### Minor Changes
