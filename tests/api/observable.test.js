@@ -21,9 +21,15 @@ describe("observable", (it) => {
             out = result;
         });
 
-        // Should be false at first, before tree has run
+        // Initial value is basic but functional
         assert.is(calls, 1);
-        assert.is(out, false);
+        assert.type(out.state, "object");
+        assert.equal(out.tree, []);
+        assert.type(out.hasTag, "function");
+        assert.type(out.matches, "function");
+        assert.type(out.broadcast, "function");
+
+        assert.ok(out.hasTag("one"));
     });
 
     it("should call the callback whenever a run finishes", async (context) => {
