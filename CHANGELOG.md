@@ -1,5 +1,17 @@
 # Changelog
 
+## 5.1.0
+
+### Minor Changes
+
+- [#74](https://github.com/tivac/xstate-component-tree/pull/74) [`951cea7`](https://github.com/tivac/xstate-component-tree/commit/951cea77d3bdcced2ad6520d4bc6b6e62e7961f7) Thanks [@tivac](https://github.com/tivac)! - Adding `.can()` API from XState
+
+  The `.can()` API is a simple passthrough to the interpreter for the root statechart being managed by `xstate-component-tree`, and is intended as a convenience function to make it easier to interact with a ComponentTree instance instead of a direct XState Interpreter reference.
+
+  From the XState docs on `.can()`:
+
+  > Determines whether sending the event will cause a non-forbidden transition to be selected, even if the transitions have no actions nor change the state value.
+
 ## 5.0.1
 
 ### Patch Changes
