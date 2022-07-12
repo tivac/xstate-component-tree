@@ -19,7 +19,8 @@ const child = createMachine({
                     tags : "child-one",
 
                     on : {
-                        NEXT : "two",
+                        NEXT       : "two",
+                        CHILD_NEXT : "two",
                     },
                 },
 
