@@ -87,6 +87,7 @@ class ComponentTree {
         this._boundApis = {
             matches   : this.matches.bind(this),
             hasTag    : this.hasTag.bind(this),
+            can       : this.can.bind(this),
             broadcast : this.broadcast.bind(this),
         };
 
@@ -499,6 +500,16 @@ class ComponentTree {
      */
     hasTag(tag) {
         return [ ...this._services.values() ].some(({ state }) => state.hasTag(tag));
+    }
+
+    /**
+     * Check if the current state or any child states can make a transition
+     *
+     * @param {Event | string} event
+     * @returns boolean
+     */
+     can(event) {
+        return [ ...this._services.values() ].some(({ state }) => state.can(event));
     }
 
     /**
