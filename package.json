@@ -1,6 +1,6 @@
 {
   "name": "xstate-component-tree",
-  "version": "5.0.1",
+  "version": "5.1.0",
   "description": "Build a tree of components based on statechart values",
   "author": "Pat Cavit <npm@patcavit.com>",
   "license": "MIT",
