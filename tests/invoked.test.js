@@ -57,6 +57,64 @@ describe("invoked machines", (it) => {
         ]`);
     });
 
+    it("should support root components in invoked child machines", async () => {
+        const childMachine = createMachine({
+            initial : "child",
+
+            meta : {
+                component : component("root"),
+            },
+
+            states : {
+                child : {
+                    meta : {
+                        component : component("child"),
+                    },
+                },
+            },
+        });
+
+        const { tree } = await getTree({
+            initial : "one",
+
+            states : {
+                one : {
+                    invoke : {
+                        id  : "child-machine",
+                        src : childMachine,
+                    },
+
+                    meta : {
+                        component : component("one"),
+                    },
+                },
+            },
+        });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        path: false,
+                        component: [Function: root],
+                        props: false,
+                        children: [
+                            [Object: null prototype] {
+                                path: "child",
+                                component: [Function: child],
+                                props: false,
+                                children: []
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]`);
+    });
+
     it("should support invoked child machines in a parallel state", async () => {
         const childMachine = createMachine({
             initial : "child",

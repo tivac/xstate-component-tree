@@ -32,6 +32,14 @@ const loadChild = async ({ tree, root }) => {
     root.children.push(...children);
 };
 
+const childPath = (...args) => {
+    const vals = [];
+
+    args.forEach((arg) => arg && vals.push(arg));
+
+    return vals.join(".");
+};
+
 class ComponentTree {
     /**
      * @constructor
@@ -133,7 +141,16 @@ class ComponentTree {
         const { interpreter } = _services.get(path);
 
         // Build up maps of paths to meta info as well as noting any invokable machines for later
-        const { idMap : ids } = interpreter.machine;
+        const { idMap : ids, meta } = interpreter.machine;
+
+        // Support metadata at the root of the machine
+        if(meta) {
+            _paths.set(path, Object.assign({
+                __proto__ : null,
+
+                cache : _options.cache,
+            }, meta));
+        }
 
         // xstate maps ids to state nodes, but the value object only
         // has paths, so need to create our own path-only map here
@@ -151,7 +168,7 @@ class ComponentTree {
             }
 
             // .invoke is always an array
-            item.invoke.forEach(({ id : invokeid }) => _invokables.set(key, `${path}.${invokeid}`));
+            item.invoke.forEach(({ id : invokeid }) => _invokables.set(key, childPath(path, invokeid)));
         }
 
         _log(`[${path}][_prep] _paths`, [ ..._paths.keys() ]);
@@ -183,17 +200,17 @@ class ComponentTree {
     // Callback for statechart transitions to sync up child machine states
     _onState(path, state) {
         const { changed, children } = state;
-
+        
         // Need to specifically check for false because this value is undefined
-        // when a machine first boots up
+        // when a machine first boots up.
         if(changed === false) {
             return;
         }
-
+        
         const { _services, _log } = this;
-
+        
         // Save off the state
-        this._services.get(path).state = state;
+        _services.get(path).state = state;
 
         _log(`[${path}][_onState] checking children`);
 
@@ -326,26 +343,19 @@ class ComponentTree {
             children : [],
         };
 
-        // Set up queue for a breadth-first traversal of all active states
-        let queue;
-
-        if(typeof value === "string") {
-            queue = [[ root, value, false ]];
-        } else {
-            const keys = Object.keys(value);
-
-            queue = (_options.stable ? keys.sort() : keys).map((child) =>
-                [ root, child, value[child] ]
-            );
-        }
+        // Set up queue for a breadth-first traversal, starting at the root
+        // and visiting all currently-active states
+        const queue = [
+            [ root, false, value ],
+        ];
 
         // service.run check is to kill looping if state transitions before the walk finishes
         while(queue.length && this._shouldRun(path, run)) {
             const [ parent, node, values ] = queue.shift();
 
-            const id = `${path}.${node}`;
+            const id = childPath(path, node);
 
-            _log(`[${path}][_walk #${run}] walking ${node}`);
+            _log(`[${path}][_walk #${run}] walking ${id}`);
 
             // Using let since it can be reassigned if we add a new child
             let pointer = parent;
@@ -434,13 +444,13 @@ class ComponentTree {
             }
 
             if(typeof values === "string") {
-                queue.push([ pointer, `${node}.${values}`, false ]);
+                queue.push([ pointer, childPath(node, values), false ]);
             } else {
                 const keys = Object.keys(values);
     
-                queue.push(...(_options.stable ? keys.sort() : keys).map((child) =>
-                    [ pointer, `${node}.${child}`, values[child] ]
-                ));
+                (_options.stable ? keys.sort() : keys).forEach((child) =>
+                    queue.push([ pointer, childPath(node, child), values[child] ])
+                );
             }
         }
 

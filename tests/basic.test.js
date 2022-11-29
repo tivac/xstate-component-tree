@@ -51,6 +51,40 @@ describe("basic functionality", (it) => {
         ]`);
     });
 
+    it("should support components at the machine root", async () => {
+        const { tree } = await getTree({
+            initial : "one",
+
+            meta : {
+                component : component("root"),
+            },
+
+            states : {
+                one : {
+                    meta : {
+                        component : component("one"),
+                    },
+                },
+            },
+        });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: false,
+                component: [Function: root],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        path: "one",
+                        component: [Function: one],
+                        props: false,
+                        children: []
+                    }
+                ]
+            }
+        ]`);
+    });
+
     it("should return state info and APIs", async () => {
         const { extra } = await getTree({
             initial : "one",
