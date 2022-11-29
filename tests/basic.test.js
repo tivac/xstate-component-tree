@@ -51,6 +51,57 @@ describe("basic functionality", (it) => {
         ]`);
     });
 
+    it.skip("should return a tree of components with a root component", async () => {
+        const { tree } = await getTree({
+            initial : "one",
+
+            meta : {
+                component : component("root"),
+            },
+
+            states : {
+                one : {
+                    meta : {
+                        component : component("one"),
+                    },
+
+                    initial : "two",
+
+                    states : {
+                        two : {
+                            meta : {
+                                component : component("two"),
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: false,
+                component: [Function: root],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        path: "one",
+                        component: [Function: one],
+                        props: false,
+                        children: [
+                            [Object: null prototype] {
+                                path: "one.two",
+                                component: [Function: two],
+                                props: false,
+                                children: []
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]`);
+    });
+
     it("should return state info and APIs", async () => {
         const { extra } = await getTree({
             initial : "one",
