@@ -51,7 +51,7 @@ describe("basic functionality", (it) => {
         ]`);
     });
 
-    it("should return a tree of components with a root component", async () => {
+    it("should support components at the machine root", async () => {
         const { tree } = await getTree({
             initial : "one",
 
@@ -63,16 +63,6 @@ describe("basic functionality", (it) => {
                 one : {
                     meta : {
                         component : component("one"),
-                    },
-
-                    initial : "two",
-
-                    states : {
-                        two : {
-                            meta : {
-                                component : component("two"),
-                            },
-                        },
                     },
                 },
             },
@@ -88,14 +78,7 @@ describe("basic functionality", (it) => {
                         path: "one",
                         component: [Function: one],
                         props: false,
-                        children: [
-                            [Object: null prototype] {
-                                path: "one.two",
-                                component: [Function: two],
-                                props: false,
-                                children: []
-                            }
-                        ]
+                        children: []
                     }
                 ]
             }
