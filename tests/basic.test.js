@@ -51,7 +51,7 @@ describe("basic functionality", (it) => {
         ]`);
     });
 
-    it.skip("should return a tree of components with a root component", async () => {
+    it("should return a tree of components with a root component", async () => {
         const { tree } = await getTree({
             initial : "one",
 
