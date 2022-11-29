@@ -1,7 +1,5 @@
-import { createMachine } from "xstate";
-
 import describe from "./util/describe.js";
-import { createTree, getTree } from "./util/trees.js";
+import { createTree, getTree, createMachine } from "./util/trees.js";
 import component from "./util/component.js";
 import { snapshot, diff } from "./util/snapshot.js";
 import { treeTeardown } from "./util/context.js";

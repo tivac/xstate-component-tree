@@ -1,4 +1,4 @@
-import { createMachine, interpret } from "xstate";
+import { createMachine as xstateCreate, interpret } from "xstate";
 
 import ComponentTree from "../../src/component-tree.js";
 
@@ -70,9 +70,14 @@ export const trees = (service, options = {}, fn = false) => {
     return out;
 };
 
-export const createTree = (def, ...rest) => {
-    const machine = def.__xstatenode ? def : createMachine(def);
+export const createMachine = (def) => (
+    def.__xstatenode ?
+        def :
+        xstateCreate({ ...def, predictableActionArguments : true })
+);
 
+export const createTree = (def, ...rest) => {
+    const machine = createMachine(def);
     const service = interpret(machine);
 
     return trees(service, ...rest);

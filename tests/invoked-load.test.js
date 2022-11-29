@@ -1,8 +1,7 @@
-import { createMachine } from "xstate";
 import * as assert from "uvu/assert";
 
 import describe from "./util/describe.js";
-import { getTree, createTree } from "./util/trees.js";
+import { getTree, createTree, createMachine } from "./util/trees.js";
 import component from "./util/component.js";
 import { asyncLoad } from "./util/async.js";
 import { treeTeardown } from "./util/context.js";

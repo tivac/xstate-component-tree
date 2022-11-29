@@ -1,4 +1,4 @@
-import { createMachine } from "xstate";
+import { createMachine } from "../../util/trees.js";
 
 const single = createMachine({
     initial : "one",

@@ -1,9 +1,9 @@
 import * as assert from "uvu/assert";
 import { spy } from "nanospy";
-import { createMachine, interpret } from "xstate";
+import { interpret } from "xstate";
 
 import describe from "./util/describe.js";
-import { getTree, createTree, trees } from "./util/trees.js";
+import { getTree, createTree, trees, createMachine } from "./util/trees.js";
 import component from "./util/component.js";
 import { treeTeardown } from "./util/context.js";
 import { diff, snapshot } from "./util/snapshot.js";
