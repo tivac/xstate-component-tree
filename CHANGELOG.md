@@ -1,5 +1,31 @@
 # Changelog
 
+## 5.2.0
+
+### Minor Changes
+
+- [#98](https://github.com/tivac/xstate-component-tree/pull/98) [`e7cd20d`](https://github.com/tivac/xstate-component-tree/commit/e7cd20dfc3ec20427bb46fea6b7b49085bc0b5cd) Thanks [@tivac](https://github.com/tivac)! - Support for components at the root of machines
+
+  ```js
+  createMachine({
+    initial: "foo",
+
+    meta: {
+      component: RootComponent,
+    },
+
+    states: {
+      foo: {
+        meta: {
+          component: FooComponent,
+        },
+      },
+    },
+  });
+  ```
+
+  Previously `RootComponent` would be ignored, now it will be the first component in the tree and `FooComponent` will be placed as a child of it.
+
 ## 5.1.0
 
 ### Minor Changes
