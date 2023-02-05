@@ -38,7 +38,7 @@
     "shx": "^0.3.4",
     "strip-ansi": "^7.0.1",
     "tsd-jsdoc": "^2.5.0",
-    "typescript": "^4.7.4",
+    "typescript": "^4.9.5",
     "uvu": "^0.5.4",
     "xstate": "^4.34.0"
   },
@@ -52,6 +52,7 @@
     "test:coverage": "c8 --check-coverage --100 --reporter=html --reporter=text uvu",
     "test:report": "c8 report --reporter=text-lcov > coverage/tests.lcov",
     "test:watch": "chokidar \"**/*.js\" -c \"npm test\"",
+    "types": "tsc",
     "prerelease": "npm run test && npm run build",
     "release": "changeset publish",
     "postrelease": "git push --follow-tags"

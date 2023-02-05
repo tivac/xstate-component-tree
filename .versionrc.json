@@ -1,5 +1,0 @@
-{
-    "noVerify" : true,
-
-    "releaseCommitMessageFormat" : "release: {{currentTag}} 📦🚀🌐"
-}

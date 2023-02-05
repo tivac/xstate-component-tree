@@ -1,20 +1,13 @@
 /**
- * @typedef {import("xstate").AnyInterpreter} Interpreter
- * @typedef {import("xstate").EventObject} Event
- * @typedef {import("xstate").SendActionOptions} SendActionOptions
- * @typedef {import("xstate").AnyState} State
- */
-
-/**
  * @typedef {( path: string ) => boolean} Matches
- * @typedef {( event : Event | string) => boolean} Can
+ * @typedef {( event : import("xstate").EventObject | string) => boolean} Can
  * @typedef {( tag : string ) => boolean} HasTag
  * @typedef {() => Result} Subscriber
  * @typedef {() => void } Unsubscriber
  */
 
 /**
- * @typedef {{ tree : any[], state : State, matches : Matches, can : Can, hasTag : HasTag }} Result
+ * @typedef {{ tree : any[], state : import("xstate").AnyState, matches : Matches, can : Can, hasTag : HasTag }} Result
  */
 
 // eslint-disable-next-line no-empty-function
@@ -55,7 +48,7 @@ const childPath = (...args) => {
 class ComponentTree {
     /**
      * @class
-     * @param {Interpreter} service The xstate Interpreter root instance to monitor
+     * @param {import("xstate").AnyInterpreter} service The xstate Interpreter root instance to monitor
      * @param {Subscriber | undefined} callback The function to call when updated component trees are generated
      * @param {object} options Configuration
      * @param {boolean?} options.cache If true, will cache the result of dynamic component & prop functions
@@ -507,8 +500,8 @@ class ComponentTree {
 
     /**
      * @callback Broadcast Send an event to the service and all its children
-     * @param {Event | string} event XState event to send
-     * @param {SendActionOptions} [options] XState options to send
+     * @param {import("xstate").EventObject | string} event XState event to send
+     * @param {import("xstate").SendActionOptions} [options] XState options to send
      */
     broadcast(event, options) {
         this._services.forEach(({ interpreter }) => {
@@ -546,8 +539,8 @@ class ComponentTree {
     /**
      * Send an event to the root machine only
      *
-     * @param {Event[]} event Event to send
-     * @returns {State} Resulting state
+     * @param {import("xstate").EventObject[]} event Event to send
+     * @returns {import("xstate").AnyState} Resulting state
      */
     send(...event) {
         return this._services.get(this.id).interpreter.send(...event);

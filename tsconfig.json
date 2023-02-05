@@ -6,11 +6,12 @@
         "emitDeclarationOnly": true,
         "noEmit": false,
         "moduleResolution": "node",
-        "baseUrl" : "./src"
+        "baseUrl" : "./src",
+        "outDir": "./dist"
     },
 
-    "files": [
-        "./src/component-tree.js"
+    "include": [
+        "src/**/*.js"
     ],
 
     "exclude": [
