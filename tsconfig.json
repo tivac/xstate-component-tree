@@ -1,0 +1,19 @@
+{
+    "compilerOptions" : {
+        "module" : "esnext",
+        "allowJs": true,
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "noEmit": false,
+        "moduleResolution": "node",
+        "baseUrl" : "./src"
+    },
+
+    "files": [
+        "./src/component-tree.js"
+    ],
+
+    "exclude": [
+        "node_modules"
+    ]
+}

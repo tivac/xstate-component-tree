@@ -1,8 +1,20 @@
 /**
  * @typedef {import("xstate").AnyInterpreter} Interpreter
- * @typedef {import("xstate").AnyEventObject} Event
+ * @typedef {import("xstate").EventObject} Event
  * @typedef {import("xstate").SendActionOptions} SendActionOptions
- * @typedef {{ cache?: boolean; stable?: boolean; verbose?: boolean}} Options
+ * @typedef {import("xstate").AnyState} State
+ */
+
+/**
+ * @typedef {( path: string ) => boolean} Matches
+ * @typedef {( event : Event | string) => boolean} Can
+ * @typedef {( tag : string ) => boolean} HasTag
+ * @typedef {() => Result} Subscriber
+ * @typedef {() => void } Unsubscriber
+ */
+
+/**
+ * @typedef {{ tree : any[], state : State, matches : Matches, can : Can, hasTag : HasTag }} Result
  */
 
 // eslint-disable-next-line no-empty-function
@@ -42,10 +54,13 @@ const childPath = (...args) => {
 
 class ComponentTree {
     /**
-     * @constructor
+     * @class
      * @param {Interpreter} service The xstate Interpreter root instance to monitor
-     * @param {Function | undefined} callback The function to call when updated component trees are generated
-     * @param {Options} options Configuration
+     * @param {Subscriber | undefined} callback The function to call when updated component trees are generated
+     * @param {object} options Configuration
+     * @param {boolean?} options.cache If true, will cache the result of dynamic component & prop functions
+     * @param {boolean?} options.stable When true statechart keys will be sorted to ensure stable component output order
+     * @param {boolean?} options.verbose When true runtime debugging output will be logged
      */
     constructor(service, callback, options = false) {
         const {
@@ -491,10 +506,9 @@ class ComponentTree {
     }
 
     /**
-     * Send an event to the service and all its children
-     *
-     * @param {Event | string} event
-     * @param {SendActionOptions} [options]
+     * @callback Broadcast Send an event to the service and all its children
+     * @param {Event | string} event XState event to send
+     * @param {SendActionOptions} [options] XState options to send
      */
     broadcast(event, options) {
         this._services.forEach(({ interpreter }) => {
@@ -505,8 +519,7 @@ class ComponentTree {
     /**
      * Check if the current state or any child states have a tag set
      *
-     * @param {string} tag
-     * @returns boolean
+     * @type {HasTag}
      */
     hasTag(tag) {
         return [ ...this._services.values() ].some(({ state }) => state.hasTag(tag));
@@ -515,8 +528,7 @@ class ComponentTree {
     /**
      * Check if the current state or any child states can make a transition
      *
-     * @param {Event | string} event
-     * @returns boolean
+     * @type {Can}
      */
      can(event) {
         return [ ...this._services.values() ].some(({ state }) => state.can(event));
@@ -525,8 +537,7 @@ class ComponentTree {
     /**
      * Check if the current state or any child states match a path
      *
-     * @param {string} path
-     * @returns boolean
+     * @type {Matches}
      */
     matches(path) {
         return [ ...this._services.values() ].some(({ state }) => state.matches(path));
@@ -535,8 +546,8 @@ class ComponentTree {
     /**
      * Send an event to the root machine only
      *
-     * @param  {...any} event Event to send
-     * @returns Updated XState State object
+     * @param {Event[]} event Event to send
+     * @returns {State} Resulting state
      */
     send(...event) {
         return this._services.get(this.id).interpreter.send(...event);
@@ -546,8 +557,8 @@ class ComponentTree {
      * Provides an observable API, matches the svelte store contract
      * https://svelte.dev/docs#component-format-script-4-prefix-stores-with-$-to-access-their-values-store-contract
      *
-     * @param {Function} callback function to be called whenever a new tree is generated
-     * @returns Function unsubscribe function
+     * @param {Subscriber} callback function to be called whenever a new tree is generated
+     * @returns {Unsubscriber} Unsubscribe function
      */
     subscribe(callback) {
         this._listeners.add(callback);
