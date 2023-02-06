@@ -1,13 +1,13 @@
 "use strict";
 
-import { writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
-import { terser } from "rollup-plugin-terser";
+import terser from "@rollup/plugin-terser";
 
-import pkg from "./package.json";
+const pkg = JSON.parse(readFileSync("./package.json"));
 
 const banner = `/*! ${pkg.name}@${pkg.version} !*/\n`;
 
@@ -29,7 +29,7 @@ const cjsStub = stubby("commonjs");
 const esmStub = stubby("module");
 
 // ESM & CJS builds
-export default {
+export default [{
     input : [
         "./src/component-tree.js",
         "./src/component-helper.js",
@@ -93,4 +93,4 @@ export default {
         ],
         banner,
     }],
-};
+}];
