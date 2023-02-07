@@ -24,8 +24,6 @@ describe("observable", (it) => {
             out = result;
         });
 
-        console.log(out.state);
-
         // Initial value is basic but functional
         assert.is(calls, 1);
         assert.type(out.state, "object");
