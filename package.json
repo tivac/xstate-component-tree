@@ -5,48 +5,19 @@
   "author": "Pat Cavit <npm@patcavit.com>",
   "license": "MIT",
   "type": "module",
-  "module": "dist/esm/component-tree.js",
-  "main": "dist/cjs/component-tree.js",
-  "exports": {
-    ".": {
-      "import": "./dist/esm/component-tree.js",
-      "require": "./dist/cjs/component-tree.js"
-    },
-    "./component": {
-      "import": "./dist/esm/component-helper.js",
-      "require": "./dist/cjs/component-helper.js"
-    }
-  },
-  "devDependencies": {
-    "@changesets/changelog-github": "^0.4.5",
-    "@changesets/cli": "^2.23.0",
-    "@rollup/plugin-commonjs": "^24.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.1",
-    "@tivac/eslint-config": "^2.4.0",
-    "c8": "^7.11.0",
-    "chokidar-cli": "^3.0.0",
-    "dedent": "^0.7.0",
-    "eslint": "^8.18.0",
-    "esm": "^3.2.25",
-    "nanospy": "^0.5.0",
-    "object-inspect": "^1.12.0",
-    "rollup": "^2.75.7",
-    "rollup-plugin-terser": "^7.0.2",
-    "shx": "^0.3.4",
-    "strip-ansi": "^7.0.1",
-    "uvu": "^0.5.4",
-    "xstate": "^4.34.0"
-  },
-  "peerDependencies": {
-    "xstate": "^4.7.8"
-  },
   "scripts": {
-    "build": "shx rm -rf dist/* && rollup --config",
+    "build:clean": "shx rm -rf dist/*",
+    "build:rollup": "rollup --config",
+    "build:types": "tsc",
+    "build:copytypes": "shx cp dist/*.d.ts dist/cjs && shx cp dist/*.d.ts dist/esm",
+    "build:cleantypes": "shx rm dist/*.d.ts",
+    "build": "run-s build:clean build:rollup build:types build:copytypes build:cleantypes",
     "lint": "eslint . --max-warnings=0",
     "test": "uvu tests",
     "test:coverage": "c8 --check-coverage --100 --reporter=html --reporter=text uvu",
     "test:report": "c8 report --reporter=text-lcov > coverage/tests.lcov",
     "test:watch": "chokidar \"**/*.js\" -c \"npm test\"",
+    "types": "tsc",
     "prerelease": "npm run test && npm run build",
     "release": "changeset publish",
     "postrelease": "git push --follow-tags"
@@ -58,5 +29,42 @@
   ],
   "files": [
     "dist/"
-  ]
+  ],
+  "module": "dist/esm/index.js",
+  "main": "dist/cjs/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "^0.4.5",
+    "@changesets/cli": "^2.23.0",
+    "@rollup/plugin-commonjs": "^24.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-terser": "^0.4.0",
+    "@tivac/eslint-config": "^2.4.0",
+    "c8": "^7.11.0",
+    "chokidar-cli": "^3.0.0",
+    "dedent": "^0.7.0",
+    "eslint": "^8.18.0",
+    "eslint-plugin-jsdoc": "^39.8.0",
+    "esm": "^3.2.25",
+    "jsdoc": "^3.6.11",
+    "jsdoc-tsimport-plugin": "^1.0.5",
+    "nanospy": "^0.5.0",
+    "npm-run-all": "^4.1.5",
+    "object-inspect": "^1.12.0",
+    "rollup": "^3.14.0",
+    "shx": "^0.3.4",
+    "strip-ansi": "^7.0.1",
+    "tsd-jsdoc": "^2.5.0",
+    "typescript": "^4.9.5",
+    "uvu": "^0.5.4",
+    "xstate": "^4.34.0"
+  },
+  "peerDependencies": {
+    "xstate": "^4.7.8"
+  }
 }

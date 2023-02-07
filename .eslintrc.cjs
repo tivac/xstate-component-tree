@@ -3,7 +3,9 @@
 module.exports = {
     extends : [
         "@tivac",
+        "plugin:jsdoc/recommended",
     ],
+
 
     parserOptions : {
         sourceType : "module",
@@ -13,6 +15,12 @@ module.exports = {
         node    : true,
         browser : true,
         es2020  : true,
+    },
+    
+    settings : {
+        jsdoc : {
+            mode : "typescript",
+        },
     },
 
     rules : {

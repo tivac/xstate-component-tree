@@ -1,0 +1,19 @@
+{
+    "compilerOptions" : {
+        "module" : "esnext",
+        "allowJs": true,
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "noEmit": false,
+        "moduleResolution": "node",
+        "outDir": "./dist"
+    },
+
+    "include": [
+        "src/**/*.js"
+    ],
+
+    "exclude": [
+        "node_modules"
+    ]
+}
