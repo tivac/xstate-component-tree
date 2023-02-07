@@ -5,6 +5,31 @@
   "author": "Pat Cavit <npm@patcavit.com>",
   "license": "MIT",
   "type": "module",
+  "scripts": {
+    "build:clean": "shx rm -rf dist/*",
+    "build:rollup": "rollup --config",
+    "build:types": "tsc",
+    "build:copytypes": "shx cp dist/*.d.ts dist/cjs && shx cp dist/*.d.ts dist/esm",
+    "build:cleantypes": "shx rm dist/*.d.ts",
+    "build": "run-s build:clean build:rollup build:types build:copytypes build:cleantypes",
+    "lint": "eslint . --max-warnings=0",
+    "test": "uvu tests",
+    "test:coverage": "c8 --check-coverage --100 --reporter=html --reporter=text uvu",
+    "test:report": "c8 report --reporter=text-lcov > coverage/tests.lcov",
+    "test:watch": "chokidar \"**/*.js\" -c \"npm test\"",
+    "types": "tsc",
+    "prerelease": "npm run test && npm run build",
+    "release": "changeset publish",
+    "postrelease": "git push --follow-tags"
+  },
+  "keywords": [
+    "xstate",
+    "components",
+    "statecahart"
+  ],
+  "files": [
+    "dist/"
+  ],
   "module": "dist/esm/index.js",
   "main": "dist/cjs/index.js",
   "exports": {
@@ -29,6 +54,7 @@
     "jsdoc": "^3.6.11",
     "jsdoc-tsimport-plugin": "^1.0.5",
     "nanospy": "^0.5.0",
+    "npm-run-all": "^4.1.5",
     "object-inspect": "^1.12.0",
     "rollup": "^3.14.0",
     "shx": "^0.3.4",
@@ -40,30 +66,5 @@
   },
   "peerDependencies": {
     "xstate": "^4.7.8"
-  },
-  "scripts": {
-    "build:clean": "shx rm -rf dist/*",
-    "build:cleantypes": "shx rm dist/*.d.ts",
-    "build:rollup": "rollup --config",
-    "build:types": "tsc",
-    "build:copytypes": "shx cp dist/*.d.ts dist/cjs && shx cp dist/*.d.ts dist/esm",
-    "build": "npm run build:clean && npm run build:rollup && npm run build:types && npm run build:copytypes && npm run build:cleantypes",
-    "lint": "eslint . --max-warnings=0",
-    "test": "uvu tests",
-    "test:coverage": "c8 --check-coverage --100 --reporter=html --reporter=text uvu",
-    "test:report": "c8 report --reporter=text-lcov > coverage/tests.lcov",
-    "test:watch": "chokidar \"**/*.js\" -c \"npm test\"",
-    "types": "tsc",
-    "prerelease": "npm run test && npm run build",
-    "release": "changeset publish",
-    "postrelease": "git push --follow-tags"
-  },
-  "keywords": [
-    "xstate",
-    "components",
-    "statecahart"
-  ],
-  "files": [
-    "dist/"
-  ]
+  }
 }
