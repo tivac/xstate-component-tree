@@ -28,13 +28,11 @@ const stubby = (type) => ({
 const cjsStub = stubby("commonjs");
 const esmStub = stubby("module");
 
-// ESM & CJS builds
 export default [{
-    input : [
-        "./src/component-tree.js",
-        "./src/component-helper.js",
-    ],
-
+    input : {
+        "xstate-component-tree" : "./src/index.js",
+    },
+    
     plugins : [
         nodeResolve(),
         commonjs(),
@@ -43,7 +41,7 @@ export default [{
     output : [{
         dir       : "./dist/cjs",
         format    : "cjs",
-        exports   : "default",
+        exports   : "named",
         sourcemap : true,
         banner,
         plugins   : [
@@ -53,7 +51,7 @@ export default [{
         dir            : "./dist/cjs",
         entryFileNames : "[name]-min.js",
         format         : "cjs",
-        exports        : "default",
+        exports        : "named",
         sourcemap      : true,
         plugins        : [
             terser(),
