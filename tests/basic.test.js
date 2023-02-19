@@ -51,6 +51,52 @@ describe("basic functionality", (it) => {
         ]`);
     });
 
+    it("should support arrays of components", async () => {
+        const { tree } = await getTree({
+            initial : "one",
+
+            states : {
+                one : {
+                    meta : {
+                        component : [
+                            component("one"),
+                            component("two"),
+                        ],
+                    },
+
+                    initial : "two",
+
+                    states : {
+                        two : {
+                            meta : {
+                                component : [
+                                    component("three"),
+                                    component("four"),
+                                ],
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [ [Function: one], [Function: two] ],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        path: "one.two",
+                        component: [ [Function: three], [Function: four] ],
+                        props: false,
+                        children: []
+                    }
+                ]
+            }
+        ]`);
+    });
+
     it("should support components at the machine root", async () => {
         const { tree } = await getTree({
             initial : "one",
