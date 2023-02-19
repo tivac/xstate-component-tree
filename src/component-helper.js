@@ -34,7 +34,7 @@ export default (child, node = {}) => {
             props,
     ];
 
-    node.meta = meta;
+    node.meta = node.meta ? Object.assign(node.meta, meta) : meta;
 
     return node;
 };

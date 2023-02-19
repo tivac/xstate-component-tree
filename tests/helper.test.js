@@ -7,6 +7,7 @@ import component from "./util/component.js";
 import { asyncValue, asyncLoad } from "./util/async.js";
 import { getTree } from "./util/trees.js";
 import { treeTeardown } from "./util/context.js";
+import { snapshot } from "./util/snapshot.js";
 
 describe("xstate-component-tree/helper", (it) => {
     it.after.each(treeTeardown);
@@ -86,5 +87,22 @@ describe("xstate-component-tree/helper", (it) => {
 
             assert.equal(basic, sugar);
         });
+    });
+
+    it("should maintain existing .meta properties if they exist", () => {
+        const node = helper(component("one"), {
+            meta : {
+                foo : "bar",
+                baz : true,
+            },
+        });
+
+        snapshot(node, `{
+            meta: {
+                foo: "bar",
+                baz: true,
+                load: [Function (anonymous)]
+            }
+        }`);
     });
 });
