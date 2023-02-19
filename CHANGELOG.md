@@ -1,5 +1,42 @@
 # Changelog
 
+## 6.0.0
+
+### Major Changes
+
+- [#111](https://github.com/tivac/xstate-component-tree/pull/111) [`a0ec633`](https://github.com/tivac/xstate-component-tree/commit/a0ec633e140ffdf7a03915dfcd72f6cc67a4c050) Thanks [@tivac](https://github.com/tivac)! - Add `.d.ts` files to releases and restructure exports.
+
+  ## Previously
+
+  ```
+  import ComponentTree from "xstate-component-tree";
+  import componentHelper from "xstate-component-tree/component";
+  ```
+
+  ## Now
+
+  ```
+  import { ComponentTree, componentHelper } from "xstate-component-tree";
+  ```
+
+### Minor Changes
+
+- [#113](https://github.com/tivac/xstate-component-tree/pull/113) [`88d1dba`](https://github.com/tivac/xstate-component-tree/commit/88d1dba0ba899c85bdccbc804348358b8b7eb1dc) Thanks [@tivac](https://github.com/tivac)! - Component helper preserves `.meta` fields
+
+  Previous using the helper like this:
+
+  ```js
+  helper(Component, {
+    meta: {
+      fooga: "wooga",
+    },
+  });
+  ```
+
+  would return an object with no `meta.fooga` property. Now those keys are properly preserved if they exist.
+
+  `meta.load` will **still be overwritten** if it exists, because it is required for the helper to function. A warning if it exists may be introduced in a future release.
+
 ## 5.2.0
 
 ### Minor Changes
