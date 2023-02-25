@@ -1,5 +1,11 @@
 # Changelog
 
+## 6.0.1
+
+### Patch Changes
+
+- [`048060a`](https://github.com/tivac/xstate-component-tree/commit/048060ac854ce51a9e7c23353cdc9507106d47e0) Thanks [@tivac](https://github.com/tivac)! - Fix exports config
+
 ## 6.0.0
 
 ### Major Changes
