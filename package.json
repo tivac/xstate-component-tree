@@ -13,7 +13,7 @@
     "build:cleantypes": "shx rm dist/*.d.ts",
     "build": "run-s build:clean build:rollup build:types build:copytypes build:cleantypes",
     "lint": "eslint . --max-warnings=0",
-    "test": "uvu tests",
+    "test": "uvu tests .test.js",
     "test:coverage": "c8 --check-coverage --100 --reporter=html --reporter=text uvu",
     "test:report": "c8 report --reporter=text-lcov > coverage/tests.lcov",
     "test:watch": "chokidar \"**/*.js\" -c \"npm test\"",
