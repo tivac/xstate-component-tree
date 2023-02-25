@@ -208,17 +208,19 @@ class ComponentTree {
     // Callback for statechart transitions to sync up child machine states
     _onState(path, state) {
         const { changed, children } = state;
+        const { _services, _log } = this;
         
+        const current = _services.get(path);
+
         // Need to specifically check for false because this value is undefined
-        // when a machine first boots up.
-        if(changed === false) {
+        // when a machine first boots up. Also check number of times we've built this machine
+        // and run anyways if we've never built it before
+        if(changed === false && current.run > 0) {
             return;
         }
         
-        const { _services, _log } = this;
-        
         // Save off the state
-        _services.get(path).state = state;
+        current.state = state;
 
         _log(`[${path}][_onState] checking children`);
 
