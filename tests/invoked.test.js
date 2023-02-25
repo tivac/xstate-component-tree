@@ -673,4 +673,50 @@ describe("invoked machines", (it) => {
                 }
             ]`);
     });
+
+    it("should build a tree even when the child machine immediately fires a noop event", async () => {
+        const childMachine = createMachine({
+            initial : "one",
+
+            // This invoke always fires an event immediately, but it doesn't cause a transition
+            // so when _onState in the component tree instance is triggered changed is set to false,
+            // even though the tree for that service has never been built. Added a check to ignore
+            // changed and build anyways if it's the first time the service has been seen.
+            invoke : [{
+                id  : "invoke",
+                src : () => (dispatch) => dispatch("ONE"),
+            }],
+
+            states : {
+                one : {
+                    meta : {
+                        component : component("child-one"),
+                    },
+                },
+            },
+        });
+
+        const { tree } = await getTree({
+            id      : "parent",
+            initial : "one",
+
+            states : {
+                one : {
+                    invoke : {
+                        id  : "child",
+                        src : childMachine,
+                    },
+                },
+            },
+        });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                path: "one",
+                component: [Function: child-one],
+                props: false,
+                children: []
+            }
+        ]`);
+    });
 });
