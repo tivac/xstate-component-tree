@@ -30,12 +30,12 @@
   "files": [
     "dist/"
   ],
-  "module": "dist/esm/index.js",
-  "main": "dist/cjs/index.js",
+  "module": "dist/esm/xstart-component-tree.js",
+  "main": "dist/cjs/xstart-component-tree.js",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
+      "import": "./dist/esm/xstate-component-tree.js",
+      "require": "./dist/cjs/xstate-component-tree.js"
     }
   },
   "devDependencies": {
