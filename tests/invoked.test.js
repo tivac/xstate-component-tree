@@ -59,6 +59,44 @@ describe("invoked machines", (it) => {
         ]`);
     });
 
+    it("should support invoked child machines w/o parent components", async () => {
+        const childMachine = createMachine({
+            initial : "child",
+
+            states : {
+                child : {
+                    meta : {
+                        component : component("child"),
+                    },
+                },
+            },
+        });
+
+        const { tree } = await getTree({
+            initial : "one",
+
+            states : {
+                one : {
+                    invoke : {
+                        id  : "child",
+                        src : childMachine,
+                    },
+                },
+            },
+        });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                machine: "(machine).child",
+                path: "child",
+                component: [Function: child],
+                props: false,
+                children: []
+            }
+        ]`);
+    });
+
+
     it("should support root components in invoked child machines", async () => {
         const childMachine = createMachine({
             initial : "child",
