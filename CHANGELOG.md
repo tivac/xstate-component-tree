@@ -1,5 +1,32 @@
 # Changelog
 
+## 6.1.0
+
+### Minor Changes
+
+- [#117](https://github.com/tivac/xstate-component-tree/pull/117) [`0cec0db`](https://github.com/tivac/xstate-component-tree/commit/0cec0db38d3198ba90ebcc5cfeb896af4e3def0e) Thanks [@tivac](https://github.com/tivac)! - Add machine info to each result
+
+  Otherwise root components of parallel sibling child machines can end up not being actually comparable.
+
+  ```diff
+  [
+      [Object: null prototype] {
+  +       machine: "(machine).child-one",
+          path: false,
+          component: [Function: child],
+          props: false,
+          children: []
+      },
+      [Object: null prototype] {
+  +       machine: "(machine).child-two",
+          path: false,
+          component: [Function: child],
+          props: false,
+          children: []
+      }
+  ]
+  ```
+
 ## 6.0.2
 
 ### Patch Changes
