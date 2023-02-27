@@ -29,7 +29,7 @@ describe("invoked machines", (it) => {
             states : {
                 one : {
                     invoke : {
-                        id  : "child-machine",
+                        id  : "child",
                         src : childMachine,
                     },
 
@@ -42,11 +42,13 @@ describe("invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine).child",
                         path: "child",
                         component: [Function: child],
                         props: false,
@@ -80,7 +82,7 @@ describe("invoked machines", (it) => {
             states : {
                 one : {
                     invoke : {
-                        id  : "child-machine",
+                        id  : "child",
                         src : childMachine,
                     },
 
@@ -93,16 +95,19 @@ describe("invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine).child",
                         path: false,
                         component: [Function: root],
                         props: false,
                         children: [
                             [Object: null prototype] {
+                                machine: "(machine).child",
                                 path: "child",
                                 component: [Function: child],
                                 props: false,
@@ -134,7 +139,7 @@ describe("invoked machines", (it) => {
             states : {
                 one : {
                     invoke : {
-                        id  : "child-machine",
+                        id  : "child",
                         src : childMachine,
                     },
 
@@ -153,11 +158,13 @@ describe("invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine).child",
                         path: "child",
                         component: [Function: child],
                         props: false,
@@ -166,6 +173,7 @@ describe("invoked machines", (it) => {
                 ]
             },
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "two",
                 component: [Function: two],
                 props: false,
@@ -198,6 +206,7 @@ describe("invoked machines", (it) => {
 
             snapshot(tree, `[
                 [Object: null prototype] {
+                    machine: "(machine)",
                     path: "one",
                     component: [Function: one],
                     props: false,
@@ -255,6 +264,7 @@ describe("invoked machines", (it) => {
 
         diff(before, after, `[
             [Object: null prototype] {
+                machine: "(machine)",
         Actual:
         --        path: "one",
         --        component: [Function: one],
@@ -265,6 +275,7 @@ describe("invoked machines", (it) => {
         Actual:
         --        children: [
         --            [Object: null prototype] {
+        --                machine: "(machine).child",
         --                path: "child",
         --                component: [Function: child],
         --                props: false,
@@ -330,6 +341,7 @@ describe("invoked machines", (it) => {
 
         diff(before, after, `[
             [Object: null prototype] {
+                machine: "(machine)",
         Actual:
         --        path: "one",
         --        component: [Function: one],
@@ -340,6 +352,7 @@ describe("invoked machines", (it) => {
         Actual:
         --        children: [
         --            [Object: null prototype] {
+        --                machine: "(machine).child",
         --                path: "child",
         --                component: [Function: child],
         --                props: false,
@@ -402,11 +415,13 @@ describe("invoked machines", (it) => {
 
         diff(before, after, `[
                 [Object: null prototype] {
+                    machine: "(machine)",
                     path: "one",
                     component: [Function: one],
                     props: false,
                     children: [
                         [Object: null prototype] {
+                            machine: "(machine).child",
             Actual:
             --                path: "child1",
             --                component: [Function: child1],
@@ -479,11 +494,13 @@ describe("invoked machines", (it) => {
 
         diff(before, after, `[
                 [Object: null prototype] {
+                    machine: "(machine)",
                     path: "one",
                     component: [Function: one],
                     props: false,
                     children: [
                         [Object: null prototype] {
+                            machine: "(machine)",
             Actual:
             --                path: "one.oneone",
             --                component: [Function: oneone],
@@ -494,6 +511,7 @@ describe("invoked machines", (it) => {
                             children: []
                         },
                         [Object: null prototype] {
+                            machine: "(machine).child",
                             path: "child",
                             component: [Function: child1],
                             props: false,
@@ -523,7 +541,7 @@ describe("invoked machines", (it) => {
             states : {
                 child : {
                     invoke : {
-                        id  : "grandchild-machine",
+                        id  : "grandchild",
                         src : grandchildMachine,
 
                         autoForward : true,
@@ -542,7 +560,7 @@ describe("invoked machines", (it) => {
             states : {
                 one : {
                     invoke : {
-                        id  : "child-machine",
+                        id  : "child",
                         src : childMachine,
                         
                         autoForward : true,
@@ -557,16 +575,19 @@ describe("invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine).child",
                         path: "child",
                         component: [Function: child],
                         props: false,
                         children: [
                             [Object: null prototype] {
+                                machine: "(machine).child.grandchild",
                                 path: "grandchild",
                                 component: [Function: grandchild],
                                 props: false,
@@ -648,16 +669,19 @@ describe("invoked machines", (it) => {
 
         diff(before, after, `[
                 [Object: null prototype] {
+                    machine: "(machine)",
                     path: "one",
                     component: [Function: one],
                     props: false,
                     children: [
                         [Object: null prototype] {
+                            machine: "(machine).child",
                             path: "child",
                             component: [Function: child],
                             props: false,
                             children: [
                                 [Object: null prototype] {
+                                    machine: "(machine).child.grandchild",
             Actual:
             --                        path: "grandchild1",
             --                        component: [Function: grandchild1],
@@ -712,6 +736,7 @@ describe("invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "parent.child",
                 path: "one",
                 component: [Function: child-one],
                 props: false,
