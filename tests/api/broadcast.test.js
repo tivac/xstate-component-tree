@@ -27,6 +27,7 @@ describe("broadcast", (it) => {
         diff(one, two, `
         [
             [Object: null prototype] {
+                machine: "single",
         Actual:
         --        path: "one",
         --        component: [Function: one],
@@ -41,6 +42,7 @@ describe("broadcast", (it) => {
         diff(two, three, `
         [
             [Object: null prototype] {
+                machine: "single",
         Actual:
         --        path: "two",
         --        component: [Function: two],
@@ -69,6 +71,7 @@ describe("broadcast", (it) => {
         diff(one, two, `
         [
             [Object: null prototype] {
+                machine: "root",
         Actual:
         --        path: "root.one",
         --        component: [Function: one],
@@ -79,6 +82,7 @@ describe("broadcast", (it) => {
                 children: []
             },
             [Object: null prototype] {
+                machine: "root.child",
         Actual:
         --        path: "child.one",
         --        component: [Function: child-one],
@@ -89,6 +93,7 @@ describe("broadcast", (it) => {
                 children: []
             },
             [Object: null prototype] {
+                machine: "root.child.grandchild",
         Actual:
         --        path: "grandchild.one",
         --        component: [Function: grandchild-one],
@@ -103,6 +108,7 @@ describe("broadcast", (it) => {
         diff(two, three, `
         [
             [Object: null prototype] {
+                machine: "root",
         Actual:
         --        path: "root.two",
         --        component: [Function: two],
@@ -113,6 +119,7 @@ describe("broadcast", (it) => {
                 children: []
             },
             [Object: null prototype] {
+                machine: "root.child",
         Actual:
         --        path: "child.two",
         --        component: [Function: child-two],
@@ -123,6 +130,7 @@ describe("broadcast", (it) => {
                 children: []
             },
             [Object: null prototype] {
+                machine: "root.child.grandchild",
         Actual:
         --        path: "grandchild.two",
         --        component: [Function: grandchild-two],
