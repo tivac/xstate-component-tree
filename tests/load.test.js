@@ -24,6 +24,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -47,6 +48,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: {
                     ctx: "context",
@@ -74,6 +76,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: {
@@ -99,6 +102,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -121,6 +125,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: {
@@ -145,6 +150,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: {
@@ -169,6 +175,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: {
@@ -203,11 +210,13 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine)",
                         path: "one.two",
                         component: [Function: two],
                         props: false,
@@ -250,6 +259,7 @@ describe(".load support", (it) => {
 
         snapshot(result, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "two",
                 component: [Function: two],
                 props: false,
@@ -495,6 +505,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: false,
                 props: false,

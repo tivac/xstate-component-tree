@@ -29,6 +29,7 @@ describe("send", (it) => {
         diff(one, two, `
         [
             [Object: null prototype] {
+                machine: "single",
         Actual:
         --        path: "one",
         --        component: [Function: one],
@@ -53,6 +54,7 @@ describe("send", (it) => {
         diff(one, two, `
         [
             [Object: null prototype] {
+                machine: "root",
         Actual:
         --        path: "root.one",
         --        component: [Function: one],
@@ -63,6 +65,7 @@ describe("send", (it) => {
                 children: []
             },
             [Object: null prototype] {
+                machine: "root.child",
                 path: "child.one",
                 component: [Function: child-one],
                 props: false,

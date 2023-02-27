@@ -36,11 +36,13 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine)",
                         path: "one.two",
                         component: [Function: two],
                         props: false,
@@ -82,11 +84,13 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [ [Function: one], [Function: two] ],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine)",
                         path: "one.two",
                         component: [ [Function: three], [Function: four] ],
                         props: false,
@@ -116,11 +120,13 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: false,
                 component: [Function: root],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine)",
                         path: "one",
                         component: [Function: one],
                         props: false,
@@ -185,11 +191,13 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine)",
                         path: "one.two",
                         component: [Function: two],
                         props: false,
@@ -233,6 +241,7 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: {
@@ -241,6 +250,7 @@ describe("basic functionality", (it) => {
                 },
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine)",
                         path: "one.two",
                         component: [Function: two],
                         props: {
@@ -275,12 +285,14 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: []
             },
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "two",
                 component: [Function: two],
                 props: false,
@@ -316,12 +328,14 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one.three",
                 component: [Function: three],
                 props: false,
                 children: []
             },
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one.two",
                 component: [Function: two],
                 props: false,
@@ -357,12 +371,14 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one.two",
                 component: [Function: two],
                 props: false,
                 children: []
             },
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one.three",
                 component: [Function: three],
                 props: false,
@@ -400,11 +416,13 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine)",
                         path: "one.two",
                         component: [Function: two],
                         props: false,
@@ -446,11 +464,13 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine)",
                         path: "one.two.three",
                         component: [Function: three],
                         props: false,
@@ -494,6 +514,7 @@ describe("basic functionality", (it) => {
 
         diff(before, after, `[
             [Object: null prototype] {
+                machine: "(machine)",
         Actual:
         --        path: "one",
         --        component: [Function: one],
@@ -577,6 +598,7 @@ describe("basic functionality", (it) => {
 
         diff(before, after, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -584,6 +606,7 @@ describe("basic functionality", (it) => {
         Expected:
         ++    },
         ++    [Object: null prototype] {
+        ++        machine: "(machine)",
         ++        path: "b.two",
         ++        component: [Function: b.two],
         ++        props: false,
@@ -633,6 +656,7 @@ describe("basic functionality", (it) => {
 
         diff(before, after, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -640,6 +664,7 @@ describe("basic functionality", (it) => {
         Expected:
         ++    },
         ++    [Object: null prototype] {
+        ++        machine: "(machine)",
         ++        path: "b.two",
         ++        component: [Function: b.two],
         ++        props: false,

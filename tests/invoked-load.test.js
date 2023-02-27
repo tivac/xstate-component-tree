@@ -42,11 +42,13 @@ describe(".load in invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine).child",
                         path: "child",
                         component: [Function: child],
                         props: false,
@@ -89,11 +91,13 @@ describe(".load in invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine).child",
                         path: "child",
                         component: [Function: child],
                         props: false,
@@ -136,11 +140,13 @@ describe(".load in invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine).child",
                         path: "child",
                         component: [Function: child],
                         props: {
@@ -189,11 +195,13 @@ describe(".load in invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
+                machine: "(machine)",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
+                        machine: "(machine).child",
                         path: "child",
                         component: {
                             ctx: "child context",
