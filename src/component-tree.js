@@ -37,13 +37,9 @@ const loadChild = async ({ tree, root }) => {
     root.children.push(...children);
 };
 
-const childPath = (...args) => {
-    const vals = [];
-
-    args.forEach((arg) => arg && vals.push(arg));
-
-    return vals.join(".");
-};
+const childPath = (...args) => args
+    .filter(Boolean)
+    .join(".");
 
 class ComponentTree {
     /**
@@ -391,6 +387,8 @@ class ComponentTree {
 
                 const item = {
                     __proto__ : null,
+
+                    machine : path,
 
                     // Purposefully *not* prefixing w/ path here, end-users don't care about it
                     path : node,
