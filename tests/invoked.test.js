@@ -181,6 +181,57 @@ describe("invoked machines", (it) => {
             }
         ]`);
     });
+    
+    it("should support invoked child machines in a parallel state with root components", async () => {
+        const childMachine = createMachine({
+            initial : "child",
+            
+            meta : {
+                component : component("child"),
+            },
+
+            states : {
+                child : {},
+            },
+        });
+
+        const { tree } = await getTree({
+            type : "parallel",
+
+            states : {
+                one : {
+                    invoke : {
+                        id  : "child-one",
+                        src : childMachine,
+                    },
+                },
+
+                two : {
+                    invoke : {
+                        id  : "child-two",
+                        src : childMachine,
+                    },
+                },
+            },
+        });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                machine: "(machine).child-one",
+                path: false,
+                component: [Function: child],
+                props: false,
+                children: []
+            },
+            [Object: null prototype] {
+                machine: "(machine).child-two",
+                path: false,
+                component: [Function: child],
+                props: false,
+                children: []
+            }
+        ]`);
+    });
 
     [
         [ "promise", () => new Promise(NOOP) ],
