@@ -1,5 +1,13 @@
 # Changelog
 
+## 6.1.1
+
+### Patch Changes
+
+- [#119](https://github.com/tivac/xstate-component-tree/pull/119) [`743433d`](https://github.com/tivac/xstate-component-tree/commit/743433d388d76a6f5e62bbc6d4f69c224cfc676b) Thanks [@tivac](https://github.com/tivac)! - Support multiple invoked items per state
+
+  Previously it would only use the _last_ invocation at each state.
+
 ## 6.1.0
 
 ### Minor Changes
