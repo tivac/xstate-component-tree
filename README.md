@@ -220,9 +220,10 @@ import { component } from "xstate-component-tree/component";
 The `callback` functions receives two arguments, the first is your assembled tree of components & props. The second is an object with some useful information on it:
 
 - `.state`, the returned xstate `State` object for the root machine
-- `.matches()`, a bound version of the [`.matches()` API documented below](#matchesstatename)
-- `.hasTag()`, a bound version of the [`.hasTag()` API documented below](#hastagtag)
 - `.broadcast()`, a bound version of the [`.broadcast()` API documented below](#broadcasteventname--eventobject-payload)
+- `.can()`, a bound version of the [`.can()` API documented below](#caneventname--eventobject-payload)
+- `.hasTag()`, a bound version of the [`.hasTag()` API documented below](#hastagtag)
+- `.matches()`, a bound version of the [`.matches()` API documented below](#matchesstatename)
 
 #### `options`
 
@@ -242,17 +243,24 @@ Calls the xstate `.send()` method on every running interpreter in the hierarchy.
 - `eventObject` is an object with a `type` property of the event name, along with other optional fields
 - `payload` is an object of optional fields to be added to the event object
 
-#### `.matches(stateName)`
+#### `.can(eventName | eventObject)`
 
-- `stateName` is a full or partial state value specified as a string
+Calls the xstate `.can()` method on every running interpreter in the hierarchy.
 
-Calls the [xstate `.matches()` method](https://xstate.js.org/docs/guides/states.html#state-matches-parentstatevalue) against all the running machines and returns the result, stopping at the first successful match.
+- `eventName` is a string event to be sent
+- `eventObject` is an object with a `type` property of the event name, along with other optional fields
 
 #### `.hasTag(tag)`
 
 - `tag` is a string, which can be defined on states using the `tags` property
 
 Calls the [xstate `.hasTag()` method](https://xstate.js.org/docs/guides/states.html#state-hastag-tag) against all the running machines and returns the result, stopping at the first successful match.
+
+#### `.matches(stateName)`
+
+- `stateName` is a full or partial state value specified as a string
+
+Calls the [xstate `.matches()` method](https://xstate.js.org/docs/guides/states.html#state-matches-parentstatevalue) against all the running machines and returns the result, stopping at the first successful match.
 
 ### `component()` helper
 
