@@ -172,7 +172,7 @@ class ComponentTree {
             }
 
             // .invoke is always an array
-            item.invoke.forEach(({ id : invokeid }) => _invokables.set(key, childPath(path, invokeid)));
+            _invokables.set(key, item.invoke.map(({ id : invoked }) => childPath(path, invoked)));
         }
 
         _log(`[${path}][_prep] _paths`, [ ..._paths.keys() ]);
@@ -437,14 +437,14 @@ class ComponentTree {
             }
 
             if(_invokables.has(id)) {
-                const invokable = _invokables.get(id);
-
-                if(_services.has(invokable)) {
-                    loads.push(loadChild({
-                        tree : _services.get(invokable).tree,
-                        root : pointer,
-                    }));
-                }
+                _invokables.get(id).forEach((invokable) => {
+                    if(_services.has(invokable)) {
+                        loads.push(loadChild({
+                            tree : _services.get(invokable).tree,
+                            root : pointer,
+                        }));
+                    }
+                });
             }
 
             if(!values) {

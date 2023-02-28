@@ -59,7 +59,7 @@ describe("invoked machines", (it) => {
         ]`);
     });
 
-    it("should support invoked child machines w/o parent components", async () => {
+    it("should support invoked child machines with other invoked elements", async () => {
         const childMachine = createMachine({
             initial : "child",
 
@@ -77,10 +77,16 @@ describe("invoked machines", (it) => {
 
             states : {
                 one : {
-                    invoke : {
-                        id  : "child",
-                        src : childMachine,
-                    },
+                    invoke : [
+                        {
+                            id  : "child",
+                            src : childMachine,
+                        },
+                        {
+                            id  : "fake",
+                            src : NOOP,
+                        },
+                    ],
                 },
             },
         });
