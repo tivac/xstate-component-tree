@@ -347,7 +347,6 @@ class ComponentTree {
         const root = {
             __proto__ : null,
 
-            id       : this.id,
             children : [],
         };
 
