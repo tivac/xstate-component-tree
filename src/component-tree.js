@@ -276,7 +276,11 @@ class ComponentTree {
 
         // Only care about all other trees when we're the root
         if(root) {
-            _services.forEach(({ tree : t }) => trees.push(t));
+            _services.forEach(({ tree : t }, p) => {
+                if(p !== path) {
+                    trees.push(t);
+                }
+            });
         }
 
         const [ tree ] = await Promise.all(trees);
@@ -328,15 +332,13 @@ class ComponentTree {
            _log,
         } = this;
 
+        const { run, state } = _services.get(path);
+
         /* c8 ignore start */
         if(!_paths.size) {
             return [];
         }
         /* c8 ignore stop */
-
-        const service = this._services.get(path);
-
-        const { run, state } = service;
 
         _log(`[${path}][_walk #${run}] walking`);
 
@@ -442,7 +444,6 @@ class ComponentTree {
                     loads.push(loadChild({
                         tree : _services.get(invokable).tree,
                         root : pointer,
-                        path,
                     }));
                 }
             }
