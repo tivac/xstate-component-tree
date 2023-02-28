@@ -221,7 +221,7 @@ The `callback` functions receives two arguments, the first is your assembled tre
 
 - `.state`, the returned xstate `State` object for the root machine
 - `.broadcast()`, a bound version of the [`.broadcast()` API documented below](#broadcasteventname--eventobject-payload)
-- `.can()`, a bound version of the [`.can()` API documented below]([#caneventname--eventobject-payload](#caneventname--eventobject))
+- `.can()`, a bound version of the [`.can()` API documented below](#caneventname--eventobject)
 - `.hasTag()`, a bound version of the [`.hasTag()` API documented below](#hastagtag)
 - `.matches()`, a bound version of the [`.matches()` API documented below](#matchesstatename)
 
