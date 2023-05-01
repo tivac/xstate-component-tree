@@ -41,5 +41,7 @@ module.exports = {
                 message  : "Object spread doesn't work in all environments",
             },
         ],
+
+        "jsdoc/tag-lines" : "off",
     },
 };
