@@ -45,7 +45,7 @@
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-terser": "^0.4.4",
     "@tivac/eslint-config": "^2.4.0",
-    "c8": "^9.1.0",
+    "c8": "^10.1.2",
     "chokidar-cli": "^3.0.0",
     "dedent": "^1.5.1",
     "eslint": "^8.18.0",
