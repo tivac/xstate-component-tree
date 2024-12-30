@@ -42,7 +42,7 @@ describe(".load in invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -91,7 +91,7 @@ describe(".load in invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -140,7 +140,7 @@ describe(".load in invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -195,7 +195,7 @@ describe(".load in invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -298,7 +298,7 @@ describe(".load in invoked machines", (it) => {
 
         runs = [];
 
-        tree.service.send("PARENT");
+        tree.service.send({ type : "PARENT" });
         
         await tree();
 
@@ -308,7 +308,7 @@ describe(".load in invoked machines", (it) => {
 
         runs = [];
         
-        tree.service.send("CHILD");
+        tree.service.send({ type : "CHILD" });
         
         await tree();
 

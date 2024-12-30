@@ -19,7 +19,7 @@ describe("hasTag", (it) => {
         assert.ok(tree.builder.hasTag("one"));
         assert.ok(extra.hasTag("one"));
 
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
 
         ({ extra } = await tree());
 
@@ -46,7 +46,7 @@ describe("hasTag", (it) => {
         assert.ok(tree.builder.hasTag("one"));
         assert.ok(extra.hasTag("one"));
 
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
 
         ({ extra } = await tree());
 

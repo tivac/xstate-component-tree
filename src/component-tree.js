@@ -144,8 +144,10 @@ class ComponentTree {
 
         const { interpreter } = _services.get(path);
 
+        // console.log(path, "interpreter: ", interpreter);
+
         // Build up maps of paths to meta info as well as noting any invokable machines for later
-        const { idMap : ids, meta } = interpreter.machine;
+        const { idMap : ids, meta } = interpreter.logic;
 
         // Support metadata at the root of the machine
         if(meta) {
@@ -156,10 +158,14 @@ class ComponentTree {
             }, meta));
         }
 
+        // console.log(path, "ids", ids);
+
         // xstate maps ids to state nodes, but the value object only
         // has paths, so need to create our own path-only map here
-        for(const id in ids) {
-            const item = ids[id];
+        for(const item of ids.values()) {
+            // const item = ids.get(id);
+
+            // console.log(id, item);
 
             const key = [ path, ...item.path ].join(".");
 
@@ -182,23 +188,34 @@ class ComponentTree {
 
         // Subscribing will start a run of the machine,
         // so no need to manually kick one off
-        const { unsubscribe } = interpreter.subscribe((state) => {
-            _log(`[${path}][_watch] update`);
+        const { unsubscribe } = interpreter.subscribe({
+            next : (state) => {
+                _log(`[${path}][subscribe.next] update`);
 
-            this._onState(path, state);
+                this._onState(path, state);
+            },
+
+            error : (error) => {
+                _log(`[${path}][subscribe.error] tearing down`, error);
+
+                unsubscribe();
+
+                this._unsubscribes.delete(unsubscribe);
+                _services.delete(path);
+            },
+
+            // Clean up once the service finishes
+            complete : () => {
+                _log(`[${path}][subscribe.complete] stopped, tearing down`);
+
+                unsubscribe();
+
+                this._unsubscribes.delete(unsubscribe);
+                _services.delete(path);
+            },
         });
 
         this._unsubscribes.add(unsubscribe);
-
-        // Clean up once the service finishes
-        interpreter.onStop(() => {
-            _log(`[${path}][_onState] stopped, tearing down`);
-
-            unsubscribe();
-
-            this._unsubscribes.delete(unsubscribe);
-            _services.delete(path);
-        });
     }
 
     // Callback for statechart transitions to sync up child machine states
@@ -231,7 +248,8 @@ class ComponentTree {
             const service = children[child];
 
             // Not a statechart, abort!
-            if(!service.initialized || !service.state) {
+            // TODO: this check is busted atm
+            if(!service?.logic?.__xstatenode) {
                 return;
             }
 
@@ -500,7 +518,7 @@ class ComponentTree {
 
     /**
      * @callback Broadcast Send an event to the service and all its children
-     * @param {import("xstate").EventObject | string} event XState event to send
+     * @param {import("xstate").EventObject} event XState event to send
      * @param {import("xstate").SendActionOptions} [options] XState options to send
      */
     broadcast(event, options) {
@@ -515,7 +533,13 @@ class ComponentTree {
      * @type {HasTag}
      */
     hasTag(tag) {
-        return [ ...this._services.values() ].some(({ state }) => state.hasTag(tag));
+        for(const [ , { state }] of this._services) {
+            if(state.hasTag(tag)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -524,7 +548,13 @@ class ComponentTree {
      * @type {Can}
      */
      can(event) {
-        return [ ...this._services.values() ].some(({ state }) => state.can(event));
+        for(const [ , { state }] of this._services) {
+            if(state.can(event)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -533,7 +563,13 @@ class ComponentTree {
      * @type {Matches}
      */
     matches(path) {
-        return [ ...this._services.values() ].some(({ state }) => state.matches(path));
+        for(const [ , { state }] of this._services) {
+            if(state.matches(path)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -562,4 +598,6 @@ class ComponentTree {
     }
 }
 
-export default ComponentTree;
+export {
+    ComponentTree,
+};

@@ -24,7 +24,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -48,7 +48,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: {
                     ctx: "context",
@@ -76,7 +76,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: {
@@ -102,7 +102,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -125,7 +125,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: {
@@ -150,7 +150,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: {
@@ -175,7 +175,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: {
@@ -210,13 +210,13 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine)",
+                        machine: "test",
                         path: "one.two",
                         component: [Function: two],
                         props: false,
@@ -259,7 +259,7 @@ describe(".load support", (it) => {
 
         snapshot(result, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "two",
                 component: [Function: two],
                 props: false,
@@ -304,7 +304,7 @@ describe(".load support", (it) => {
 
         assert.equal(runs, 1);
         
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
         
         await tree();
 
@@ -356,7 +356,7 @@ describe(".load support", (it) => {
 
         runs = [];
 
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
         
         await tree();
 
@@ -366,7 +366,7 @@ describe(".load support", (it) => {
 
         runs = [];
         
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
         
         await tree();
 
@@ -423,7 +423,7 @@ describe(".load support", (it) => {
 
         runs = [];
 
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
         
         await tree();
 
@@ -481,7 +481,7 @@ describe(".load support", (it) => {
 
         runs = [];
 
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
         
         await tree();
 
@@ -505,7 +505,7 @@ describe(".load support", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: false,
                 props: false,

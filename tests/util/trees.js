@@ -1,6 +1,6 @@
-import { createMachine as xstateCreate, interpret } from "xstate";
+import { createMachine as xstateCreate, createActor } from "xstate";
 
-import ComponentTree from "../../src/component-tree.js";
+import { ComponentTree } from "../../src/component-tree.js";
 
 const deferred = () => {
     let resolve;
@@ -73,12 +73,12 @@ export const trees = (service, options = {}, fn = false) => {
 export const createMachine = (def) => (
     def.__xstatenode ?
         def :
-        xstateCreate({ ...def, predictableActionArguments : true })
+        xstateCreate({ ...def })
 );
 
 export const createTree = (def, ...rest) => {
-    const machine = createMachine(def);
-    const service = interpret(machine);
+    const machine = createMachine({ id : "test", ...def });
+    const service = createActor(machine, { id : machine.id || "test" });
 
     return trees(service, ...rest);
 };

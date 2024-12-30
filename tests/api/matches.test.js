@@ -34,7 +34,7 @@ describe("matches", (it) => {
         assert.ok(tree.builder.matches("one"));
         assert.ok(extra.matches("one"));
 
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
 
         ({ extra } = await tree());
 

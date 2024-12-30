@@ -22,7 +22,7 @@ describe("send", (it) => {
 
         const { tree : one } = await tree();
         
-        tree.builder.send("NEXT");
+        tree.builder.send({ type : "NEXT" });
 
         const { tree : two } = await waitForPath(tree, "two");
 
@@ -47,7 +47,7 @@ describe("send", (it) => {
 
         const { tree : one } = await tree();
 
-        tree.builder.send("NEXT");
+        tree.builder.send({ type : "NEXT" });
 
         const { tree : two } = await waitForPath(tree, "root.two");
 

@@ -42,7 +42,7 @@ describe("invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -139,7 +139,7 @@ describe("invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -202,7 +202,7 @@ describe("invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -217,7 +217,7 @@ describe("invoked machines", (it) => {
                 ]
             },
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "two",
                 component: [Function: two],
                 props: false,
@@ -301,7 +301,7 @@ describe("invoked machines", (it) => {
 
             snapshot(tree, `[
                 [Object: null prototype] {
-                    machine: "(machine)",
+                    machine: "test",
                     path: "one",
                     component: [Function: one],
                     props: false,
@@ -353,13 +353,13 @@ describe("invoked machines", (it) => {
 
         const { tree : before } = await tree();
         
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
         
         const { tree : after } = await tree();
 
         diff(before, after, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
         Actual:
         --        path: "one",
         --        component: [Function: one],
@@ -430,13 +430,13 @@ describe("invoked machines", (it) => {
 
         const { tree : before } = await tree();
         
-        tree.builder.broadcast("NEXT");
+        tree.builder.broadcast({ type : "NEXT" });
         
         const { tree : after } = await tree();
 
         diff(before, after, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
         Actual:
         --        path: "one",
         --        component: [Function: one],
@@ -504,13 +504,13 @@ describe("invoked machines", (it) => {
 
         const { tree : before } = await tree();
         
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
         
         const { tree : after } = await tree();
 
         diff(before, after, `[
                 [Object: null prototype] {
-                    machine: "(machine)",
+                    machine: "test",
                     path: "one",
                     component: [Function: one],
                     props: false,
@@ -583,19 +583,19 @@ describe("invoked machines", (it) => {
 
         const { tree : before } = await tree();
 
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
 
         const { tree : after } = await tree();
 
         diff(before, after, `[
                 [Object: null prototype] {
-                    machine: "(machine)",
+                    machine: "test",
                     path: "one",
                     component: [Function: one],
                     props: false,
                     children: [
                         [Object: null prototype] {
-                            machine: "(machine)",
+                            machine: "test",
             Actual:
             --                path: "one.oneone",
             --                component: [Function: oneone],
@@ -670,7 +670,7 @@ describe("invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -758,13 +758,13 @@ describe("invoked machines", (it) => {
 
         const { tree : before } = await tree();
 
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
         
         const { tree : after } = await tree();
 
         diff(before, after, `[
                 [Object: null prototype] {
-                    machine: "(machine)",
+                    machine: "test",
                     path: "one",
                     component: [Function: one],
                     props: false,

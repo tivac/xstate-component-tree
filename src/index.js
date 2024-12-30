@@ -1,2 +1,2 @@
-export { default as ComponentTree } from "./component-tree.js";
-export { default as componentHelper } from "./component-helper.js";
+export { ComponentTree } from "./component-tree.js";
+export { componentHelper } from "./component-helper.js";
