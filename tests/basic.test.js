@@ -14,7 +14,6 @@ describe("basic functionality", (it) => {
     
     it("should return a tree of components", async () => {
         const { tree } = await getTree({
-            systemId : "TEST",
             initial  : "one",
 
             states : {
