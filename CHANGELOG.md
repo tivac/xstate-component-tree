@@ -1,10 +1,16 @@
 # Changelog
 
+## 7.0.1
+
+### Patch Changes
+
+- [`a37d587`](https://github.com/tivac/xstate-component-tree/commit/a37d5879ffb6b4be7f9bfa2a77071307642bad19) Thanks [@tivac](https://github.com/tivac)! - Fixed up type generation and some internal naming to match xstate v5 conventions
+
 ## 7.0.0
 
 ### Major Changes
 
-- [#217](https://github.com/tivac/xstate-component-tree/pull/217) [`e711a23`](https://github.com/tivac/xstate-component-tree/commit/e711a23eeddc9fe4c621fe10cd20711f230afc3e) Thanks [@dependabot](https://github.com/apps/dependabot)! - # 🎉 xstate v5 support 🎉
+- [#217](https://github.com/tivac/xstate-component-tree/pull/217) [`e711a23`](https://github.com/tivac/xstate-component-tree/commit/e711a23eeddc9fe4c621fe10cd20711f230afc3e) Thanks [@tivac](https://github.com/tivac)! - # 🎉 xstate v5 support 🎉
 
   This release finally updates `xstate-component-tree` to work with modern versions of xstate. No major API changes within the library itself, mostly v4 to v5 stuff like [always sending `{ type : "EVENT" }`](https://stately.ai/docs/migration#actorsend-no-longer-accepts-string-types).
 
