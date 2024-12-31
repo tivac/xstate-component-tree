@@ -117,7 +117,7 @@ class ComponentTree {
             ...this._boundApis,
         };
 
-        // Add the main service to be tracked
+        // Add the main actor to be tracked
         this._addActor({ path : this.id, actor });
 
         // Get goin
@@ -142,11 +142,11 @@ class ComponentTree {
 
     // Subscribe to an interpreter
     _watch(path) {
-        const { _paths, _actors: _services, _invokables, _options, _log } = this;
+        const { _paths, _actors, _invokables, _options, _log } = this;
         
         _log(`[${path}][_prep] prepping`);
 
-        const { actor } = _services.get(path);
+        const { actor } = _actors.get(path);
 
         // Build up maps of paths to meta info as well as noting any invokable machines for later
         const { idMap : ids, root } = actor.logic;
@@ -183,21 +183,21 @@ class ComponentTree {
         _log(`[${path}][_watch] subscribing`);
 
         const { unsubscribe } = actor.subscribe({
-            // State updates
+            // Actor has transitioned states
             next : (state) => {
                 _log(`[${path}][subscribe.next] update`);
 
                 this._onState(path, state);
             },
 
-            // Service completed
+            // Actor has completed
             complete : () => {
                 _log(`[${path}][subscribe.complete] stopped, tearing down`);
 
                 unsubscribe();
 
                 this._unsubscribes.delete(unsubscribe);
-                _services.delete(path);
+                _actors.delete(path);
             },
         });
 
@@ -209,9 +209,9 @@ class ComponentTree {
 
     // Callback for statechart transitions to sync up child machine states
     _onState(path, state) {
-        const { _actors: _services, _log } = this;
+        const { _actors, _log } = this;
         
-        const current = _services.get(path);
+        const current = _actors.get(path);
 
         if(state === current.state && current.run > 0) {
             return;
@@ -228,7 +228,7 @@ class ComponentTree {
         Object.keys(children).forEach((child) => {
             const id = [ path, child ].join(".");
 
-            if(_services.has(id)) {
+            if(_actors.has(id)) {
                 return;
             }
 
@@ -253,36 +253,36 @@ class ComponentTree {
     }
 
     _shouldRun(path, run) {
-        const { _actors: _services } = this;
+        const { _actors } = this;
 
         return (
-            Boolean(_services) &&
-            _services.has(path) &&
-            _services.get(path).run === run
+            Boolean(_actors) &&
+            _actors.has(path) &&
+            _actors.get(path).run === run
         );
     }
 
     // Kicks off tree walks & handles overlapping walk behaviors
     async _run(path) {
-        const { _options, _actors: _services, _log } = this;
+        const { _options, _actors, _log } = this;
 
         const root = path === this.id;
-        const service = _services.get(path);
+        const actor = _actors.get(path);
 
         _log(`[${path}][_run()] starting`);
 
         // Cancel any previous walks, we're the captain now
-        const run = ++service.run;
+        const run = ++actor.run;
         
         _log(`[${path}][_run #${run}] started`);
 
-        service.tree = this._walk(path);
+        actor.tree = this._walk(path);
 
-        const trees = [ service.tree ];
+        const trees = [ actor.tree ];
 
         // Only care about all other trees when we're the root
         if(root) {
-            _services.forEach(({ tree : t }, p) => {
+            _actors.forEach(({ tree : t }, p) => {
                 if(p !== path) {
                     trees.push(t);
                 }
@@ -300,7 +300,7 @@ class ComponentTree {
 
         _log(`[${path}][_run #${run}] finished`);
 
-        const { parent } = service;
+        const { parent } = actor;
 
         // Trigger parent run if we got one
         if(parent) {
@@ -313,7 +313,7 @@ class ComponentTree {
             __proto__ : null,
 
             tree,
-            state : service.state,
+            state : actor.state,
             ...this._boundApis,
         };
 
@@ -334,13 +334,13 @@ class ComponentTree {
         const {
            _paths,
            _invokables,
-           _actors: _services,
+           _actors,
            _cache,
            _options,
            _log,
         } = this;
 
-        const { run, state } = _services.get(path);
+        const { run, state } = _actors.get(path);
 
         /* c8 ignore start */
         if(!_paths.size) {
@@ -364,7 +364,6 @@ class ComponentTree {
             [ root, false, value ],
         ];
 
-        // service.run check is to kill looping if state transitions before the walk finishes
         while(queue.length && this._shouldRun(path, run)) {
             const [ parent, node, values ] = queue.shift();
 
@@ -454,9 +453,9 @@ class ComponentTree {
 
             if(_invokables.has(id)) {
                 _invokables.get(id).forEach((invokable) => {
-                    if(_services.has(invokable)) {
+                    if(_actors.has(invokable)) {
                         loads.push(loadChild({
-                            tree : _services.get(invokable).tree,
+                            tree : _actors.get(invokable).tree,
                             root : pointer,
                         }));
                     }
