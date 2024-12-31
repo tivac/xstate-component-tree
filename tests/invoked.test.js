@@ -1,3 +1,4 @@
+import { fromCallback, fromPromise } from "xstate";
 import describe from "./util/describe.js";
 import { createTree, getTree, createMachine } from "./util/trees.js";
 import component from "./util/component.js";
@@ -48,7 +49,7 @@ describe("invoked machines", (it) => {
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine).child",
+                        machine: "test.child",
                         path: "child",
                         component: [Function: child],
                         props: false,
@@ -84,7 +85,7 @@ describe("invoked machines", (it) => {
                         },
                         {
                             id  : "fake",
-                            src : NOOP,
+                            src : fromCallback(NOOP),
                         },
                     ],
                 },
@@ -93,7 +94,7 @@ describe("invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine).child",
+                machine: "test.child",
                 path: "child",
                 component: [Function: child],
                 props: false,
@@ -145,13 +146,13 @@ describe("invoked machines", (it) => {
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine).child",
+                        machine: "test.child",
                         path: false,
                         component: [Function: root],
                         props: false,
                         children: [
                             [Object: null prototype] {
-                                machine: "(machine).child",
+                                machine: "test.child",
                                 path: "child",
                                 component: [Function: child],
                                 props: false,
@@ -208,7 +209,7 @@ describe("invoked machines", (it) => {
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine).child",
+                        machine: "test.child",
                         path: "child",
                         component: [Function: child],
                         props: false,
@@ -261,14 +262,14 @@ describe("invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine).child-one",
+                machine: "test.child-one",
                 path: false,
                 component: [Function: child],
                 props: false,
                 children: []
             },
             [Object: null prototype] {
-                machine: "(machine).child-two",
+                machine: "test.child-two",
                 path: false,
                 component: [Function: child],
                 props: false,
@@ -278,8 +279,8 @@ describe("invoked machines", (it) => {
     });
 
     [
-        [ "promise", () => new Promise(NOOP) ],
-        [ "callback", () => NOOP ],
+        [ "promise", fromPromise(() => new Promise(NOOP)) ],
+        [ "callback", fromCallback(NOOP) ],
     ].forEach(([ name, src ]) => {
         it(`should ignore non-statechart children (${name})`, async () => {
             const { tree } = await getTree({
@@ -370,7 +371,7 @@ describe("invoked machines", (it) => {
         Actual:
         --        children: [
         --            [Object: null prototype] {
-        --                machine: "(machine).child",
+        --                machine: "test.child",
         --                path: "child",
         --                component: [Function: child],
         --                props: false,
@@ -447,7 +448,7 @@ describe("invoked machines", (it) => {
         Actual:
         --        children: [
         --            [Object: null prototype] {
-        --                machine: "(machine).child",
+        --                machine: "test.child",
         --                path: "child",
         --                component: [Function: child],
         --                props: false,
@@ -491,8 +492,6 @@ describe("invoked machines", (it) => {
                     invoke : {
                         id  : "child",
                         src : childMachine,
-                        
-                        autoForward : true,
                     },
 
                     meta : {
@@ -504,7 +503,7 @@ describe("invoked machines", (it) => {
 
         const { tree : before } = await tree();
         
-        tree.send({ type : "NEXT" });
+        tree.builder.broadcast({ type : "NEXT" });
         
         const { tree : after } = await tree();
 
@@ -516,7 +515,7 @@ describe("invoked machines", (it) => {
                     props: false,
                     children: [
                         [Object: null prototype] {
-                            machine: "(machine).child",
+                            machine: "test.child",
             Actual:
             --                path: "child1",
             --                component: [Function: child1],
@@ -606,7 +605,7 @@ describe("invoked machines", (it) => {
                             children: []
                         },
                         [Object: null prototype] {
-                            machine: "(machine).child",
+                            machine: "test.child",
                             path: "child",
                             component: [Function: child1],
                             props: false,
@@ -638,8 +637,6 @@ describe("invoked machines", (it) => {
                     invoke : {
                         id  : "grandchild",
                         src : grandchildMachine,
-
-                        autoForward : true,
                     },
 
                     meta : {
@@ -657,8 +654,6 @@ describe("invoked machines", (it) => {
                     invoke : {
                         id  : "child",
                         src : childMachine,
-                        
-                        autoForward : true,
                     },
 
                     meta : {
@@ -676,13 +671,13 @@ describe("invoked machines", (it) => {
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine).child",
+                        machine: "test.child",
                         path: "child",
                         component: [Function: child],
                         props: false,
                         children: [
                             [Object: null prototype] {
-                                machine: "(machine).child.grandchild",
+                                machine: "test.child.grandchild",
                                 path: "grandchild",
                                 component: [Function: grandchild],
                                 props: false,
@@ -726,8 +721,6 @@ describe("invoked machines", (it) => {
                     invoke : {
                         id  : "grandchild",
                         src : grandchildMachine,
-
-                        autoForward : true,
                     },
 
                     meta : {
@@ -745,8 +738,6 @@ describe("invoked machines", (it) => {
                     invoke : {
                         id  : "child",
                         src : childMachine,
-                        
-                        autoForward : true,
                     },
 
                     meta : {
@@ -758,39 +749,42 @@ describe("invoked machines", (it) => {
 
         const { tree : before } = await tree();
 
-        tree.send({ type : "NEXT" });
+        tree.builder.broadcast({ type : "NEXT" });
         
+        // TODO: Why is this extra spin required?
+        await tree();
+
         const { tree : after } = await tree();
 
         diff(before, after, `[
-                [Object: null prototype] {
-                    machine: "test",
-                    path: "one",
-                    component: [Function: one],
-                    props: false,
-                    children: [
-                        [Object: null prototype] {
-                            machine: "(machine).child",
-                            path: "child",
-                            component: [Function: child],
-                            props: false,
-                            children: [
-                                [Object: null prototype] {
-                                    machine: "(machine).child.grandchild",
-            Actual:
-            --                        path: "grandchild1",
-            --                        component: [Function: grandchild1],
-            Expected:
-            ++                        path: "grandchild2",
-            ++                        component: [Function: grandchild2],
-                                    props: false,
-                                    children: []
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]`);
+            [Object: null prototype] {
+                machine: "test",
+                path: "one",
+                component: [Function: one],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        machine: "test.child",
+                        path: "child",
+                        component: [Function: child],
+                        props: false,
+                        children: [
+                            [Object: null prototype] {
+                                machine: "test.child.grandchild",
+        Actual:
+        --                        path: "grandchild1",
+        --                        component: [Function: grandchild1],
+        Expected:
+        ++                        path: "grandchild2",
+        ++                        component: [Function: grandchild2],
+                                props: false,
+                                children: []
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]`);
     });
 
     it("should build a tree even when the child machine immediately fires a noop event", async () => {
@@ -803,7 +797,7 @@ describe("invoked machines", (it) => {
             // changed and build anyways if it's the first time the service has been seen.
             invoke : [{
                 id  : "invoke",
-                src : () => (dispatch) => dispatch("ONE"),
+                src : fromCallback(({ sendBack }) => sendBack({ type : "ONE" })),
             }],
 
             states : {

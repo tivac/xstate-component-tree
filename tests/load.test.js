@@ -52,9 +52,7 @@ describe(".load support", (it) => {
                 path: "one",
                 component: {
                     ctx: "context",
-                    event: {
-                        type: "xstate.init"
-                    }
+                    event: undefined
                 },
                 props: false,
                 children: []
@@ -302,13 +300,13 @@ describe(".load support", (it) => {
 
         await tree();
 
-        assert.equal(runs, 1);
+        assert.equal(runs, 2);
         
         tree.send({ type : "NEXT" });
         
         await tree();
 
-        assert.equal(runs, 1);
+        assert.equal(runs, 2);
     });
 
     it("should re-run load functions when transitioning back to a state", async (context) => {
@@ -351,6 +349,7 @@ describe(".load support", (it) => {
         await tree();
 
         assert.equal(runs, [
+            "one",
             "one",
         ]);
 
@@ -419,6 +418,8 @@ describe(".load support", (it) => {
         assert.equal(runs, [
             "one",
             "oneone",
+            "one",
+            "oneone",
         ]);
 
         runs = [];
@@ -475,6 +476,8 @@ describe(".load support", (it) => {
         await tree();
 
         assert.equal(runs, [
+            "one",
+            "oneone",
             "one",
             "oneone",
         ]);

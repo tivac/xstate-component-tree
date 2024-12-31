@@ -122,7 +122,7 @@ class ComponentTree {
 
     _addService({ path, service, parent = false }) {
         this._services.set(path, {
-            interpreter : service,
+            actor : service,
             parent,
 
             // Count # of times tree has been walked, used by cache & for walk cancellation
@@ -142,12 +142,10 @@ class ComponentTree {
         
         _log(`[${path}][_prep] prepping`);
 
-        const { interpreter } = _services.get(path);
-
-        // console.log(path, "interpreter: ", interpreter);
+        const { actor } = _services.get(path);
 
         // Build up maps of paths to meta info as well as noting any invokable machines for later
-        const { idMap : ids, meta } = interpreter.logic;
+        const { idMap : ids, meta } = actor.logic;
 
         // Support metadata at the root of the machine
         if(meta) {
@@ -158,15 +156,9 @@ class ComponentTree {
             }, meta));
         }
 
-        // console.log(path, "ids", ids);
-
         // xstate maps ids to state nodes, but the value object only
         // has paths, so need to create our own path-only map here
         for(const item of ids.values()) {
-            // const item = ids.get(id);
-
-            // console.log(id, item);
-
             const key = [ path, ...item.path ].join(".");
 
             if(item.meta) {
@@ -186,9 +178,8 @@ class ComponentTree {
         
         _log(`[${path}][_watch] subscribing`);
 
-        // Subscribing will start a run of the machine,
-        // so no need to manually kick one off
-        const { unsubscribe } = interpreter.subscribe({
+        // Subscribing to various machine events
+        const { unsubscribe } = actor.subscribe({
             next : (state) => {
                 _log(`[${path}][subscribe.next] update`);
 
@@ -216,6 +207,9 @@ class ComponentTree {
         });
 
         this._unsubscribes.add(unsubscribe);
+
+        // Run against current state of the machine
+        this._onState(path, actor.getSnapshot());
     }
 
     // Callback for statechart transitions to sync up child machine states
@@ -248,7 +242,6 @@ class ComponentTree {
             const service = children[child];
 
             // Not a statechart, abort!
-            // TODO: this check is busted atm
             if(!service?.logic?.__xstatenode) {
                 return;
             }
@@ -283,10 +276,12 @@ class ComponentTree {
         const root = path === this.id;
         const service = _services.get(path);
 
+        _log(`[${path}][_run()] starting`);
+
         // Cancel any previous walks, we're the captain now
         const run = ++service.run;
         
-        _log(`[${path}][_run #${run}] starting`);
+        _log(`[${path}][_run #${run}] started`);
 
         service.tree = this._walk(path);
 
@@ -380,7 +375,7 @@ class ComponentTree {
 
             const id = childPath(path, node);
 
-            _log(`[${path}][_walk #${run}] walking ${id}`);
+            _log(`[${path}][_walk #${run}][${id}] walking`);
 
             // Using let since it can be reassigned if we add a new child
             let pointer = parent;
@@ -393,14 +388,16 @@ class ComponentTree {
                     cached = _cache.get(id);
 
                     // Only cache items from the previous run are valid
-                    if(cached.counter === run - 1) {
-                        cached.counter = run;
+                    if(cached.run === run - 1) {
+                        cached.run = run;
                     } else {
                         cached = false;
 
                         _cache.delete(id);
                     }
                 }
+
+                _log(`[${path}][_walk #${run}][${id}] cached?`, Boolean(cached));
 
                 const { component = false, props = false, load } = details;
 
@@ -419,6 +416,8 @@ class ComponentTree {
 
                 // Run load function and assign the response to the component prop
                 if(load && !cached.loaded) {
+                    _log(`[${path}][_walk #${run}][${id}] loading component`);
+
                     const loading = loadComponent({
                         item,
                         load,
@@ -430,8 +429,12 @@ class ComponentTree {
                     loading.then(() => {
                         const saved = _cache.get(id);
 
-                        if(saved) {
+                        if(saved && saved.run === run) {
+                            _log(`[${path}][_walk #${run}][${id}] component loaded`);
+
                             saved.loaded = true;
+                        } else {
+                            _log(`[${path}][_walk #${run}][${id}] component load discarded`);
                         }
                     });
 
@@ -445,8 +448,8 @@ class ComponentTree {
                         __proto__ : null,
 
                         item,
-                        counter : run,
-                        loaded  : false,
+                        run,
+                        loaded : false,
                     });
                 }
 
@@ -482,7 +485,11 @@ class ComponentTree {
 
         // await any load functions
         if(loads.length) {
+            _log(`[${path}][_walk #${run}] awaiting async loadings`);
+
             await Promise.all(loads);
+
+            _log(`[${path}][_walk #${run}] async loadings finished`);
         }
 
         _log(`[${path}][_walk #${run}] done`);
@@ -522,8 +529,8 @@ class ComponentTree {
      * @param {import("xstate").SendActionOptions} [options] XState options to send
      */
     broadcast(event, options) {
-        this._services.forEach(({ interpreter }) => {
-            interpreter.send(event, options);
+        this._services.forEach(({ actor }) => {
+            actor.send(event, options);
         });
     }
 
@@ -579,7 +586,7 @@ class ComponentTree {
      * @returns {import("xstate").AnyState} Resulting state
      */
     send(...event) {
-        return this._services.get(this.id).interpreter.send(...event);
+        return this._services.get(this.id)?.actor?.send(...event);
     }
 
     /**

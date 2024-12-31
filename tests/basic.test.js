@@ -7,6 +7,7 @@ import { getTree, createTree, trees, createMachine } from "./util/trees.js";
 import component from "./util/component.js";
 import { treeTeardown } from "./util/context.js";
 import { diff, snapshot } from "./util/snapshot.js";
+import child from "./api/specimens/child.js";
 
 describe("basic functionality", (it) => {
     it.after.each(treeTeardown);
@@ -50,6 +51,27 @@ describe("basic functionality", (it) => {
                         children: []
                     }
                 ]
+            }
+        ]`);
+    });
+    
+    it("should return a tree of components including child machines", async () => {
+        const { tree } = await getTree(child);
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                machine: "root",
+                path: "root.one",
+                component: [Function: one],
+                props: false,
+                children: []
+            },
+            [Object: null prototype] {
+                machine: "root.child",
+                path: "child.one",
+                component: [Function: child-one],
+                props: false,
+                children: []
             }
         ]`);
     });
