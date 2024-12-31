@@ -690,7 +690,6 @@ describe("invoked machines", (it) => {
         ]`);
     });
 
-    // TODO: requests one too many tree instances, never resolves, and crashes tests
     it("should rebuild on nested invoked machine transitions", async (context) => {
         const grandchildMachine = createMachine({
             initial : "grandchild1",
