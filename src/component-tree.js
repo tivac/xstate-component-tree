@@ -178,24 +178,15 @@ class ComponentTree {
         
         _log(`[${path}][_watch] subscribing`);
 
-        // Subscribing to various machine events
         const { unsubscribe } = actor.subscribe({
+            // State updates
             next : (state) => {
                 _log(`[${path}][subscribe.next] update`);
 
                 this._onState(path, state);
             },
 
-            error : (error) => {
-                _log(`[${path}][subscribe.error] tearing down`, error);
-
-                unsubscribe();
-
-                this._unsubscribes.delete(unsubscribe);
-                _services.delete(path);
-            },
-
-            // Clean up once the service finishes
+            // Service completed
             complete : () => {
                 _log(`[${path}][subscribe.complete] stopped, tearing down`);
 
@@ -218,14 +209,9 @@ class ComponentTree {
         
         const current = _services.get(path);
 
-        // TODO: crashing tests atm, but should be fine?
-        // console.log("old state?", state === current.state);
-
-        // if(state === current.state) {
-        //     console.log("TODO: Early out on walking");
-            
-        //     return;
-        // }
+        if(state === current.state && current.run > 0) {
+            return;
+        }
         
         // Save off the state
         current.state = state;
