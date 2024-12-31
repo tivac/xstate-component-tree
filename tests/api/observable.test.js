@@ -1,7 +1,7 @@
 import * as assert from "uvu/assert";
 import { interpret } from "xstate";
 
-import ComponentTree from "../../src/component-tree.js";
+import { ComponentTree } from "../../src/component-tree.js";
 
 import describe from "../util/describe.js";
 import { createTree } from "../util/trees.js";
@@ -60,7 +60,7 @@ describe("observable", (it) => {
         assert.type(out.hasTag, "function");
         assert.type(out.broadcast, "function");
 
-        tree.send("NEXT");
+        tree.send({ type : "NEXT" });
         
         await tree();
         
@@ -81,7 +81,7 @@ describe("observable", (it) => {
 
         unsub();
 
-        tree.send("NEXT");
+        tree.send({ type : "NEXT" });
 
         await tree();
 

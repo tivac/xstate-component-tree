@@ -15,12 +15,12 @@ describe("broadcast", (it) => {
         const { tree : one } = await tree();
         
         // API on instance
-        tree.builder.broadcast("NEXT");
+        tree.builder.broadcast({ type : "NEXT" });
 
         const { tree : two, extra } = await waitForPath(tree, "two");
 
         // API from extra
-        extra.broadcast("NEXT");
+        extra.broadcast({ type : "NEXT" });
 
         const { tree : three } = await waitForPath(tree, "three");
 
@@ -60,11 +60,11 @@ describe("broadcast", (it) => {
 
         const { tree : one } = await tree();
 
-        tree.builder.broadcast("NEXT");
+        tree.builder.broadcast({ type : "NEXT" });
 
         const { tree : two, extra } = await waitForPath(tree, "grandchild.two");
 
-        extra.broadcast("NEXT");
+        extra.broadcast({ type : "NEXT" });
 
         const { tree : three } = await waitForPath(tree, "grandchild.three");
 

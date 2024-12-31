@@ -1,6 +1,6 @@
 import * as assert from "uvu/assert";
 
-import helper from "../src/component-helper.js";
+import { componentHelper } from "../src/component-helper.js";
 
 import describe from "./util/describe.js";
 import component from "./util/component.js";
@@ -13,7 +13,7 @@ describe("xstate-component-tree/helper", (it) => {
     it.after.each(treeTeardown);
 
     it("should be a named export of the /helper entrypoint", () => {
-        assert.is(typeof helper, "function");
+        assert.is(typeof componentHelper, "function");
     });
 
     const One = component("one");
@@ -81,7 +81,7 @@ describe("xstate-component-tree/helper", (it) => {
                 initial : "one",
     
                 states : {
-                    one : helper(helpered),
+                    one : componentHelper(helpered),
                 },
             });
 
@@ -90,7 +90,7 @@ describe("xstate-component-tree/helper", (it) => {
     });
 
     it("should maintain existing .meta properties if they exist", () => {
-        const node = helper(component("one"), {
+        const node = componentHelper(component("one"), {
             meta : {
                 foo : "bar",
                 baz : true,

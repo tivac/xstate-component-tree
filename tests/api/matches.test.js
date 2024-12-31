@@ -17,6 +17,7 @@ describe("matches", (it) => {
         const { extra } = await tree();
 
         assert.ok(tree.builder.matches("one"));
+        assert.not(tree.builder.matches("two"));
         assert.ok(tree.builder.matches("one.one_one"));
         assert.ok(tree.builder.matches("one.one_one.one_one_one"));
         assert.ok(tree.builder.matches("one.one_one.one_one_two"));
@@ -34,7 +35,7 @@ describe("matches", (it) => {
         assert.ok(tree.builder.matches("one"));
         assert.ok(extra.matches("one"));
 
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
 
         ({ extra } = await tree());
 
