@@ -215,8 +215,7 @@ describe(".load in invoked machines", (it) => {
         ]`);
     });
 
-    // TODO: requests one too many tree instances, never resolves, and crashes tests
-    it.skip("should not re-run load on parent/child machine transitions", async (context) => {
+    it("should not re-run load on parent/child machine transitions", async (context) => {
         let runs = [];
         
         const childMachine = createMachine({
@@ -255,8 +254,6 @@ describe(".load in invoked machines", (it) => {
             invoke : {
                 id  : "child",
                 src : childMachine,
-                
-                autoForward : true,
             },
 
             states : {
@@ -297,7 +294,7 @@ describe(".load in invoked machines", (it) => {
 
         runs = [];
 
-        tree.service.send({ type : "PARENT" });
+        tree.builder.broadcast({ type : "PARENT" });
         
         await tree();
 
@@ -307,11 +304,13 @@ describe(".load in invoked machines", (it) => {
 
         runs = [];
         
-        tree.service.send({ type : "CHILD" });
+        tree.builder.broadcast({ type : "CHILD" });
         
         await tree();
 
-        assert.equal(runs, []);
+        assert.equal(runs, [
+            "child2",
+        ]);
     });
 
     // TODO: How can this happen? It does in real apps, but haven't been able to write a test
