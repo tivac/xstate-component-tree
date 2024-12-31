@@ -9,7 +9,7 @@ import grandchild from "./specimens/grandchild.js";
 describe("broadcast", (it) => {
     it.after.each(treeTeardown);
 
-    it.only("should send to the root tree", async (context) => {
+    it("should send to the root tree", async (context) => {
         const tree = context.tree = createTree(single);
 
         const { tree : one } = await tree();
