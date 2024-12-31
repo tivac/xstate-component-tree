@@ -1,6 +1,6 @@
 # xstate-component-tree [![NPM Version](https://img.shields.io/npm/v/xstate-component-tree.svg)](https://www.npmjs.com/package/xstate-component-tree) [![NPM License](https://img.shields.io/npm/l/xstate-component-tree.svg)](https://www.npmjs.com/package/xstate-component-tree) [![NPM Downloads](https://img.shields.io/npm/dm/xstate-component-tree.svg)](https://www.npmjs.com/package/xstate-component-tree)
 
-Utility method to wrap up an [XState](https://xstate.js.org) interpreter and read state meta information so your statechart can be used to create a tree of components to render.
+Utility method to wrap up an [XState](https://xstate.js.org) actor and read state meta information so your statechart can be used to create a tree of components to render.
 
 ## Installation
 
@@ -10,12 +10,12 @@ $> npm install xstate-component-tree
 
 ## Usage
 
-Create an XState statechart, and then instantiate an XState interpreter with it.
+Create an XState statechart, and then instantiate an XState actor with it.
 
 ```js
-const { Machine, interpret } = require("xstate");
+const { createMachine, createActor } = require("xstate");
 
-const statechart = Machine({
+const statechart = createMachine({
     initial : "one",
 
     states : {
@@ -23,13 +23,13 @@ const statechart = Machine({
     },
 });
 
-const service = interpret(statechart);
+const service = createActor(statechart);
 ```
 
 Add `meta` objects to each state that you want to represent a component.
 
 ```js
-Machine({
+createMachine({
     initial : "one",
 
     states : {
@@ -57,19 +57,19 @@ Props for the components are also supported via the `props` key.
     // ...
 ```
 
-Then pass the interpreter instance and a callback function to this module!
+Then pass the actor instance and a callback function to this module!
 
 ```js
-const { Machine, interpret } = require("xstate");
+const { createMachine, createActor } = require("xstate");
 const ComponentTree = require("xstate-component-tree");
 
-const statechart = Machine({
+const statechart = createMachine({
     // ...
 });
 
-const service = interpret(statechart);
+const actor = createActor(statechart);
 
-new ComponentTree(service, (tree) => {
+new ComponentTree(actor, (tree) => {
     // ...
 });
 ```
@@ -77,7 +77,7 @@ new ComponentTree(service, (tree) => {
 The second argument to the function will be called every time the machine transitions. It will pass the callback a new object representing all the views defined on currently active states, all correctly nested to match the structure of the statechart. Each element in the response will also contain a `path` value corresponding to the the specific state the object represents.
 
 ```js
-new ComponentTree(service, (tree) => {
+new ComponentTree(actor, (tree) => {
     /**
      * 
      * tree will be something like this
@@ -211,9 +211,9 @@ import { component } from "xstate-component-tree/component";
 
 ### `ComponentTree`
 
-#### `new ComponentTree(interpreter, callback, [options])`
+#### `new ComponentTree(actor, callback, [options])`
 
-- `interpreter`, and instance of a xstate interpreter
+- `actor`, an instance of a xstate actor
 - `callback`, a function that will be executed each time a new tree of components is ready
 - `options`, an optional object containing [configuration values](#options) for the library.
 
@@ -235,19 +235,17 @@ The `callback` functions receives two arguments, the first is your assembled tre
 
 ### `ComponentTree` instance methods
 
-#### `.broadcast(eventName | eventObject, payload)`
+#### `.broadcast(eventObject, payload)`
 
 Calls the xstate `.send()` method on every running interpreter in the hierarchy. This is especially useful to avoid the use of the `autoforward` option on all of your invoked child machines.
 
-- `eventName` is a string event to be sent
 - `eventObject` is an object with a `type` property of the event name, along with other optional fields
 - `payload` is an object of optional fields to be added to the event object
 
-#### `.can(eventName | eventObject)`
+#### `.can(eventObject)`
 
 Calls the xstate `.can()` method on every running interpreter in the hierarchy.
 
-- `eventName` is a string event to be sent
 - `eventObject` is an object with a `type` property of the event name, along with other optional fields
 
 #### `.hasTag(tag)`
