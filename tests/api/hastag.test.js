@@ -17,7 +17,9 @@ describe("hasTag", (it) => {
         let { extra } = await tree();
 
         assert.ok(tree.builder.hasTag("one"));
+        assert.not(tree.builder.hasTag("two"));
         assert.ok(extra.hasTag("one"));
+        assert.not(extra.hasTag("two"));
 
         tree.send({ type : "NEXT" });
 

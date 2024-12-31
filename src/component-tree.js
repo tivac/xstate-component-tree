@@ -145,15 +145,15 @@ class ComponentTree {
         const { actor } = _services.get(path);
 
         // Build up maps of paths to meta info as well as noting any invokable machines for later
-        const { idMap : ids, meta } = actor.logic;
+        const { idMap : ids, root } = actor.logic;
 
         // Support metadata at the root of the machine
-        if(meta) {
+        if(root.meta) {
             _paths.set(path, Object.assign({
                 __proto__ : null,
 
                 cache : _options.cache,
-            }, meta));
+            }, root.meta));
         }
 
         // xstate maps ids to state nodes, but the value object only
@@ -214,21 +214,24 @@ class ComponentTree {
 
     // Callback for statechart transitions to sync up child machine states
     _onState(path, state) {
-        const { changed, children } = state;
         const { _services, _log } = this;
         
         const current = _services.get(path);
 
-        // Need to specifically check for false because this value is undefined
-        // when a machine first boots up. Also check number of times we've built this machine
-        // and run anyways if we've never built it before
-        if(changed === false && current.run > 0) {
-            return;
-        }
+        // TODO: crashing tests atm, but should be fine?
+        // console.log("old state?", state === current.state);
+
+        // if(state === current.state) {
+        //     console.log("TODO: Early out on walking");
+            
+        //     return;
+        // }
         
         // Save off the state
         current.state = state;
 
+        const { children } = state;
+        
         _log(`[${path}][_onState] checking children`);
 
         // Add any new children to be tracked
@@ -328,7 +331,9 @@ class ComponentTree {
             _options.callback(tree, this._result);
         }
 
-        this._listeners.forEach((cb) => cb(this._result));
+        for(const listener of this._listeners) {
+            listener(this._result);
+        }
 
         return true;
     }
