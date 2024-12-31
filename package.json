@@ -61,6 +61,6 @@
     "xstate": "^5.19.0"
   },
   "peerDependencies": {
-    "xstate": "^4.7.8"
+    "xstate": "^5"
   }
 }
