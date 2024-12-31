@@ -691,7 +691,7 @@ describe("invoked machines", (it) => {
     });
 
     // TODO: requests one too many tree instances, never resolves, and crashes tests
-    it.skip("should rebuild on nested invoked machine transitions", async (context) => {
+    it("should rebuild on nested invoked machine transitions", async (context) => {
         const grandchildMachine = createMachine({
             initial : "grandchild1",
 
@@ -752,9 +752,6 @@ describe("invoked machines", (it) => {
 
         tree.builder.broadcast({ type : "NEXT" });
         
-        // TODO: Why is this extra spin required?
-        await tree();
-
         const { tree : after } = await tree();
 
         diff(before, after, `[
