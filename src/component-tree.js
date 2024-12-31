@@ -1,5 +1,5 @@
 /**
- * @import { AnyMachineSnapshot, AnyActor, EventObject } from "xstate"
+ * @import { AnyMachineSnapshot, AnyActor, EventObject, SendActionOptions } from "xstate"
  */
 
 /**
@@ -518,9 +518,10 @@ class ComponentTree {
     }
 
     /**
-     * @callback Broadcast Send an event to the service and all its children
-     * @param {import("xstate").EventObject} event XState event to send
-     * @param {import("xstate").SendActionOptions} [options] XState options to send
+     * Send an event to the actor and all its children
+     *
+     * @param {EventObject} event XState event to send
+     * @param {SendActionOptions} [options] XState options to send
      */
     broadcast(event, options) {
         this._actors.forEach(({ actor }) => {
@@ -576,8 +577,8 @@ class ComponentTree {
     /**
      * Send an event to the root machine only
      *
-     * @param {import("xstate").EventObject[]} event Event to send
-     * @returns {import("xstate").AnyState} Resulting state
+     * @param {EventObject[]} event Event to send
+     * @returns {AnyMachineSnapshot} Resulting state
      */
     send(...event) {
         return this._actors.get(this.id)?.actor?.send(...event);
