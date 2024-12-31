@@ -16,21 +16,21 @@ describe("can", (it) => {
 
         let { extra } = await tree();
 
-        assert.ok(tree.builder.can("NEXT"));
-        assert.ok(extra.can("NEXT"));
+        assert.ok(tree.builder.can({ type : "NEXT" }));
+        assert.ok(extra.can({ type : "NEXT" }));
 
-        assert.not.ok(tree.builder.can("NOPE"));
-        assert.not.ok(extra.can("NOPE"));
+        assert.not.ok(tree.builder.can({ type : "NOPE" }));
+        assert.not.ok(extra.can({ type : "NOPE" }));
 
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
 
         ({ extra } = await tree());
 
-        assert.ok(tree.builder.can("NEXT"));
-        assert.ok(extra.can("NEXT"));
+        assert.ok(tree.builder.can({ type : "NEXT" }));
+        assert.ok(extra.can({ type : "NEXT" }));
 
-        assert.not.ok(tree.builder.can("NOPE"));
-        assert.not.ok(extra.can("NOPE"));
+        assert.not.ok(tree.builder.can({ type : "NOPE" }));
+        assert.not.ok(extra.can({ type : "NOPE" }));
     });
 
     it("should check child trees", async (context) => {
@@ -38,10 +38,10 @@ describe("can", (it) => {
 
         const { extra } = await tree();
 
-        assert.ok(tree.builder.can("NEXT"));
-        assert.ok(tree.builder.can("CHILD_NEXT"));
-        assert.ok(extra.can("NEXT"));
-        assert.ok(extra.can("CHILD_NEXT"));
+        assert.ok(tree.builder.can({ type : "NEXT" }));
+        assert.ok(tree.builder.can({ type : "CHILD_NEXT" }));
+        assert.ok(extra.can({ type : "NEXT" }));
+        assert.ok(extra.can({ type : "CHILD_NEXT" }));
     });
 
     it("should work without components", async (context) => {
@@ -49,14 +49,14 @@ describe("can", (it) => {
 
         let { extra } = await tree();
 
-        assert.ok(tree.builder.can("NEXT"));
-        assert.ok(extra.can("NEXT"));
+        assert.ok(tree.builder.can({ type : "NEXT" }));
+        assert.ok(extra.can({ type : "NEXT" }));
 
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
 
         ({ extra } = await tree());
 
-        assert.ok(tree.builder.can("NEXT"));
-        assert.ok(extra.can("NEXT"));
+        assert.ok(tree.builder.can({ type : "NEXT" }));
+        assert.ok(extra.can({ type : "NEXT" }));
     });
 });

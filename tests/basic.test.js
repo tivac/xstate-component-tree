@@ -1,19 +1,20 @@
 import * as assert from "uvu/assert";
 import { spy } from "nanospy";
-import { interpret } from "xstate";
+import { createActor } from "xstate";
 
 import describe from "./util/describe.js";
 import { getTree, createTree, trees, createMachine } from "./util/trees.js";
 import component from "./util/component.js";
 import { treeTeardown } from "./util/context.js";
 import { diff, snapshot } from "./util/snapshot.js";
+import child from "./api/specimens/child.js";
 
 describe("basic functionality", (it) => {
     it.after.each(treeTeardown);
     
     it("should return a tree of components", async () => {
         const { tree } = await getTree({
-            initial : "one",
+            initial  : "one",
 
             states : {
                 one : {
@@ -36,19 +37,40 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine)",
+                        machine: "test",
                         path: "one.two",
                         component: [Function: two],
                         props: false,
                         children: []
                     }
                 ]
+            }
+        ]`);
+    });
+    
+    it("should return a tree of components including child machines", async () => {
+        const { tree } = await getTree(child);
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                machine: "root",
+                path: "root.one",
+                component: [Function: one],
+                props: false,
+                children: []
+            },
+            [Object: null prototype] {
+                machine: "root.child",
+                path: "child.one",
+                component: [Function: child-one],
+                props: false,
+                children: []
             }
         ]`);
     });
@@ -84,13 +106,13 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [ [Function: one], [Function: two] ],
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine)",
+                        machine: "test",
                         path: "one.two",
                         component: [ [Function: three], [Function: four] ],
                         props: false,
@@ -120,13 +142,13 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: false,
                 component: [Function: root],
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine)",
+                        machine: "test",
                         path: "one",
                         component: [Function: one],
                         props: false,
@@ -191,13 +213,13 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine)",
+                        machine: "test",
                         path: "one.two",
                         component: [Function: two],
                         props: false,
@@ -241,7 +263,7 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: {
@@ -250,7 +272,7 @@ describe("basic functionality", (it) => {
                 },
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine)",
+                        machine: "test",
                         path: "one.two",
                         component: [Function: two],
                         props: {
@@ -285,14 +307,14 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: []
             },
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "two",
                 component: [Function: two],
                 props: false,
@@ -328,14 +350,14 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one.three",
                 component: [Function: three],
                 props: false,
                 children: []
             },
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one.two",
                 component: [Function: two],
                 props: false,
@@ -371,14 +393,14 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one.two",
                 component: [Function: two],
                 props: false,
                 children: []
             },
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one.three",
                 component: [Function: three],
                 props: false,
@@ -416,13 +438,13 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine)",
+                        machine: "test",
                         path: "one.two",
                         component: [Function: two],
                         props: false,
@@ -464,13 +486,13 @@ describe("basic functionality", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine)",
+                        machine: "test",
                         path: "one.two.three",
                         component: [Function: three],
                         props: false,
@@ -508,13 +530,13 @@ describe("basic functionality", (it) => {
 
         const { tree : before } = await tree();
         
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
 
         const { tree : after } = await tree();
 
         diff(before, after, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
         Actual:
         --        path: "one",
         --        component: [Function: one],
@@ -540,10 +562,10 @@ describe("basic functionality", (it) => {
             },
         });
 
-        const service = interpret(testMachine);
+        const service = createActor(testMachine);
         const eventCounter = spy();
 
-        service.onEvent(eventCounter);
+        service.subscribe(eventCounter);
 
         const tree = trees(service);
 
@@ -551,9 +573,8 @@ describe("basic functionality", (it) => {
 
         await tree();
 
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
 
-        // onEvent was called twice, but treeBuilder returned one tree as expected
         assert.equal(eventCounter.callCount, 2);
     });
 
@@ -592,13 +613,13 @@ describe("basic functionality", (it) => {
 
         const { tree : before } = await tree();
         
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
 
         const { tree : after } = await tree();
 
         diff(before, after, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -606,7 +627,7 @@ describe("basic functionality", (it) => {
         Expected:
         ++    },
         ++    [Object: null prototype] {
-        ++        machine: "(machine)",
+        ++        machine: "test",
         ++        path: "b.two",
         ++        component: [Function: b.two],
         ++        props: false,
@@ -650,13 +671,13 @@ describe("basic functionality", (it) => {
 
         const { tree : before } = await tree();
         
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
 
         const { tree : after } = await tree();
 
         diff(before, after, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
@@ -664,7 +685,7 @@ describe("basic functionality", (it) => {
         Expected:
         ++    },
         ++    [Object: null prototype] {
-        ++        machine: "(machine)",
+        ++        machine: "test",
         ++        path: "b.two",
         ++        component: [Function: b.two],
         ++        props: false,
@@ -702,7 +723,7 @@ describe("basic functionality", (it) => {
         
         tree.builder.teardown();
 
-        tree.service.send("NEXT");
+        tree.send({ type : "NEXT" });
 
         assert.equal(callback.callCount, 1);
     });

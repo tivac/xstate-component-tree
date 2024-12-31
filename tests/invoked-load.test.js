@@ -42,13 +42,13 @@ describe(".load in invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine).child",
+                        machine: "test.child",
                         path: "child",
                         component: [Function: child],
                         props: false,
@@ -91,13 +91,13 @@ describe(".load in invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine).child",
+                        machine: "test.child",
                         path: "child",
                         component: [Function: child],
                         props: false,
@@ -140,13 +140,13 @@ describe(".load in invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine).child",
+                        machine: "test.child",
                         path: "child",
                         component: [Function: child],
                         props: {
@@ -195,19 +195,17 @@ describe(".load in invoked machines", (it) => {
 
         snapshot(tree, `[
             [Object: null prototype] {
-                machine: "(machine)",
+                machine: "test",
                 path: "one",
                 component: [Function: one],
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "(machine).child",
+                        machine: "test.child",
                         path: "child",
                         component: {
                             ctx: "child context",
-                            event: {
-                                type: "xstate.init"
-                            }
+                            event: undefined
                         },
                         props: false,
                         children: []
@@ -256,8 +254,6 @@ describe(".load in invoked machines", (it) => {
             invoke : {
                 id  : "child",
                 src : childMachine,
-                
-                autoForward : true,
             },
 
             states : {
@@ -298,7 +294,7 @@ describe(".load in invoked machines", (it) => {
 
         runs = [];
 
-        tree.service.send("PARENT");
+        tree.builder.broadcast({ type : "PARENT" });
         
         await tree();
 
@@ -308,7 +304,7 @@ describe(".load in invoked machines", (it) => {
 
         runs = [];
         
-        tree.service.send("CHILD");
+        tree.builder.broadcast({ type : "CHILD" });
         
         await tree();
 
