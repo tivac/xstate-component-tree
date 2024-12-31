@@ -1,5 +1,11 @@
 # Changelog
 
+## 7.0.1
+
+### Patch Changes
+
+- [`a37d587`](https://github.com/tivac/xstate-component-tree/commit/a37d5879ffb6b4be7f9bfa2a77071307642bad19) Thanks [@tivac](https://github.com/tivac)! - Fixed up type generation and some internal naming to match xstate v5 conventions
+
 ## 7.0.0
 
 ### Major Changes
