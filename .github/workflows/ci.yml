@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
           cache: 'npm'
       
       - name: npm install
@@ -34,7 +34,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [ 16, 18, 20 ]
+        node-version: [ 18, 20, 22 ]
         os: [ ubuntu-latest, windows-latest ]
 
     steps:
@@ -56,13 +56,13 @@ jobs:
         
     # Run codecov after all builds, and only on a single environment
     - name: Gather Coverage
-      if: matrix.os == 'ubuntu-latest' && matrix.node-version == 18
+      if: matrix.os == 'ubuntu-latest' && matrix.node-version == 22
       run: npm run test:coverage
 
     - name: Create Coverage Report
-      if: matrix.os == 'ubuntu-latest' && matrix.node-version == 18
+      if: matrix.os == 'ubuntu-latest' && matrix.node-version == 22
       run: npm run test:report
 
     - name: Upload Coverage
       uses: codecov/codecov-action@v2
-      if: matrix.os == 'ubuntu-latest' && matrix.node-version == 18
+      if: matrix.os == 'ubuntu-latest' && matrix.node-version == 22
