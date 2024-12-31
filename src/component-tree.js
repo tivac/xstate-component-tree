@@ -1,13 +1,17 @@
 /**
+ * @import { AnyMachineSnapshot, AnyActor, EventObject } from "xstate"
+ */
+
+/**
  * @typedef {( path: string ) => boolean} Matches
- * @typedef {( event : import("xstate").EventObject | string) => boolean} Can
+ * @typedef {( event : EventObject) => boolean} Can
  * @typedef {( tag : string ) => boolean} HasTag
  * @typedef {() => Result} Subscriber
  * @typedef {() => void } Unsubscriber
  */
 
 /**
- * @typedef {{ tree : any[], state : import("xstate").AnyState, matches : Matches, can : Can, hasTag : HasTag }} Result
+ * @typedef {{ tree : any[], state : AnyMachineSnapshot, matches : Matches, can : Can, hasTag : HasTag }} Result
  */
 
 // eslint-disable-next-line no-empty-function
@@ -44,14 +48,14 @@ const childPath = (...args) => args
 class ComponentTree {
     /**
      * @class
-     * @param {import("xstate").AnyInterpreter} service The xstate Interpreter root instance to monitor
-     * @param {Subscriber | undefined} callback The function to call when updated component trees are generated
-     * @param {object} options Configuration
-     * @param {boolean?} options.cache If true, will cache the result of dynamic component & prop functions
-     * @param {boolean?} options.stable When true statechart keys will be sorted to ensure stable component output order
-     * @param {boolean?} options.verbose When true runtime debugging output will be logged
+     * @param {AnyActor} actor The xstate Actor instance to monitor
+     * @param {Subscriber} [callback] The function to call when updated component trees are generated
+     * @param {object} [options] Configuration
+     * @param {boolean} [options.cache] If true, will cache the result of dynamic component & prop functions
+     * @param {boolean} [options.stable] When true statechart keys will be sorted to ensure stable component output order
+     * @param {boolean} [options.verbose] When true runtime debugging output will be logged
      */
-    constructor(service, callback, options = false) {
+    constructor(actor, callback, options = false) {
         const {
             // Whether or not to cache the result of dynamic component/prop functions
             cache = true,
@@ -64,7 +68,7 @@ class ComponentTree {
         } = options;
 
         // identifier!
-        this.id = service.id;
+        this.id = actor.id;
 
         // Storing off args + options
         this._options = {
@@ -74,8 +78,8 @@ class ComponentTree {
             callback,
         };
 
-        // References to all the services being tracked
-        this._services = new Map();
+        // References to all the actors being tracked
+        this._actors = new Map();
 
         // Active subscribers
         this._listeners = new Set();
@@ -108,28 +112,28 @@ class ComponentTree {
             __proto__ : null,
 
             tree  : [],
-            state : service.getSnapshot(),
+            state : actor.getSnapshot(),
             
             ...this._boundApis,
         };
 
         // Add the main service to be tracked
-        this._addService({ path : this.id, service });
+        this._addActor({ path : this.id, actor });
 
         // Get goin
         this._watch(this.id);
     }
 
-    _addService({ path, service, parent = false }) {
-        this._services.set(path, {
-            actor : service,
+    _addActor({ path, actor, parent = false }) {
+        this._actors.set(path, {
+            actor,
             parent,
 
             // Count # of times tree has been walked, used by cache & for walk cancellation
             run : 0,
 
             // Stored transition result, used to re-create the tree when a child transitions
-            state : service.getSnapshot(),
+            state : actor.getSnapshot(),
 
             // Walk results
             tree : [],
@@ -138,7 +142,7 @@ class ComponentTree {
 
     // Subscribe to an interpreter
     _watch(path) {
-        const { _paths, _services, _invokables, _options, _log } = this;
+        const { _paths, _actors: _services, _invokables, _options, _log } = this;
         
         _log(`[${path}][_prep] prepping`);
 
@@ -205,7 +209,7 @@ class ComponentTree {
 
     // Callback for statechart transitions to sync up child machine states
     _onState(path, state) {
-        const { _services, _log } = this;
+        const { _actors: _services, _log } = this;
         
         const current = _services.get(path);
 
@@ -228,17 +232,17 @@ class ComponentTree {
                 return;
             }
 
-            const service = children[child];
+            const actor = children[child];
 
             // Not a statechart, abort!
-            if(!service?.logic?.__xstatenode) {
+            if(!actor?.logic?.__xstatenode) {
                 return;
             }
 
             _log(`[${path}][_onState] Tracking child ${id}`);
 
             // These arg names are... confusing
-            this._addService({ path : id, service, parent : path });
+            this._addActor({ path : id, actor, parent : path });
 
             // Start watching the child
             this._watch(id);
@@ -249,7 +253,7 @@ class ComponentTree {
     }
 
     _shouldRun(path, run) {
-        const { _services } = this;
+        const { _actors: _services } = this;
 
         return (
             Boolean(_services) &&
@@ -260,7 +264,7 @@ class ComponentTree {
 
     // Kicks off tree walks & handles overlapping walk behaviors
     async _run(path) {
-        const { _options, _services, _log } = this;
+        const { _options, _actors: _services, _log } = this;
 
         const root = path === this.id;
         const service = _services.get(path);
@@ -330,7 +334,7 @@ class ComponentTree {
         const {
            _paths,
            _invokables,
-           _services,
+           _actors: _services,
            _cache,
            _options,
            _log,
@@ -499,14 +503,14 @@ class ComponentTree {
         this._paths.clear();
         this._invokables.clear();
         this._cache.clear();
-        this._services.clear();
+        this._actors.clear();
         this._listeners.clear();
         this._unsubscribes.clear();
         
         this._paths = null;
         this._invokables = null;
         this._cache = null;
-        this._services = null;
+        this._actors = null;
         this._listeners = null;
         this._unsubscribes = null;
         this._options = null;
@@ -520,7 +524,7 @@ class ComponentTree {
      * @param {import("xstate").SendActionOptions} [options] XState options to send
      */
     broadcast(event, options) {
-        this._services.forEach(({ actor }) => {
+        this._actors.forEach(({ actor }) => {
             actor.send(event, options);
         });
     }
@@ -531,7 +535,7 @@ class ComponentTree {
      * @type {HasTag}
      */
     hasTag(tag) {
-        for(const [ , { state }] of this._services) {
+        for(const [ , { state }] of this._actors) {
             if(state.hasTag(tag)) {
                 return true;
             }
@@ -546,7 +550,7 @@ class ComponentTree {
      * @type {Can}
      */
      can(event) {
-        for(const [ , { state }] of this._services) {
+        for(const [ , { state }] of this._actors) {
             if(state.can(event)) {
                 return true;
             }
@@ -561,7 +565,7 @@ class ComponentTree {
      * @type {Matches}
      */
     matches(path) {
-        for(const [ , { state }] of this._services) {
+        for(const [ , { state }] of this._actors) {
             if(state.matches(path)) {
                 return true;
             }
@@ -577,7 +581,7 @@ class ComponentTree {
      * @returns {import("xstate").AnyState} Resulting state
      */
     send(...event) {
-        return this._services.get(this.id)?.actor?.send(...event);
+        return this._actors.get(this.id)?.actor?.send(...event);
     }
 
     /**
