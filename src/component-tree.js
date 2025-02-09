@@ -530,6 +530,7 @@ class ComponentTree {
         for(const id of ids) {
             const info = this._actors.get(id);
 
+            /* c8 ignore next */
             if(!info) {
                 continue;
             }
