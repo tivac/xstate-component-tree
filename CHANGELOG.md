@@ -1,5 +1,13 @@
 # Changelog
 
+## 7.1.0
+
+### Minor Changes
+
+- [`ca3d879`](https://github.com/tivac/xstate-component-tree/commit/ca3d879d9e2cb8f028f22a4fc748fee0dcdb1b47) Thanks [@tivac](https://github.com/tivac)! - Fixed issue where newly-created actors were immediately receiving the event that had been `.broadcast(...)`.
+
+  This was happening because the actors were being iterated in such a way that new actors added because of the event were also being iterated. This led to weird behaviors where events would seem to be duplicated.
+
 ## 7.0.1
 
 ### Patch Changes
