@@ -524,9 +524,18 @@ class ComponentTree {
      * @param {SendActionOptions} [options] XState options to send
      */
     broadcast(event, options) {
-        this._actors.forEach(({ actor }) => {
-            actor.send(event, options);
-        });
+        // Cache off the current keys so we don't iterate newly-created machines
+        const ids = [ ...this._actors.keys() ];
+
+        for(const id of ids) {
+            const info = this._actors.get(id);
+
+            if(!info) {
+                continue;
+            }
+
+            info.actor.send(event, options);
+        }
     }
 
     /**
