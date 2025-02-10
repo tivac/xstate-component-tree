@@ -41,7 +41,6 @@ const grandchild = createMachine({
     },
 });
 
-
 const child = createMachine({
     id      : "child",
     initial : "child",
