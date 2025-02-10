@@ -1,5 +1,26 @@
 # Changelog
 
+## 8.0.0
+
+### Major Changes
+
+- [#230](https://github.com/tivac/xstate-component-tree/pull/230) [`fdba194`](https://github.com/tivac/xstate-component-tree/commit/fdba194de0e9e8c396725a2c9cdd7264e118175c) Thanks [@tivac](https://github.com/tivac)! - Matching state and invoke names would cause `xstate-component-tree` to fail to return child components in some cases because internally it named them the same thing and stomped all over itself.
+
+  ```
+  states : {
+      foo : {
+          invoke : {
+              id : "foo",
+              // ...
+          },
+      },
+  },
+  ```
+
+  This should work now.
+
+  **BREAKING CHANGE**: All `machine` values in the output that previously looked like `root.foo` will now look like `root.#foo`, in order to help differentiate the child machine `id` from the parent state path.
+
 ## 7.1.0
 
 ### Minor Changes
