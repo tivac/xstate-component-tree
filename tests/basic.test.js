@@ -66,7 +66,7 @@ describe("basic functionality", (it) => {
                 children: []
             },
             [Object: null prototype] {
-                machine: "root.child",
+                machine: "root.#child",
                 path: "child.one",
                 component: [Function: child-one],
                 props: false,

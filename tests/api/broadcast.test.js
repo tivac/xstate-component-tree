@@ -82,7 +82,7 @@ describe("broadcast", (it) => {
                 children: []
             },
             [Object: null prototype] {
-                machine: "root.child",
+                machine: "root.#child",
         Actual:
         --        path: "child.one",
         --        component: [Function: child-one],
@@ -93,7 +93,7 @@ describe("broadcast", (it) => {
                 children: []
             },
             [Object: null prototype] {
-                machine: "root.child.grandchild",
+                machine: "root.#child.#grandchild",
         Actual:
         --        path: "grandchild.one",
         --        component: [Function: grandchild-one],
@@ -119,7 +119,7 @@ describe("broadcast", (it) => {
                 children: []
             },
             [Object: null prototype] {
-                machine: "root.child",
+                machine: "root.#child",
         Actual:
         --        path: "child.two",
         --        component: [Function: child-two],
@@ -130,7 +130,7 @@ describe("broadcast", (it) => {
                 children: []
             },
             [Object: null prototype] {
-                machine: "root.child.grandchild",
+                machine: "root.#child.#grandchild",
         Actual:
         --        path: "grandchild.two",
         --        component: [Function: grandchild-two],
