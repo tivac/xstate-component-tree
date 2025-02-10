@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+    
         {
             "name": "uvu All",
             "type": "node",
@@ -15,6 +16,23 @@
             "args": [
                 "tests",
                 "\\.test\\.js$"
+            ],
+            "console": "integratedTerminal",
+            "windows": {
+                "program": "${workspaceFolder}/node_modules/uvu/bin.js"
+            }
+        },
+        {
+            "name": "uvu Current",
+            "type": "node",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/node_modules/.bin/uvu",
+            "args": [
+                "tests",
+                "${fileBasename}"
             ],
             "console": "integratedTerminal",
             "windows": {
