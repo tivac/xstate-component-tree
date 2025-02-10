@@ -144,7 +144,7 @@ class ComponentTree {
     _watch(path) {
         const { _paths, _actors, _invokables, _options, _log } = this;
         
-        _log(`[${path}][_prep] prepping`);
+        _log(`[${path}][_watch] prepping`);
 
         const { actor } = _actors.get(path);
 
@@ -163,7 +163,7 @@ class ComponentTree {
         // xstate maps ids to state nodes, but the value object only
         // has paths, so need to create our own path-only map here
         for(const item of ids.values()) {
-            const key = [ path, ...item.path ].join(".");
+            const key = childPath(path, ...item.path);
 
             if(item.meta) {
                 _paths.set(key, Object.assign({
@@ -174,11 +174,11 @@ class ComponentTree {
             }
 
             // .invoke is always an array
-            _invokables.set(key, item.invoke.map(({ id : invoked }) => childPath(path, invoked)));
+            _invokables.set(key, item.invoke.map(({ id : invoked }) => childPath(path, `#${invoked}`)));
         }
 
-        _log(`[${path}][_prep] _paths`, [ ..._paths.keys() ]);
-        _log(`[${path}][_prep] _invokables`, [ ..._invokables.entries() ]);
+        _log(`[${path}][_watch] _paths`, [ ..._paths.keys() ]);
+        _log(`[${path}][_watch] _invokables`, [ ..._invokables.entries() ]);
         
         _log(`[${path}][_watch] subscribing`);
 
@@ -214,6 +214,8 @@ class ComponentTree {
         const current = _actors.get(path);
 
         if(state === current.state && current.run > 0) {
+            _log(`[${path}][_onState] State hasn't changed`);
+
             return;
         }
         
@@ -226,9 +228,11 @@ class ComponentTree {
 
         // Add any new children to be tracked
         Object.keys(children).forEach((child) => {
-            const id = [ path, child ].join(".");
+            const id = childPath(path, `#${child}`);
 
             if(_actors.has(id)) {
+                _log(`[${path}][_onState] Already seen child ${id}`);
+
                 return;
             }
 
