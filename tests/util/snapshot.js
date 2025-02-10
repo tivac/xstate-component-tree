@@ -6,16 +6,16 @@ import strip from "strip-ansi";
 
 const OPTIONS = { quoteStyle : "double", indent : 4, depth : 8 };
 
-export const serialize = (obj, opts) => inspect(obj, { ...OPTIONS, ...opts });
+export const serialize = (object, options) => inspect(object, { ...OPTIONS, ...options });
 
-export const snapshot = (obj, out) => assert.fixture(serialize(obj), dedent(out));
+export const snapshot = (object, out) => assert.fixture(serialize(object), dedent(out));
 
 export const diff = (a, b, out) => {
     const comparison = compare(serialize(a), serialize(b));
 
     const output = strip(comparison)
-            .replace(/·/g, " ")
-            .replace(/→/g, "     ");
+    .replaceAll("·", " ")
+    .replaceAll("→", "     ");
 
     return assert.fixture(dedent(output), dedent(out));
 };

@@ -19,18 +19,18 @@ const deferred = () => {
 
 // Watch for trees to be built, and provide an easy way
 // to await each value
-export const trees = (service, options = {}, fn = false) => {
+export const trees = (service, options = {}, callback = false) => {
     const responses = [];
-    let idx = 0;
+    let index = 0;
     let p;
     let resolved;
 
     const respond = () => {
-        if(resolved || idx >= responses.length || !p) {
+        if(resolved || index >= responses.length || !p) {
             return;
         }
 
-        const response = responses[idx++];
+        const response = responses[index++];
 
         p.resolve({ tree : response[0], extra : response[1] });
     };
@@ -54,14 +54,14 @@ export const trees = (service, options = {}, fn = false) => {
     out.builder = new ComponentTree(service, (...other) => {
         responses.push(other);
 
-        if(fn) {
-            fn(other);
+        if(callback) {
+            callback(other);
         }
 
         respond();
     }, options);
 
-    out.send = (...args) => service.send(...args);
+    out.send = (...parameters) => service.send(...parameters);
 
     out.service = service;
 
@@ -70,21 +70,21 @@ export const trees = (service, options = {}, fn = false) => {
     return out;
 };
 
-export const createMachine = (def) => (
-    def.__xstatenode ?
-        def :
-        xstateCreate({ ...def })
+export const createMachine = (definition) => (
+    definition.__xstatenode ?
+        definition :
+        xstateCreate({ ...definition })
 );
 
-export const createTree = (def, ...rest) => {
-    const machine = createMachine({ id : "test", ...def });
+export const createTree = (definition, ...rest) => {
+    const machine = createMachine({ id : "test", ...definition });
     const service = createActor(machine, { id : machine.id || "test" });
 
     return trees(service, ...rest);
 };
 
-export const getTree = async (def, ...rest) => {
-    const generator = createTree(def, ...rest);
+export const getTree = async (definition, ...rest) => {
+    const generator = createTree(definition, ...rest);
 
     const result = await generator();
 
@@ -95,15 +95,15 @@ export const getTree = async (def, ...rest) => {
 
 export const waitForPath = async (tree, path) => {
     let found = false;
-    let val;
+    let value;
 
     do {
         // eslint-disable-next-line no-await-in-loop
-        val = await tree();
+        value = await tree();
 
-        const searching = [ ...val.tree ];
+        const searching = [ ...value.tree ];
 
-        while(searching.length) {
+        while(searching.length > 0) {
             const item = searching.shift();
 
             if(item.path === path) {
@@ -115,5 +115,5 @@ export const waitForPath = async (tree, path) => {
         }
     } while(!found);
 
-    return val;
+    return value;
 };
