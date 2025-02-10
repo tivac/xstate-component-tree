@@ -290,7 +290,7 @@ class ComponentTree {
 
         // Only care about all other trees when we're the root
         if(root) {
-            for(const [ p, { tree : t }] of _actors.entries()) {
+            for(const [ p, { tree : t }] of _actors) {
                 if(p !== path) {
                     trees.push(t);
                 }
