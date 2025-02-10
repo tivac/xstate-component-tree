@@ -40,7 +40,7 @@ describe(".load support", (it) => {
             states  : {
                 one : {
                     meta : {
-                        load : (ctx, event) => ({ ctx, event }),
+                        load : (context, event) => ({ ctx : context, event }),
                     },
                 },
             },
@@ -495,7 +495,7 @@ describe(".load support", (it) => {
             states : {
                 one : {
                     meta : {
-                        load : () => [ null, 0 ],
+                        load : () => [ undefined, 0 ],
                     },
                 },
             },
