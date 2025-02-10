@@ -1,9 +1,11 @@
 import { suite } from "uvu";
 
-export default (name, fn) => {
+const describe = (name, function_) => {
     const tests = suite(name);
   
-    fn(tests);
+    function_(tests);
     
     tests.run();
 };
+
+export default describe;

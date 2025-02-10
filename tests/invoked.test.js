@@ -152,7 +152,6 @@ describe("invoked machines", (it) => {
         ]`);
     });
 
-
     it("should support root components in invoked child machines", async () => {
         const childMachine = createMachine({
             initial : "child",
@@ -327,10 +326,10 @@ describe("invoked machines", (it) => {
         ]`);
     });
 
-    [
+    for(const [ name, src ] of [
         [ "promise", fromPromise(() => new Promise(NOOP)) ],
         [ "callback", fromCallback(NOOP) ],
-    ].forEach(([ name, src ]) => {
+    ]) {
         it(`should ignore non-statechart children (${name})`, async () => {
             const { tree } = await getTree({
                 initial : "one",
@@ -359,7 +358,7 @@ describe("invoked machines", (it) => {
                 }
             ]`);
         });
-    });
+    }
     
     it("should remove data once the invoked child machine is halted", async (context) => {
         const childMachine = createMachine({

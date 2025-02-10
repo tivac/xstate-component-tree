@@ -7,11 +7,10 @@
   "type": "module",
   "scripts": {
     "build:clean": "shx rm -rf dist/*",
-    "build:rollup": "rollup --config",
+    "build:copy": "shx cp src/* dist",
     "build:types": "tsc",
-    "build:copytypes": "shx cp dist/*.d.ts dist/cjs && shx cp dist/*.d.ts dist/esm",
     "build:cleantypes": "shx rm dist/*.d.ts",
-    "build": "run-s build:clean build:rollup build:types build:copytypes build:cleantypes",
+    "build": "npm-run-all build:clean --parallel build:copy build:types",
     "lint": "eslint . --max-warnings=0",
     "test": "uvu tests .test.js",
     "test:coverage": "c8 --check-coverage --100 --reporter=html --reporter=text uvu",
@@ -30,34 +29,26 @@
   "files": [
     "dist/"
   ],
-  "module": "dist/esm/xstart-component-tree.js",
-  "main": "dist/cjs/xstart-component-tree.js",
-  "exports": {
-    ".": {
-      "import": "./dist/esm/xstate-component-tree.js",
-      "require": "./dist/cjs/xstate-component-tree.js"
-    }
-  },
+  "module": "dist/component-tree.js",
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.0",
-    "@changesets/cli": "^2.23.0",
-    "@rollup/plugin-commonjs": "^28.0.2",
-    "@rollup/plugin-node-resolve": "^16.0.0",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@tivac/eslint-config": "^2.4.0",
+    "@changesets/cli": "^2.27.12",
+    "@eslint/js": "^9.20.0",
+    "@stylistic/eslint-plugin": "^3.1.0",
     "c8": "^10.1.3",
     "chokidar-cli": "^3.0.0",
-    "dedent": "^1.5.1",
-    "eslint": "^8.18.0",
-    "eslint-plugin-jsdoc": "^50.6.1",
+    "dedent": "^1.5.3",
+    "eslint": "^9.20.0",
+    "eslint-plugin-jsdoc": "^50.6.3",
+    "eslint-plugin-unicorn": "^56.0.1",
+    "globals": "^15.14.0",
     "nanospy": "^1.0.0",
     "npm-run-all": "^4.1.5",
-    "object-inspect": "^1.12.0",
-    "rollup": "^4.29.1",
+    "object-inspect": "^1.13.4",
     "shx": "^0.3.4",
-    "strip-ansi": "^7.0.1",
-    "typescript": "^5.7.2",
-    "uvu": "^0.5.4",
+    "strip-ansi": "^7.1.0",
+    "typescript": "^5.7.3",
+    "uvu": "^0.5.6",
     "xstate": "^5.19.1"
   },
   "peerDependencies": {
