@@ -48,7 +48,7 @@ describe(".load in invoked machines", (it) => {
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "test.child",
+                        machine: "test.#child",
                         path: "child",
                         component: [Function: child],
                         props: false,
@@ -97,7 +97,7 @@ describe(".load in invoked machines", (it) => {
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "test.child",
+                        machine: "test.#child",
                         path: "child",
                         component: [Function: child],
                         props: false,
@@ -146,7 +146,7 @@ describe(".load in invoked machines", (it) => {
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "test.child",
+                        machine: "test.#child",
                         path: "child",
                         component: [Function: child],
                         props: {
@@ -201,7 +201,7 @@ describe(".load in invoked machines", (it) => {
                 props: false,
                 children: [
                     [Object: null prototype] {
-                        machine: "test.child",
+                        machine: "test.#child",
                         path: "child",
                         component: {
                             ctx: "child context",
