@@ -17,21 +17,21 @@ const componentHelper = (child, node = {}) => {
      */
     const {
         component = child,
-        props = false,
+        props : properties = false,
         
         ...meta
     } = child;
 
     // meta will always be an object since it's a rest param, fine to assign to
-    meta.load = (...args) => [
+    meta.load = (...parameters) => [
         // Run arrow functions (function w/o a prototype), anything else is assumed to be
         // already a component
         component && typeof component === "function" && !component.prototype ?
-            component(...args) :
+            component(...parameters) :
             component,
-        typeof props === "function" ?
-            props(...args) :
-            props,
+        typeof properties === "function" ?
+            properties(...parameters) :
+            properties,
     ];
 
     node.meta = node.meta ? Object.assign(node.meta, meta) : meta;

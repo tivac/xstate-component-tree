@@ -3,7 +3,12 @@ import { spy } from "nanospy";
 import { createActor } from "xstate";
 
 import describe from "./util/describe.js";
-import { getTree, createTree, trees, createMachine } from "./util/trees.js";
+import {
+    getTree,
+    createTree,
+    trees,
+    createMachine,
+} from "./util/trees.js";
 import component from "./util/component.js";
 import { treeTeardown } from "./util/context.js";
 import { diff, snapshot } from "./util/snapshot.js";

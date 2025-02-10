@@ -5,5 +5,5 @@ export const treeTeardown = (context) => {
         tree.builder.teardown();
     }
 
-    context.tree = null;
+    context.tree = undefined;
 };

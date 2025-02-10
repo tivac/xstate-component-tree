@@ -168,7 +168,7 @@ describe(".load in invoked machines", (it) => {
             states : {
                 child : {
                     meta : {
-                        load : (ctx, event) => ({ ctx, event }),
+                        load : (context, event) => ({ ctx : context, event }),
                     },
                 },
             },

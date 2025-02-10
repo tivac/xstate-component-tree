@@ -17,9 +17,9 @@ describe("xstate-component-tree/helper", (it) => {
     });
 
     const One = component("one");
-    const props = { foo : "bar" };
+    const properties = { foo : "bar" };
 
-    [
+    for(const [ name, meta, helpered ] of [
         [
             "basic component",
             { component : One },
@@ -27,13 +27,13 @@ describe("xstate-component-tree/helper", (it) => {
         ],
         [
             "basic component + basic props",
-            { component : One, props },
-            { component : One, props },
+            { component : One, props : properties },
+            { component : One, props : properties },
         ],
         [
             "basic component + arrow fn props",
-            { load : () => [ One, props ] },
-            { component : One, props : () => props },
+            { load : () => [ One, properties ] },
+            { component : One, props : () => properties },
         ],
         [
             "arrow function",
@@ -42,13 +42,13 @@ describe("xstate-component-tree/helper", (it) => {
         ],
         [
             "arrow function + basic props",
-            { load : () => [ One, props ] },
-            { component : () => One, props },
+            { load : () => [ One, properties ] },
+            { component : () => One, props : properties },
         ],
         [
             "arrow function + arrow fn props",
-            { load : () => [ One, props ] },
-            { component : () => One, props : () => props },
+            { load : () => [ One, properties ] },
+            { component : () => One, props : () => properties },
         ],
         [
             "async arrow function",
@@ -57,15 +57,15 @@ describe("xstate-component-tree/helper", (it) => {
         ],
         [
             "async arrow function + basic props",
-            { load : () => [ asyncValue(One), props ] },
-            { component : asyncLoad(One), props },
+            { load : () => [ asyncValue(One), properties ] },
+            { component : asyncLoad(One), props : properties },
         ],
         [
             "async arrow function + arrow fn props",
-            { load : () => [ asyncValue(One), props ] },
-            { component : asyncLoad(One), props : () => props },
+            { load : () => [ asyncValue(One), properties ] },
+            { component : asyncLoad(One), props : () => properties },
         ],
-    ].forEach(([ name, meta, helpered ]) => {
+    ]) {
         it(`should be the same: ${name}`, async () => {
             const { tree : basic } = await getTree({
                 initial : "one",
@@ -87,7 +87,7 @@ describe("xstate-component-tree/helper", (it) => {
 
             assert.equal(basic, sugar);
         });
-    });
+    }
 
     it("should maintain existing .meta properties if they exist", () => {
         const node = componentHelper(component("one"), {
