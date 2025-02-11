@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "build:clean": "shx rm -rf dist/*",
-    "build:copy": "shx cp src/* dist",
+    "build:copy": "shx mkdir dist && shx cp src/* dist",
     "build:types": "tsc",
     "build:cleantypes": "shx rm dist/*.d.ts",
     "build": "npm-run-all build:clean --parallel build:copy build:types",
