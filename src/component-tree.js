@@ -277,6 +277,12 @@ class ComponentTree {
         const root = path === this.id;
         const actor = _actors.get(path);
 
+        if(!actor) {
+            _log(`[${path}][_run()] aborted, unknown actor`);
+
+            return false;
+        }
+
         _log(`[${path}][_run()] starting`);
 
         // Cancel any previous walks, we're the captain now
