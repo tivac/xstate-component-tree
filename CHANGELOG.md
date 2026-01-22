@@ -1,5 +1,11 @@
 # Changelog
 
+## 8.0.1
+
+### Patch Changes
+
+- [#246](https://github.com/tivac/xstate-component-tree/pull/246) [`911ab20`](https://github.com/tivac/xstate-component-tree/commit/911ab20e4794bd5e89e3dc336180aece4e36d533) Thanks [@tivac](https://github.com/tivac)! - fix: Don't try to run on pruned actors
+
 ## 8.0.0
 
 ### Major Changes
