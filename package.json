@@ -21,6 +21,10 @@
     "release": "changeset publish",
     "postrelease": "git push --follow-tags"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tivac/xstate-component-tree.git"
+  },
   "keywords": [
     "xstate",
     "components",
