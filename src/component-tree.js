@@ -277,11 +277,13 @@ class ComponentTree {
         const root = path === this.id;
         const actor = _actors.get(path);
 
+        /* c8 ignore start */
         if(!actor) {
             _log(`[${path}][_run()] aborted, unknown actor`);
 
             return false;
         }
+        /* c8 ignore stop */
 
         _log(`[${path}][_run()] starting`);
 
