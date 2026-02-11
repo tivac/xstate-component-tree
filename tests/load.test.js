@@ -33,7 +33,7 @@ describe(".load support", (it) => {
         ]`);
     });
     
-    it.only("should pass context and event params to .load methods", async (context) => {
+    it("should pass context and event params to .load methods", async (context) => {
         const tree = context.tree = createTree({
             initial : "one",
             context : "context",
@@ -91,6 +91,31 @@ describe(".load support", (it) => {
                 machine: "test",
                 path: "one",
                 component: [Function: one],
+                props: {
+                    props: true
+                },
+                children: []
+            }
+        ]`);
+    });
+
+    it("should support returning just props", async () => {
+        const { tree } = await getTree({
+            initial : "one",
+            states : {
+                one : {
+                    meta : {
+                        load : () => [ undefined, { props : true }],
+                    },
+                },
+            },
+        });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                machine: "test",
+                path: "one",
+                component: false,
                 props: {
                     props: true
                 },
