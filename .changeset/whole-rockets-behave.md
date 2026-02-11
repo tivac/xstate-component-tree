@@ -2,9 +2,9 @@
 "xstate-component-tree": major
 ---
 
-### BREAKING CHANGE
+BREAKING: `load` signature changed
 
-`load` signature changed from `load(context, event)` to `load({ context, event })` to better match `xstate@5`.
+To better match `xstate@5` the signature for the `load` function changed from `(context, event) => ...` to `({ context, event }) => ...`
 
 ### Fixes
 
