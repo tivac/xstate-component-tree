@@ -511,7 +511,7 @@ class ComponentTree {
             } else {
                 const keys = Object.keys(values);
     
-                for(const child of _options.stable ? keys.sort() : keys) {
+                for(const child of _options.stable ? keys.toSorted() : keys) {
                     queue.push([ pointer, childPath(node, child), values[child] ]);
                 }
             }
