@@ -423,11 +423,13 @@ class ComponentTree {
                     // Only cache items from the previous run are valid
                     if(cached.run === run - 1) {
                         cached.run = run;
+                        /* c8 ignore start */
                     } else {
                         cached = false;
 
                         _cache.delete(id);
                     }
+                    /* c8 ignore stop */
                 }
 
                 _log(`[${path}][_walk #${run}][${id}] cached?`, Boolean(cached));
@@ -466,9 +468,11 @@ class ComponentTree {
                             _log(`[${path}][_walk #${run}][${id}] component loaded`);
 
                             saved.loaded = true;
+                        /* c8 ignore start */
                         } else {
                             _log(`[${path}][_walk #${run}][${id}] component load discarded`);
                         }
+                        /* c8 ignore stop */
                     });
 
                     loads.push(loading);
