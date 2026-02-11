@@ -33,26 +33,40 @@ describe(".load support", (it) => {
         ]`);
     });
     
-    it("should pass context and event params to .load methods", async () => {
-        const { tree } = await getTree({
+    it("should pass context and event params to .load methods", async (context) => {
+        const tree = context.tree = createTree({
             initial : "one",
             context : "context",
             states  : {
                 one : {
+                    on : {
+                        NEXT : "two",
+                    },
+                },
+
+                two : {
                     meta : {
-                        load : (context, event) => ({ ctx : context, event }),
+                        load : (...parameters) => parameters,
                     },
                 },
             },
         });
 
-        snapshot(tree, `[
+        await tree();
+
+        tree.send({ type : "NEXT" });
+
+        const { tree : result } = await tree();
+
+        snapshot(result, `[
             [Object: null prototype] {
                 machine: "test",
-                path: "one",
+                path: "two",
                 component: {
-                    ctx: "context",
-                    event: undefined
+                    context: "context",
+                    event: {
+                        type: "NEXT"
+                    }
                 },
                 props: false,
                 children: []
@@ -77,6 +91,31 @@ describe(".load support", (it) => {
                 machine: "test",
                 path: "one",
                 component: [Function: one],
+                props: {
+                    props: true
+                },
+                children: []
+            }
+        ]`);
+    });
+
+    it("should support returning just props", async () => {
+        const { tree } = await getTree({
+            initial : "one",
+            states : {
+                one : {
+                    meta : {
+                        load : () => [ undefined, { props : true }],
+                    },
+                },
+            },
+        });
+
+        snapshot(tree, `[
+            [Object: null prototype] {
+                machine: "test",
+                path: "one",
+                component: false,
                 props: {
                     props: true
                 },

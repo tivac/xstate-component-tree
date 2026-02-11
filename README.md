@@ -131,7 +131,7 @@ Dynamic props are also supported. To return props return an array from `load` wh
 // ...
 one : {
     meta : {
-        load : (context) => [
+        load : ({ context }) => [
             import("./my/component/from/here.js"), 
             {
                 prop1 : context.prop1
@@ -142,7 +142,7 @@ one : {
 // ...
 ```
 
-The `load` function will be passed the `context` and `event` params from xstate.
+The `load` function will be passed the `{ context, event }` params like xstate provides to actions.
 
 ## The `component` helper
 
@@ -182,7 +182,7 @@ import { component } from "xstate-component-tree/component";
 + }),
 ```
 
-Both the `component` and `props` key can be a function, they'll be passed the same `context` and `event` args that are normally passed to `load()` methods.
+Both the `component` and `props` key can be a function, they'll be passed the same `{ context, event }` arg that are normally passed to `load()` methods.
 
 ```diff
 import { component } from "xstate-component-tree/component";
@@ -190,7 +190,7 @@ import { component } from "xstate-component-tree/component";
 // ...
 - one : {
 -     meta : {
--         load : (context, event) => [
+-         load : ({ context, event }) => [
 -             import("./my/component/from/here.js"),
 -             {
 -                 prop1 : context.prop1,
@@ -200,7 +200,7 @@ import { component } from "xstate-component-tree/component";
 - },
 + one : component({
 +    component : () => import("./my/component/from/here.js"),
-+    props : (context) => ({
++    props : ({ context }) => ({
 +        prop1 : context.prop1,
 +    }),
 + }),

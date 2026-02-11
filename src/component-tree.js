@@ -18,7 +18,7 @@
 const noop = () => {};
 
 const loadComponent = async ({ item, load, context, event }) => {
-    const result = await load(context, event);
+    const result = await load({ context, event });
 
     let component;
     let properties;
@@ -126,7 +126,7 @@ class ComponentTree {
     }
 
     _addActor({ path, actor, parent = false }) {
-        this._actors.set(path, {
+        const actorInfo = {
             actor,
             parent,
 
@@ -136,9 +136,30 @@ class ComponentTree {
             // Stored transition result, used to re-create the tree when a child transitions
             state : actor.getSnapshot(),
 
+            // Last transition-causing event
+            event : false,
+
             // Walk results
             tree : [],
-        });
+        };
+
+        this._actors.set(path, actorInfo);
+
+        // I HATE THIS
+        // Monkey-patching actor.send to store the event that was passed-in, because
+        // xstate@5 doesn't provide that any more from actor.getSnapshot() or the snapshot
+        // passed to actor.subscribe(). I could rework this entirely to use the `inspect` API
+        // but that isn't something I'm particularly excited about atm.
+        //
+        // https://github.com/statelyai/xstate/issues/4074
+        // https://github.com/statelyai/xstate/discussions/4649
+        const originalSend = actor.send;
+
+        actor.send = (event) => {
+            actorInfo.event = event;
+
+            originalSend.call(actor, event);
+        };
     }
 
     // Subscribe to an interpreter
@@ -357,7 +378,7 @@ class ComponentTree {
             _log,
         } = this;
 
-        const { run, state } = _actors.get(path);
+        const { run, state, event } = _actors.get(path);
 
         /* c8 ignore start */
         if(_paths.size === 0) {
@@ -367,7 +388,7 @@ class ComponentTree {
 
         _log(`[${path}][_walk #${run}] walking`);
 
-        const { value, context, event } = state;
+        const { value, context } = state;
         const loads = [];
         const root = {
             // eslint-disable-next-line unicorn/no-null

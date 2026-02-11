@@ -168,7 +168,7 @@ describe(".load in invoked machines", (it) => {
             states : {
                 child : {
                     meta : {
-                        load : (context, event) => ({ ctx : context, event }),
+                        load : (parameters) => parameters,
                     },
                 },
             },
@@ -204,8 +204,8 @@ describe(".load in invoked machines", (it) => {
                         machine: "test.#child",
                         path: "child",
                         component: {
-                            ctx: "child context",
-                            event: undefined
+                            context: "child context",
+                            event: false
                         },
                         props: false,
                         children: []
