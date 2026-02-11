@@ -33,26 +33,40 @@ describe(".load support", (it) => {
         ]`);
     });
     
-    it("should pass context and event params to .load methods", async () => {
-        const { tree } = await getTree({
+    it.only("should pass context and event params to .load methods", async (context) => {
+        const tree = context.tree = createTree({
             initial : "one",
             context : "context",
             states  : {
                 one : {
+                    on : {
+                        NEXT : "two",
+                    },
+                },
+
+                two : {
                     meta : {
-                        load : (context, event) => ({ ctx : context, event }),
+                        load : (...parameters) => parameters,
                     },
                 },
             },
         });
 
-        snapshot(tree, `[
+        await tree();
+
+        tree.send({ type : "NEXT" });
+
+        const { tree : result } = await tree();
+
+        snapshot(result, `[
             [Object: null prototype] {
                 machine: "test",
-                path: "one",
+                path: "two",
                 component: {
-                    ctx: "context",
-                    event: undefined
+                    context: "context",
+                    event: {
+                        type: "NEXT"
+                    }
                 },
                 props: false,
                 children: []
