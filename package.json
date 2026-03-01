@@ -43,7 +43,7 @@
     "chokidar-cli": "^3.0.0",
     "dedent": "^1.5.3",
     "eslint": "^9.20.0",
-    "eslint-plugin-jsdoc": "^50.6.3",
+    "eslint-plugin-jsdoc": "^62.7.1",
     "eslint-plugin-unicorn": "^63.0.0",
     "globals": "^17.3.0",
     "nanospy": "^1.0.0",
