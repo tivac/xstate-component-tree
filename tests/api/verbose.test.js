@@ -20,7 +20,7 @@ describe("verbose", (it) => {
         restoreAll();
 
         // Only check first & last for now
-        snapshot(log.calls[0], `[ "[root][_watch] prepping" ]`);
-        snapshot(log.calls.at(-1), `[ "[root][_run #2] returning data" ]`);
+        snapshot(log.calls[0], `[ "[root][#watch] prepping" ]`);
+        snapshot(log.calls.at(-1), `[ "[root][#run #2] returning data" ]`);
     });
 });
