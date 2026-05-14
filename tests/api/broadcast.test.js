@@ -1,4 +1,5 @@
-import describe from "../util/describe.js";
+import { describe, it, afterEach } from "node:test";
+
 import { createTree, waitForPath } from "../util/trees.js";
 import { treeTeardown } from "../util/context.js";
 import { diff } from "../util/snapshot.js";
@@ -6,8 +7,8 @@ import { diff } from "../util/snapshot.js";
 import single from "./specimens/single.js";
 import grandchild from "./specimens/grandchild.js";
 
-describe("broadcast", (it) => {
-    it.after.each(treeTeardown);
+describe("broadcast", () => {
+    afterEach(treeTeardown);
 
     it("should send to the root tree", async (context) => {
         const tree = context.tree = createTree(single);

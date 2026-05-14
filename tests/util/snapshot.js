@@ -1,5 +1,5 @@
+import assert from "node:assert/strict";
 import inspect from "object-inspect";
-import * as assert from "uvu/assert";
 import { compare } from "uvu/diff";
 import dedent from "dedent";
 import strip from "strip-ansi";
@@ -8,7 +8,7 @@ const OPTIONS = { quoteStyle : "double", indent : 4, depth : 8 };
 
 export const serialize = (object, options) => inspect(object, { ...OPTIONS, ...options });
 
-export const snapshot = (object, out) => assert.fixture(serialize(object), dedent(out));
+export const snapshot = (object, out) => assert.strictEqual(serialize(object), dedent(out));
 
 export const diff = (a, b, out) => {
     const comparison = compare(serialize(a), serialize(b));
@@ -17,5 +17,5 @@ export const diff = (a, b, out) => {
     .replaceAll("·", " ")
     .replaceAll("→", "     ");
 
-    return assert.fixture(dedent(output), dedent(out));
+    return assert.strictEqual(dedent(output), dedent(out));
 };

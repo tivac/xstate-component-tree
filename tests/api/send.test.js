@@ -1,6 +1,6 @@
-import * as assert from "uvu/assert";
+import { describe, it, afterEach } from "node:test";
+import assert from "node:assert/strict";
 
-import describe from "../util/describe.js";
 import { createTree, waitForPath } from "../util/trees.js";
 import { treeTeardown } from "../util/context.js";
 import { diff } from "../util/snapshot.js";
@@ -8,13 +8,13 @@ import { diff } from "../util/snapshot.js";
 import single from "./specimens/single.js";
 import child from "./specimens/child.js";
 
-describe("send", (it) => {
-    it.after.each(treeTeardown);
+describe("send", () => {
+    afterEach(treeTeardown);
 
     it("should be a callable method", async (context) => {
         const tree = context.tree = createTree(single);
 
-        assert.type(tree.builder.send, "function");
+        assert.equal(typeof tree.builder.send, "function");
     });
 
     it("should send to the root tree", async (context) => {
