@@ -1,5 +1,5 @@
-import { spyOn, restoreAll } from "nanospy";
 import { describe, it, afterEach } from "node:test";
+import { spyOn, restoreAll } from "nanospy";
 
 import { createTree } from "../util/trees.js";
 import { snapshot } from "../util/snapshot.js";
