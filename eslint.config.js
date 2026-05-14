@@ -524,6 +524,7 @@ const eslintConfig = [
             "jsdoc/informative-docs" : "warn",
             "jsdoc/no-bad-blocks" : "warn",
             "jsdoc/require-jsdoc" : "off",
+            "jsdoc/reject-function-type" : "off",
         },
     },
     {

@@ -11,7 +11,7 @@
  */
 
 /**
- * @typedef {{ tree : any[], state : AnyMachineSnapshot, matches : Matches, can : Can, hasTag : HasTag }} Result
+ * @typedef {{ tree : object[], state : AnyMachineSnapshot, matches : Matches, can : Can, hasTag : HasTag }} Result
  */
 
 // eslint-disable-next-line no-empty-function
