@@ -1,19 +1,19 @@
-import * as assert from "uvu/assert";
+import { describe, it, afterEach } from "node:test";
+import assert from "node:assert";
 
 import { componentHelper } from "../src/component-helper.js";
 
-import describe from "./util/describe.js";
 import component from "./util/component.js";
 import { asyncValue, asyncLoad } from "./util/async.js";
 import { getTree } from "./util/trees.js";
 import { treeTeardown } from "./util/context.js";
 import { snapshot } from "./util/snapshot.js";
 
-describe("xstate-component-tree/helper", (it) => {
-    it.after.each(treeTeardown);
+describe("xstate-component-tree/helper", () => {
+    afterEach(treeTeardown);
 
     it("should be a named export of the /helper entrypoint", () => {
-        assert.is(typeof componentHelper, "function");
+        assert.equal(typeof componentHelper, "function");
     });
 
     const One = component("one");
@@ -85,7 +85,7 @@ describe("xstate-component-tree/helper", (it) => {
                 },
             });
 
-            assert.equal(basic, sugar);
+            assert.deepStrictEqual(basic, sugar);
         });
     }
 
