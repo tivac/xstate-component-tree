@@ -1,5 +1,7 @@
+import { describe, it, afterEach } from "node:test";
+import assert from "node:assert/strict";
+
 import { fromCallback, fromPromise } from "xstate";
-import describe from "./util/describe.js";
 import { createTree, getTree, createMachine } from "./util/trees.js";
 import component from "./util/component.js";
 import { snapshot, diff } from "./util/snapshot.js";
@@ -8,8 +10,8 @@ import { treeTeardown } from "./util/context.js";
 // eslint-disable-next-line no-empty-function
 const NOOP = () => {};
 
-describe("invoked machines", (it) => {
-    it.after.each(treeTeardown);
+describe("invoked machines", () => {
+    afterEach(treeTeardown);
 
     it("should support invoked child machines", async () => {
         const childMachine = createMachine({
