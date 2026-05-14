@@ -1,14 +1,14 @@
-import * as assert from "uvu/assert";
+import { describe, it, afterEach } from "node:test";
+import assert from "node:assert/strict";
 
-import describe from "./util/describe.js";
 import component from "./util/component.js";
 import { asyncLoad } from "./util/async.js";
 import { getTree, createTree } from "./util/trees.js";
 import { snapshot } from "./util/snapshot.js";
 import { treeTeardown } from "./util/context.js";
 
-describe(".load support", (it) => {
-    it.after.each(treeTeardown);
+describe(".load support", () => {
+    afterEach(treeTeardown);
 
     it("should support sync .load methods", async () => {
         const { tree } = await getTree({
@@ -387,7 +387,7 @@ describe(".load support", (it) => {
 
         await tree();
 
-        assert.equal(runs, [
+        assert.deepStrictEqual(runs, [
             "one",
         ]);
 
@@ -397,7 +397,7 @@ describe(".load support", (it) => {
         
         await tree();
 
-        assert.equal(runs, [
+        assert.deepStrictEqual(runs, [
             "two",
         ]);
 
@@ -407,7 +407,7 @@ describe(".load support", (it) => {
         
         await tree();
 
-        assert.equal(runs, [
+        assert.deepStrictEqual(runs, [
             "one",
         ]);
     });
@@ -453,7 +453,7 @@ describe(".load support", (it) => {
 
         await tree();
 
-        assert.equal(runs, [
+        assert.deepStrictEqual(runs, [
             "one",
             "oneone",
         ]);
@@ -464,7 +464,7 @@ describe(".load support", (it) => {
         
         await tree();
 
-        assert.equal(runs, [
+        assert.deepStrictEqual(runs, [
             "one",
         ]);
     });
@@ -511,7 +511,7 @@ describe(".load support", (it) => {
 
         await tree();
 
-        assert.equal(runs, [
+        assert.deepStrictEqual(runs, [
             "one",
             "oneone",
         ]);
@@ -522,7 +522,7 @@ describe(".load support", (it) => {
         
         await tree();
 
-        assert.equal(runs, [
+        assert.deepStrictEqual(runs, [
             "one",
         ]);
     });
