@@ -1,5 +1,5 @@
 import { describe, it, afterEach } from "node:test";
-import assert from "node:assert";
+import assert from "node:assert/strict";
 
 import { componentHelper } from "../src/component-helper.js";
 
