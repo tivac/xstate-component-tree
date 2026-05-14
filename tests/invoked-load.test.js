@@ -1,14 +1,14 @@
-import * as assert from "uvu/assert";
+import { describe, it, afterEach } from "node:test";
+import assert from "node:assert/strict";
 
-import describe from "./util/describe.js";
 import { getTree, createTree, createMachine } from "./util/trees.js";
 import component from "./util/component.js";
 import { asyncLoad } from "./util/async.js";
 import { treeTeardown } from "./util/context.js";
 import { snapshot } from "./util/snapshot.js";
 
-describe(".load in invoked machines", (it) => {
-    it.after.each(treeTeardown);
+describe(".load in invoked machines", () => {
+    afterEach(treeTeardown);
     
     it("should support sync .load", async () => {
         const childMachine = createMachine({
@@ -287,7 +287,7 @@ describe(".load in invoked machines", (it) => {
 
         await tree();
 
-        assert.equal(runs, [
+        assert.deepStrictEqual(runs, [
             "child1",
             "one",
         ]);
@@ -298,7 +298,7 @@ describe(".load in invoked machines", (it) => {
         
         await tree();
 
-        assert.equal(runs, [
+        assert.deepStrictEqual(runs, [
             "two",
         ]);
 
@@ -308,7 +308,7 @@ describe(".load in invoked machines", (it) => {
         
         await tree();
 
-        assert.equal(runs, [
+        assert.deepStrictEqual(runs, [
             "child2",
         ]);
     });
