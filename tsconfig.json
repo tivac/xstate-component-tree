@@ -1,11 +1,12 @@
 {
     "compilerOptions": {
-        "module": "esnext",
+        "module": "nodenext",
         "allowJs": true,
         "declaration": true,
         "emitDeclarationOnly": true,
         "noEmit": false,
-        "moduleResolution": "node",
+        "moduleResolution": "nodenext",
+        "rootDir": "./src",
         "outDir": "./dist",
         "skipLibCheck": true,
     },

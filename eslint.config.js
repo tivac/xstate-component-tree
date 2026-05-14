@@ -6,7 +6,7 @@ import globals from "globals";
 
 /** @type {import("eslint").Linter.Config[]} */
 const eslintConfig = [
-    stylistic.configs["all-flat"],
+    stylistic.configs.all,
     jsdoc.configs["flat/recommended"],
     unicorn.configs["flat/recommended"],
 
@@ -256,9 +256,8 @@ const eslintConfig = [
 
             "@stylistic/dot-location" : [ "error", "property" ],
             "@stylistic/eol-last" : "warn",
-            "@stylistic/func-call-spacing" : [ "warn", "never" ],
+            "@stylistic/function-call-spacing" : [ "warn", "never" ],
             "@stylistic/function-call-argument-newline" : [ "warn", "consistent" ],
-            "@stylistic/function-call-spacing" : "warn",
             "@stylistic/function-paren-newline" : "off",
             "@stylistic/generator-star-spacing" : "error",
             "@stylistic/implicit-arrow-linebreak" : "off",
@@ -335,8 +334,10 @@ const eslintConfig = [
             "@stylistic/no-confusing-arrow" : [ "error", { allowParens : true }],
 
             "@stylistic/no-extra-parens" : [ "warn", "all", {
+                ignoredNodes : [
+                    "ArrowFunctionExpression[body.type=ConditionalExpression]",
+                ],
                 nestedBinaryExpressions : false,
-                enforceForArrowConditionals : false,
                 returnAssign : false,
             }],
 
@@ -453,7 +454,7 @@ const eslintConfig = [
 
             "@stylistic/quotes" : [ "error", "double", {
                 avoidEscape : true,
-                allowTemplateLiterals : true,
+                allowTemplateLiterals : "always",
             }],
 
             "@stylistic/rest-spread-spacing" : [ "warn", "never" ],
@@ -524,6 +525,7 @@ const eslintConfig = [
             "jsdoc/informative-docs" : "warn",
             "jsdoc/no-bad-blocks" : "warn",
             "jsdoc/require-jsdoc" : "off",
+            "jsdoc/reject-function-type" : "off",
         },
     },
     {
