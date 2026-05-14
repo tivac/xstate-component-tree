@@ -1,8 +1,8 @@
-import * as assert from "uvu/assert";
+import { describe, it, afterEach } from "node:test";
+import assert from "node:assert/strict";
 import { spy } from "nanospy";
 import { createActor } from "xstate";
 
-import describe from "./util/describe.js";
 import {
     getTree,
     createTree,
@@ -14,8 +14,8 @@ import { treeTeardown } from "./util/context.js";
 import { diff, snapshot } from "./util/snapshot.js";
 import child from "./api/specimens/child.js";
 
-describe("basic functionality", (it) => {
-    it.after.each(treeTeardown);
+describe("basic functionality", () => {
+    afterEach(treeTeardown);
     
     it("should return a tree of components", async () => {
         const { tree } = await getTree({
@@ -187,10 +187,10 @@ describe("basic functionality", (it) => {
             },
         });
 
-        assert.type(extra.state, "object");
-        assert.type(extra.matches, "function");
-        assert.type(extra.hasTag, "function");
-        assert.type(extra.broadcast, "function");
+        assert.equal(typeof extra.state, "object");
+        assert.equal(typeof extra.matches, "function");
+        assert.equal(typeof extra.hasTag, "function");
+        assert.equal(typeof extra.broadcast, "function");
     });
 
     it("should return a tree of components", async () => {
