@@ -7,7 +7,7 @@ import { diff } from "../util/snapshot.js";
 import single from "./specimens/single.js";
 import grandchild from "./specimens/grandchild.js";
 
-describe("broadcast", (t) => {
+describe("broadcast", () => {
     afterEach(treeTeardown);
 
     it("should send to the root tree", async (context) => {
