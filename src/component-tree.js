@@ -45,14 +45,6 @@ const childPath = (...arguments_) => arguments_
 .filter(Boolean)
 .join(".");
 
-const getMachineFromSnapshot = (snapshot, actor) => {
-    if(snapshot?.machine) {
-        return snapshot.machine;
-    }
-
-    return actor.logic?.__xstatenode ? actor.logic : false;
-};
-
 class ComponentTree {
     /**
      * @class
@@ -174,7 +166,15 @@ class ComponentTree {
 
         const current = _actors.get(path);
 
-        const machine = getMachineFromSnapshot(state, current.actor);
+        let machine;
+
+        if(state?.machine) {
+            // fromMachine proxy state
+            machine = state.machine;
+        } else if(current.actor.logic?.__xstatenode) {
+            // Normal xstate node
+            machine = current.actor.logic;
+        }
 
         if(!machine) {
             return false;
@@ -467,7 +467,10 @@ class ComponentTree {
 
                 const item = Object.assign(Object.create(null), {
                     machine : path,
+                    
+                    // Purposefully *not* prefixing w/ path here, end-users don't care about it
                     path : node,
+                    
                     component : cached ? cached.item.component : component,
                     props     : cached ? cached.item.props : properties,
                     children  : [],
