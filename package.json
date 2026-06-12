@@ -33,6 +33,11 @@
   "files": [
     "dist/"
   ],
+   "exports": {
+    ".": "./dist/component-tree.js",
+    "./from-machine": "./dist/from-machine.js",
+    "./component-helper": "./dist/component-helper.js"
+  },
   "module": "dist/component-tree.js",
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",

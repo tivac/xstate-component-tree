@@ -288,6 +288,7 @@ describe(".load in invoked machines", () => {
         await tree();
 
         assert.deepStrictEqual(runs, [
+            "one",
             "child1",
             "one",
         ]);
