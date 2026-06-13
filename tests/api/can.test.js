@@ -52,4 +52,15 @@ describe("can", () => {
         assert.ok(tree.builder.can({ type : "NEXT" }));
         assert.ok(extra.can({ type : "NEXT" }));
     });
+
+    it("shouldn't explode after teardown", async() => {
+        const tree = createTree(noComponents);
+
+        const { extra } = await tree();
+
+        tree.builder.teardown();
+
+        assert.equal(tree.builder.can({ type : "NEXT" }), false);
+        assert.equal(extra.can({ type : "NEXT" }), false);
+    });
 });

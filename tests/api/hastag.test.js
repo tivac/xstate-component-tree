@@ -50,4 +50,15 @@ describe("hasTag", () => {
         assert.ok(tree.builder.hasTag("two"));
         assert.ok(extra.hasTag("two"));
     });
+
+    it("shouldn't explode after teardown", async() => {
+        const tree = createTree(single);
+
+        const { extra } = await tree();
+
+        tree.builder.teardown();
+
+        assert.equal(tree.builder.hasTag("one"), false);
+        assert.equal(extra.hasTag("one"), false);
+    });
 });
