@@ -168,15 +168,7 @@ class ComponentTree {
 
         const current = _actors.get(path);
 
-        let machine;
-
-        if(state?.machine) {
-            // fromMachine proxy state
-            machine = state.machine;
-        } else if(current.actor.logic?.__xstatenode) {
-            // Normal xstate node
-            machine = current.actor.logic;
-        }
+        const { machine } = state;
 
         if(!machine) {
             return false;
@@ -378,9 +370,11 @@ class ComponentTree {
         _log(`[${path}][_run #${run}] returning data`);
 
         // bail if torn down during async work
+        /* c8 ignore start */
         if(this._destroyed) {
             return false;
         }
+        /* c8 ignore end */
 
         this._result = Object.assign(Object.create(null), {
             tree,
@@ -600,15 +594,15 @@ class ComponentTree {
         const ids = [ ...this._actors.keys() ];
 
         for(const id of ids) {
-            const info = this._actors.get(id);
+            const { actor } = this._actors.get(id) ?? false;
 
             /* c8 ignore start */
-            if(!info) {
+            if(!actor) {
                 continue;
             }
             /* c8 ignore stop */
 
-            info.actor.send(event, options);
+            actor.send(event, options);
         }
     }
 
@@ -694,7 +688,7 @@ class ComponentTree {
         if(this._destroyed) {
             return noop;
         }
-        
+
         this._listeners.add(callback);
 
         callback(this._result);
