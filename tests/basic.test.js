@@ -535,7 +535,7 @@ describe("basic functionality", () => {
 
         const { tree : before } = await tree();
         
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
 
         const { tree : after } = await tree();
 
@@ -578,7 +578,7 @@ describe("basic functionality", () => {
 
         await tree();
 
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
 
         assert.equal(eventCounter.callCount, 2);
     });
@@ -618,7 +618,7 @@ describe("basic functionality", () => {
 
         const { tree : before } = await tree();
         
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
 
         const { tree : after } = await tree();
 
@@ -676,7 +676,7 @@ describe("basic functionality", () => {
 
         const { tree : before } = await tree();
         
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
 
         const { tree : after } = await tree();
 
@@ -728,7 +728,7 @@ describe("basic functionality", () => {
         
         tree.builder.teardown();
 
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
 
         assert.equal(callback.callCount, 1);
     });

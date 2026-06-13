@@ -52,7 +52,7 @@ describe("observable", () => {
         assert.equal(typeof out.hasTag, "function");
         assert.equal(typeof out.broadcast, "function");
 
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
         await tree();
 
         assert.equal(calls, 3);
@@ -70,9 +70,23 @@ describe("observable", () => {
         await tree();
         unsub();
 
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
         await tree();
 
         assert.equal(calls, 2);
+    });
+    
+    it("should return noop after teardown", async () => {
+        const tree = createTree(single);
+        let calls = 0;
+
+        await tree();
+
+        tree.builder.teardown();
+
+        const unsub = tree.builder.subscribe(() => ++calls);
+
+        assert.equal(typeof unsub, "function");
+        assert.equal(calls, 0);
     });
 });

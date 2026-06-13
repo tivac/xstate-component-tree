@@ -47,8 +47,6 @@ export const trees = (service, options = {}, callback = false) => {
         respond();
     }, options);
 
-    out.send = (...parameters) => service.send(...parameters);
-
     out.service = service;
 
     service.start();
