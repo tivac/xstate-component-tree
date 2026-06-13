@@ -78,6 +78,8 @@ class ComponentTree {
             callback,
         };
 
+        this._destroyed = false;
+
         // References to all the actors being tracked
         this._actors = new Map();
 
@@ -273,7 +275,7 @@ class ComponentTree {
 
         const machineChanged = this._syncMachine(path, state);
 
-        const children = state.children || {};
+        const { children } = state;
         
         _log(`[${path}][_onState] checking children`);
 
@@ -376,7 +378,7 @@ class ComponentTree {
         _log(`[${path}][_run #${run}] returning data`);
 
         // bail if torn down during async work
-        if(!this._listeners) {
+        if(this._destroyed) {
             return false;
         }
 
@@ -390,7 +392,7 @@ class ComponentTree {
             _options.callback(tree, this._result);
         }
 
-        for(const listener of this._listeners || []) {
+        for(const listener of this._listeners) {
             listener(this._result);
         }
 
@@ -563,6 +565,8 @@ class ComponentTree {
     teardown() {
         this._log(`[${this.id}][teardown] destroying`);
 
+        this._destroyed = true;
+
         for(const unsub of this._unsubscribes) {
             unsub();
         }
@@ -614,7 +618,7 @@ class ComponentTree {
      * @type {HasTag}
      */
     hasTag(tag) {
-        if(!this._actors) {
+        if(this._destroyed) {
             return false;
         }
 
@@ -633,7 +637,7 @@ class ComponentTree {
      * @type {Can}
      */
     can(event) {
-        if(!this._actors) {
+        if(this._destroyed) {
             return false;
         }
 
@@ -652,7 +656,7 @@ class ComponentTree {
      * @type {Matches}
      */
     matches(path) {
-        if(!this._actors) {
+        if(this._destroyed) {
             return false;
         }
 
@@ -672,7 +676,7 @@ class ComponentTree {
      * @returns {AnyMachineSnapshot} Resulting state
      */
     send(...event) {
-        if(!this._actors) {
+        if(this._destroyed) {
             return false;
         }
         
@@ -687,6 +691,10 @@ class ComponentTree {
      * @returns {Unsubscriber} Unsubscribe function
      */
     subscribe(callback) {
+        if(this._destroyed) {
+            return noop;
+        }
+        
         this._listeners.add(callback);
 
         callback(this._result);
