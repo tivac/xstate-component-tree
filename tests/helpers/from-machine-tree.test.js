@@ -8,6 +8,7 @@ import { deferred } from "../util/async.js";
 import { fromMachine } from "../../src/from-machine.js";
 import { createTree } from "../util/trees.js";
 import { treeTeardown } from "../util/context.js";
+import { snapshot } from "../util/snapshot.js";
 
 const containsComponent = (tree, name) =>
     tree.some((node) =>
@@ -34,22 +35,41 @@ describe("from-machine component-tree integration", () => {
 
         const tree = context.tree = createTree({
             id : "parent",
-            initial : "loading",
+            initial : "initial",
             states : {
-                loading : {
+                initial : {
                     invoke : {
                         id : "async-child",
                         src : fromMachine(() => deferredChild),
                     },
+
+                    on : {
+                        NEXT : "next",
+                    },
                 },
+                next : {},
             },
         });
 
         deferredChild.resolve(childMachine);
 
-        const { tree : result } = await tree();
+        const { tree : result1 } = await tree();
 
-        assert.equal(containsComponent(result, "Child"), true);
+        snapshot(result1, `[
+            [Object: null prototype] {
+                machine: "parent.#async-child",
+                path: "active",
+                component: [Function: Child],
+                props: false,
+                children: []
+            }
+        ]`);
+
+        tree.service.send({ type : "NEXT" });
+
+        const { tree : result2 } = await tree();
+
+        snapshot(result2, `[]`);
     });
 
     it("traverses nested machines loaded with fromMachine()", async (context) => {
