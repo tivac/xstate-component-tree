@@ -509,7 +509,7 @@ describe("basic functionality", () => {
     });
     
     it("should rebuild on machine transition", async (context) => {
-        const tree = createTree({
+        const tree = context.tree = createTree({
             initial : "one",
 
             states : {
@@ -530,8 +530,6 @@ describe("basic functionality", () => {
                 },
             },
         });
-
-        context.tree = tree;
 
         const { tree : before } = await tree();
         
@@ -572,9 +570,7 @@ describe("basic functionality", () => {
 
         service.subscribe(eventCounter);
 
-        const tree = trees(service);
-
-        context.tree = tree;
+        const tree = context.tree = trees(service);
 
         await tree();
 
@@ -584,7 +580,7 @@ describe("basic functionality", () => {
     });
 
     it("should rebuild in a stable order (change before)", async (context) => {
-        const tree = createTree({
+        const tree = context.tree = createTree({
             type : "parallel",
 
             states : {
@@ -613,8 +609,6 @@ describe("basic functionality", () => {
                 },
             },
         });
-
-        context.tree = tree;
 
         const { tree : before } = await tree();
         
@@ -642,7 +636,7 @@ describe("basic functionality", () => {
     });
 
     it("should rebuild in a stable order (change after)", async (context) => {
-        const tree = createTree({
+        const tree = context.tree = createTree({
             type : "parallel",
 
             states : {
@@ -671,8 +665,6 @@ describe("basic functionality", () => {
                 },
             },
         });
-
-        context.tree = tree;
 
         const { tree : before } = await tree();
         
