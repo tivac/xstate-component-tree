@@ -594,9 +594,9 @@ class ComponentTree {
         const ids = [ ...this._actors.keys() ];
 
         for(const id of ids) {
+            /* c8 ignore start */
             const { actor } = this._actors.get(id) ?? false;
 
-            /* c8 ignore start */
             if(!actor) {
                 continue;
             }
