@@ -11,7 +11,7 @@ import { fromMachine } from "xstate-component-tree/from-machine";
 
 // ...
 
-export const parenteMachine = createMachine({
+export const parentMachine = createMachine({
   // ...
   states : {
     // ...
@@ -19,22 +19,17 @@ export const parenteMachine = createMachine({
     "load-child" : {
       invoke : [
         {
-          id : "child",
+          id : "async-child",
 
           src : fromMachine(() =>
-            import("./child.machine.js")
-              .then(({ childMachine }) => childMachine)
+            import("./child.machine.js").then(({ childMachine }) => childMachine)
           ),
   
-          onDone : {
-            actions : raise({ type : "DONE" }),
-          },
+          onDone : "done",
   
           onError : {
-            actions : [
-              onError,
-              raise({ type : "ERROR" }),
-            ],
+            actions : onError,
+            target : "error",
           },
         },
       ],
