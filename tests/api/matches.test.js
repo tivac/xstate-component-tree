@@ -34,7 +34,7 @@ describe("matches", () => {
         assert.ok(tree.builder.matches("one"));
         assert.ok(extra.matches("one"));
 
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
         ({ extra } = await tree());
 
         assert.ok(tree.builder.matches("two"));
@@ -49,5 +49,16 @@ describe("matches", () => {
         assert.ok(tree.builder.matches("child.one"));
         assert.ok(extra.matches("root.one"));
         assert.ok(extra.matches("child.one"));
+    });
+
+    it("shouldn't explode after teardown", async () => {
+        const tree = createTree(noComponents);
+
+        const { extra } = await tree();
+
+        tree.builder.teardown();
+
+        assert.equal(tree.builder.matches("one"), false);
+        assert.equal(extra.matches("one"), false);
     });
 });

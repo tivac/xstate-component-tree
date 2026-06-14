@@ -274,6 +274,28 @@ The `component` helper returns an `xstate` node as an object literal, it is sole
 - `component` is either a raw Component or an arrow function that will be executed.  It supports returning either a value or a `Promise`.
 - `props` is either a props object or a function that will be executed. It supports function returning either a value or a `Promise`.
 
+### `fromMachine` actor creator
+
+`xstate-component-tree/from-machine` exports the `fromMachine(() => StateMachine | Promise<StateMachine>)` actor creator, which can be used to async load a state machine via `invoke` and have it provide components into the overall tree like any other child machine.
+
+```js
+state : {
+    invoke : [{
+        id : "async-child",
+
+        src : fromMachine(() => import("./other.machine.js").then(({ machine }) => machine)),
+
+        onDone : "done",
+        onError : {
+            actions : onError,
+            target : "error",
+        },
+    }],
+},
+```
+
+The machine that has be imported supports all the usual child machine stuff like `sendParent()`, events can be sent to it via `sendTo()`, etc.
+
 ## Rendering Components
 
 Once you have the tree of components, how you assembled that into your view layer is entirely up to you! Here's a brief [svelte](https://svelte.dev) example.

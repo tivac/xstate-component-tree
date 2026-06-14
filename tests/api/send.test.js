@@ -73,4 +73,14 @@ describe("send", () => {
             }
         ]`);
     });
+
+    it("shouldn't explode after teardown", async () => {
+        const tree = createTree(single);
+
+        await tree();
+
+        tree.builder.teardown();
+
+        assert.equal(tree.builder.send({ type : "NEXT" }), false);
+    });
 });

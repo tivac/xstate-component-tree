@@ -54,7 +54,7 @@ describe(".load support", () => {
 
         await tree();
 
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
 
         const { tree : result } = await tree();
 
@@ -341,7 +341,7 @@ describe(".load support", () => {
 
         assert.equal(runs, 1);
         
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
         
         await tree();
 
@@ -393,7 +393,7 @@ describe(".load support", () => {
 
         runs = [];
 
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
         
         await tree();
 
@@ -403,7 +403,7 @@ describe(".load support", () => {
 
         runs = [];
         
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
         
         await tree();
 
@@ -460,7 +460,7 @@ describe(".load support", () => {
 
         runs = [];
 
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
         
         await tree();
 
@@ -518,7 +518,7 @@ describe(".load support", () => {
 
         runs = [];
 
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
         
         await tree();
 

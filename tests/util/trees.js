@@ -1,21 +1,7 @@
 import { createMachine as xstateCreate, createActor } from "xstate";
 
 import { ComponentTree } from "../../src/component-tree.js";
-
-const deferred = () => {
-    let resolve;
-    let reject;
-    
-    const p = new Promise((ok, no) => {
-        resolve = ok;
-        reject = no;
-    });
-
-    p.resolve = resolve;
-    p.reject = reject;
-
-    return p;
-};
+import { deferred } from "./async.js";
 
 // Watch for trees to be built, and provide an easy way
 // to await each value
@@ -60,8 +46,6 @@ export const trees = (service, options = {}, callback = false) => {
 
         respond();
     }, options);
-
-    out.send = (...parameters) => service.send(...parameters);
 
     out.service = service;
 

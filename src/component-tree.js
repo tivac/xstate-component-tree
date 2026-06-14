@@ -78,6 +78,8 @@ class ComponentTree {
             callback,
         };
 
+        this._destroyed = false;
+
         // References to all the actors being tracked
         this._actors = new Map();
 
@@ -108,15 +110,11 @@ class ComponentTree {
         };
 
         // Store off previous results in case new subscribers show up
-        this._result = {
-            // eslint-disable-next-line unicorn/no-null
-            __proto__ : null,
-
+        this._result = Object.assign(Object.create(null), {
             tree  : [],
             state : actor.getSnapshot(),
-            
             ...this._boundApis,
-        };
+        });
 
         // Add the main actor to be tracked
         this._addActor({ path : this.id, actor });
@@ -138,6 +136,9 @@ class ComponentTree {
 
             // Last transition-causing event
             event : false,
+
+            // Machine definition currently backing this actor
+            machine : false,
 
             // Walk results
             tree : [],
@@ -162,23 +163,31 @@ class ComponentTree {
         };
     }
 
-    // Subscribe to an interpreter
-    _watch(path) {
+    _syncMachine(path, state) {
         const { _paths, _actors, _invokables, _options, _log } = this;
-        
-        _log(`[${path}][_watch] prepping`);
 
-        const { actor } = _actors.get(path);
+        const current = _actors.get(path);
 
-        // Build up maps of paths to meta info as well as noting any invokable machines for later
-        const { idMap : ids, root } = actor.logic;
+        const { machine } = state;
 
-        // Support metadata at the root of the machine
+        if(!machine) {
+            return false;
+        }
+
+        const changed = current.machine !== machine;
+
+        if(!changed) {
+            return false;
+        }
+
+        current.machine = machine;
+
+        _log(`[${path}][_syncMachine] rebuilding metadata`);
+
+        const { idMap : ids, root } = machine;
+
         if(root.meta) {
-            _paths.set(path, Object.assign({
-                // eslint-disable-next-line unicorn/no-null
-                __proto__ : null,
-
+            _paths.set(path, Object.assign(Object.create(null), {
                 cache : _options.cache,
             }, root.meta));
         }
@@ -189,21 +198,31 @@ class ComponentTree {
             const key = childPath(path, ...item.path);
 
             if(item.meta) {
-                _paths.set(key, Object.assign({
-                    // eslint-disable-next-line unicorn/no-null
-                    __proto__ : null,
-
+                _paths.set(key, Object.assign(Object.create(null), {
                     cache : _options.cache,
                 }, item.meta));
             }
 
-            // .invoke is always an array
-            _invokables.set(key, item.invoke.map(({ id : invoked }) => childPath(path, `#${invoked}`)));
+            _invokables.set(
+                key,
+                item.invoke.map(({ id : invoked }) => childPath(path, `#${invoked}`)),
+            );
         }
 
-        _log(`[${path}][_watch] _paths`, [ ..._paths.keys() ]);
-        _log(`[${path}][_watch] _invokables`, [ ..._invokables.entries() ]);
+        _log(`[${path}][_syncMachine] _paths`, [ ..._paths.keys() ]);
+        _log(`[${path}][_syncMachine] _invokables`, [ ..._invokables.entries() ]);
+
+        return true;
+    }
+
+    // Subscribe to an interpreter
+    _watch(path) {
+        const { _actors, _log } = this;
         
+        _log(`[${path}][_watch] prepping`);
+
+        const { actor } = _actors.get(path);
+
         _log(`[${path}][_watch] subscribing`);
 
         const { unsubscribe } = actor.subscribe({
@@ -246,6 +265,8 @@ class ComponentTree {
         // Save off the state
         current.state = state;
 
+        const machineChanged = this._syncMachine(path, state);
+
         const { children } = state;
         
         _log(`[${path}][_onState] checking children`);
@@ -262,8 +283,8 @@ class ComponentTree {
 
             const actor = children[child];
 
-            // Not a statechart, abort!
-            if(!actor?.logic?.__xstatenode) {
+            // Not a statechart or fromMachine actor, abort!
+            if(!actor?.logic?.__xstatenode && !actor?.logic?.__fromMachine) {
                 continue;
             }
 
@@ -276,7 +297,11 @@ class ComponentTree {
             this._watch(id);
         }
 
-        // Rebuild this particular tree in case it changed
+        // Force root rebuild when async machine appears
+        if(machineChanged && path !== this.id) {
+            this._run(this.id);
+        }
+
         this._run(path);
     }
 
@@ -337,25 +362,27 @@ class ComponentTree {
 
         _log(`[${path}][_run #${run}] finished`);
 
-        const { parent } = actor;
-
         // Trigger parent run if we got one
-        if(parent) {
-            return this._run(parent);
+        if(actor.parent) {
+            return this._run(actor.parent);
         }
 
         _log(`[${path}][_run #${run}] returning data`);
 
-        this._result = {
-            // eslint-disable-next-line unicorn/no-null
-            __proto__ : null,
+        // bail if torn down during async work
+        /* c8 ignore start */
+        if(this._destroyed) {
+            return false;
+        }
+        /* c8 ignore end */
 
+        this._result = Object.assign(Object.create(null), {
             tree,
             state : actor.state,
             ...this._boundApis,
-        };
+        });
 
-        if(_options.callback) {
+        if(_options.callback && this._listeners) {
             _options.callback(tree, this._result);
         }
 
@@ -380,6 +407,8 @@ class ComponentTree {
 
         const { run, state, event } = _actors.get(path);
 
+        this._syncMachine(path, state);
+
         /* c8 ignore start */
         if(_paths.size === 0) {
             return [];
@@ -389,13 +418,11 @@ class ComponentTree {
         _log(`[${path}][_walk #${run}] walking`);
 
         const { value, context } = state;
-        const loads = [];
-        const root = {
-            // eslint-disable-next-line unicorn/no-null
-            __proto__ : null,
 
+        const loads = [];
+        const root = Object.assign(Object.create(null), {
             children : [],
-        };
+        });
 
         // Set up queue for a breadth-first traversal, starting at the root
         // and visiting all currently-active states
@@ -433,22 +460,20 @@ class ComponentTree {
                 _log(`[${path}][_walk #${run}][${id}] cached?`, Boolean(cached));
 
                 const { component = false, props : properties = false, load } = details;
-                const item = {
-                    // eslint-disable-next-line unicorn/no-null
-                    __proto__ : null,
 
+                const item = Object.assign(Object.create(null), {
                     machine : path,
-
+                    
                     // Purposefully *not* prefixing w/ path here, end-users don't care about it
                     path : node,
-
+                    
                     component : cached ? cached.item.component : component,
                     props     : cached ? cached.item.props : properties,
                     children  : [],
-                };
+                });
 
                 // Run load function and assign the response to the component prop
-                if(load && !cached.loaded) {
+                if(load && !cached?.loaded) {
                     _log(`[${path}][_walk #${run}][${id}] loading component`);
 
                     const loading = loadComponent({
@@ -474,17 +499,14 @@ class ComponentTree {
                     loads.push(loading);
                 }
 
-                // Check if this node is allowed to be cached && not already cached,
+                // Check if this node is allowed to be cached & not already cached,
                 // then save the result
                 if(details.cache && !cached) {
-                    _cache.set(id, {
-                        // eslint-disable-next-line unicorn/no-null
-                        __proto__ : null,
-
+                    _cache.set(id, Object.assign(Object.create(null), {
                         item,
                         run,
                         loaded : false,
-                    });
+                    }));
                 }
 
                 parent.children.push(item);
@@ -537,6 +559,8 @@ class ComponentTree {
     teardown() {
         this._log(`[${this.id}][teardown] destroying`);
 
+        this._destroyed = true;
+
         for(const unsub of this._unsubscribes) {
             unsub();
         }
@@ -570,15 +594,15 @@ class ComponentTree {
         const ids = [ ...this._actors.keys() ];
 
         for(const id of ids) {
-            const info = this._actors.get(id);
-
             /* c8 ignore start */
-            if(!info) {
+            const { actor } = this._actors.get(id) ?? false;
+
+            if(!actor) {
                 continue;
             }
             /* c8 ignore stop */
 
-            info.actor.send(event, options);
+            actor.send(event, options);
         }
     }
 
@@ -588,6 +612,10 @@ class ComponentTree {
      * @type {HasTag}
      */
     hasTag(tag) {
+        if(this._destroyed) {
+            return false;
+        }
+
         for(const [ , { state }] of this._actors) {
             if(state.hasTag(tag)) {
                 return true;
@@ -603,6 +631,10 @@ class ComponentTree {
      * @type {Can}
      */
     can(event) {
+        if(this._destroyed) {
+            return false;
+        }
+
         for(const [ , { state }] of this._actors) {
             if(state.can(event)) {
                 return true;
@@ -618,6 +650,10 @@ class ComponentTree {
      * @type {Matches}
      */
     matches(path) {
+        if(this._destroyed) {
+            return false;
+        }
+
         for(const [ , { state }] of this._actors) {
             if(state.matches(path)) {
                 return true;
@@ -634,6 +670,10 @@ class ComponentTree {
      * @returns {AnyMachineSnapshot} Resulting state
      */
     send(...event) {
+        if(this._destroyed) {
+            return false;
+        }
+        
         return this._actors.get(this.id)?.actor?.send(...event);
     }
 
@@ -645,6 +685,10 @@ class ComponentTree {
      * @returns {Unsubscriber} Unsubscribe function
      */
     subscribe(callback) {
+        if(this._destroyed) {
+            return noop;
+        }
+
         this._listeners.add(callback);
 
         callback(this._result);

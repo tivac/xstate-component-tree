@@ -6,38 +6,19 @@
     "configurations": [
     
         {
-            "name": "uvu All",
-            "type": "node",
+            "name": "test current",
             "request": "launch",
+            "type": "node",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run-script",
+                "test",
+                "--",
+                "\"**/${fileBasename}\"",
+            ],
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/node_modules/.bin/uvu",
-            "args": [
-                "tests",
-                "\\.test\\.js$"
-            ],
-            "console": "integratedTerminal",
-            "windows": {
-                "program": "${workspaceFolder}/node_modules/uvu/bin.js"
-            }
-        },
-        {
-            "name": "uvu Current",
-            "type": "node",
-            "request": "launch",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}/node_modules/.bin/uvu",
-            "args": [
-                "tests",
-                "${fileBasename}"
-            ],
-            "console": "integratedTerminal",
-            "windows": {
-                "program": "${workspaceFolder}/node_modules/uvu/bin.js"
-            }
         },
     ]
 }

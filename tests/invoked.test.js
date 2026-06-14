@@ -403,7 +403,7 @@ describe("invoked machines", () => {
 
         const { tree : before } = await tree();
         
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
         
         const { tree : after } = await tree();
 
@@ -631,7 +631,7 @@ describe("invoked machines", () => {
 
         const { tree : before } = await tree();
 
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
 
         const { tree : after } = await tree();
 

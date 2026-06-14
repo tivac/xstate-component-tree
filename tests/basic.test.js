@@ -509,7 +509,7 @@ describe("basic functionality", () => {
     });
     
     it("should rebuild on machine transition", async (context) => {
-        const tree = createTree({
+        const tree = context.tree = createTree({
             initial : "one",
 
             states : {
@@ -531,11 +531,9 @@ describe("basic functionality", () => {
             },
         });
 
-        context.tree = tree;
-
         const { tree : before } = await tree();
         
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
 
         const { tree : after } = await tree();
 
@@ -572,19 +570,17 @@ describe("basic functionality", () => {
 
         service.subscribe(eventCounter);
 
-        const tree = trees(service);
-
-        context.tree = tree;
+        const tree = context.tree = trees(service);
 
         await tree();
 
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
 
         assert.equal(eventCounter.callCount, 2);
     });
 
     it("should rebuild in a stable order (change before)", async (context) => {
-        const tree = createTree({
+        const tree = context.tree = createTree({
             type : "parallel",
 
             states : {
@@ -614,11 +610,9 @@ describe("basic functionality", () => {
             },
         });
 
-        context.tree = tree;
-
         const { tree : before } = await tree();
         
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
 
         const { tree : after } = await tree();
 
@@ -642,7 +636,7 @@ describe("basic functionality", () => {
     });
 
     it("should rebuild in a stable order (change after)", async (context) => {
-        const tree = createTree({
+        const tree = context.tree = createTree({
             type : "parallel",
 
             states : {
@@ -672,11 +666,9 @@ describe("basic functionality", () => {
             },
         });
 
-        context.tree = tree;
-
         const { tree : before } = await tree();
         
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
 
         const { tree : after } = await tree();
 
@@ -728,7 +720,7 @@ describe("basic functionality", () => {
         
         tree.builder.teardown();
 
-        tree.send({ type : "NEXT" });
+        tree.service.send({ type : "NEXT" });
 
         assert.equal(callback.callCount, 1);
     });

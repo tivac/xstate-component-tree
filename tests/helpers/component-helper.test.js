@@ -1,15 +1,15 @@
 import { describe, it, afterEach } from "node:test";
 import assert from "node:assert/strict";
 
-import { componentHelper } from "../src/component-helper.js";
+import { componentHelper } from "../../src/component-helper.js";
 
-import component from "./util/component.js";
-import { asyncValue, asyncLoad } from "./util/async.js";
-import { getTree } from "./util/trees.js";
-import { treeTeardown } from "./util/context.js";
-import { snapshot } from "./util/snapshot.js";
+import component from "../util/component.js";
+import { asyncValue, asyncLoad } from "../util/async.js";
+import { getTree } from "../util/trees.js";
+import { treeTeardown } from "../util/context.js";
+import { snapshot } from "../util/snapshot.js";
 
-describe("xstate-component-tree/helper", () => {
+describe("component-helper", () => {
     afterEach(treeTeardown);
 
     it("should be a named export of the /helper entrypoint", () => {
