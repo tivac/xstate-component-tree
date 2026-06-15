@@ -33,13 +33,13 @@ const pending = ({ input, error } = {}) => Object.assign(
 const live = ({ input, child, snapshot } = {}) => {
     snapshot.input = input;
     snapshot.machine = child.logic;
-    snapshot.__fromMachine = true;
 
     return snapshot;
 };
 
 export const fromMachine = (loadMachine) => {
     const instances = new WeakMap();
+    let stopped = false;
 
     const get = (self) => {
         let instance = instances.get(self);
@@ -125,13 +125,19 @@ export const fromMachine = (loadMachine) => {
             }
 
             if(event.type === "xstate.stop") {
+                stopped = true;
+
                 const current = get(scope.self);
 
-                current.unsub?.();
+                if(current.unsub) {
+                    current.unsub();
+                }
 
-                // TODO: Remove usage of internal API, but HOW?!? Children with a parent
-                // are not able to be stopped directly via .stop() API
-                current.child?._stop();
+                if(current.child) {
+                    // TODO: Remove usage of internal API, but HOW?!? Children with a parent
+                    // are not able to be stopped directly via .stop() API
+                    current.child?._stop();
+                }
 
                 instances.delete(scope.self);
 
@@ -160,19 +166,25 @@ export const fromMachine = (loadMachine) => {
         },
 
         start : (_, scope) => {
+            stopped = false;
+
             Promise
             .resolve(loadMachine())
             .then((machine) => {
-                scope.self.send({
-                    type : EVENT_LOADED,
-                    machine,
-                });
+                if(!stopped) {
+                    scope.self.send({
+                        type : EVENT_LOADED,
+                        machine,
+                    });
+                }
             })
             .catch((error) => {
-                scope.self.send({
-                    type : EVENT_REJECTED,
-                    error,
-                });
+                if(!stopped) {
+                    scope.self.send({
+                        type : EVENT_REJECTED,
+                        error,
+                    });
+                }
             });
         },
     };

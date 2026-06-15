@@ -10,12 +10,6 @@ import { createTree } from "../util/trees.js";
 import { treeTeardown } from "../util/context.js";
 import { snapshot } from "../util/snapshot.js";
 
-const containsComponent = (tree, name) =>
-    tree.some((node) =>
-        node.component?.name === name ||
-        containsComponent(node.children || [], name),
-    );
-
 describe("from-machine component-tree integration", () => {
     afterEach(treeTeardown);
 
@@ -106,6 +100,10 @@ describe("from-machine component-tree integration", () => {
             initial : "loading",
             states : {
                 loading : {
+                    meta : {
+                        component : component("Parent"),
+                    },
+
                     invoke : {
                         id : "async-child",
                         src : fromMachine(async () => childMachine),
@@ -118,8 +116,31 @@ describe("from-machine component-tree integration", () => {
 
         const { tree : result } = await tree();
 
-        assert.equal(containsComponent(result, "Child"), true);
-        assert.equal(containsComponent(result, "GrandChild"), true);
+        snapshot(result, `[
+            [Object: null prototype] {
+                machine: "parent",
+                path: "loading",
+                component: [Function: Parent],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        machine: "parent.#async-child",
+                        path: "active",
+                        component: [Function: Child],
+                        props: false,
+                        children: [
+                            [Object: null prototype] {
+                                machine: "parent.#async-child.#nested",
+                                path: "active",
+                                component: [Function: GrandChild],
+                                props: false,
+                                children: []
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]`);
     });
 
     it("updates tree after async child loads", async (context) => {
@@ -154,13 +175,129 @@ describe("from-machine component-tree integration", () => {
 
         const { tree : first } = await tree();
 
-        assert.equal(containsComponent(first, "Parent"), true);
+        snapshot(first, `[
+            [Object: null prototype] {
+                machine: "parent",
+                path: "loading",
+                component: [Function: Parent],
+                props: false,
+                children: []
+            }
+        ]`);
 
         deferredChild.resolve(childMachine);
 
         const { tree : second } = await tree();
 
-        assert.equal(containsComponent(second, "Child"), true);
+        snapshot(second, `[
+            [Object: null prototype] {
+                machine: "parent",
+                path: "loading",
+                component: [Function: Parent],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        machine: "parent.#async-child",
+                        path: "active",
+                        component: [Function: Child],
+                        props: false,
+                        children: []
+                    }
+                ]
+            }
+        ]`);
+    });
+
+    it("updates tree after re-entering state", async (context) => {
+        const childMachine = createMachine({
+            initial : "active",
+            states : {
+                active : {
+                    meta : {
+                        component : component("Child"),
+                    },
+                },
+            },
+        });
+
+        const deferredChild = deferred();
+
+        const tree = context.tree = createTree({
+            id : "parent",
+            initial : "component",
+            states : {
+                component : {
+                    meta : {
+                        component : component("Parent"),
+                    },
+
+                    invoke : {
+                        id : "async-child",
+                        src : fromMachine(() => deferredChild),
+                    },
+
+                    on : {
+                        NEXT : "other",
+                    },
+                },
+
+                other : {
+                    on : {
+                        NEXT : "component",
+                    },
+                },
+            },
+        });
+
+        await tree();
+        
+        deferredChild.resolve(childMachine);
+
+        const { tree : first } = await tree();
+
+        snapshot(first, `[
+            [Object: null prototype] {
+                machine: "parent",
+                path: "component",
+                component: [Function: Parent],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        machine: "parent.#async-child",
+                        path: "active",
+                        component: [Function: Child],
+                        props: false,
+                        children: []
+                    }
+                ]
+            }
+        ]`);
+
+        tree.builder.send({ type : "NEXT" });
+
+        await tree();
+
+        tree.builder.send({ type : "NEXT" });
+
+        const { tree : second } = await tree();
+
+        snapshot(second, `[
+            [Object: null prototype] {
+                machine: "parent",
+                path: "component",
+                component: [Function: Parent],
+                props: false,
+                children: [
+                    [Object: null prototype] {
+                        machine: "parent.#async-child",
+                        path: "active",
+                        component: [Function: Child],
+                        props: false,
+                        children: []
+                    }
+                ]
+            }
+        ]`);
     });
 
     it("supports hasTag() with machines loaded via fromMachine()", async (context) => {
