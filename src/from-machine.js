@@ -33,7 +33,6 @@ const pending = ({ input, error } = {}) => Object.assign(
 const live = ({ input, child, snapshot } = {}) => {
     snapshot.input = input;
     snapshot.machine = child.logic;
-    snapshot.__fromMachine = true;
 
     return snapshot;
 };
@@ -167,6 +166,8 @@ export const fromMachine = (loadMachine) => {
         },
 
         start : (_, scope) => {
+            stopped = false;
+            
             Promise
             .resolve(loadMachine())
             .then((machine) => {
