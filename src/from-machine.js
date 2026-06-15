@@ -167,7 +167,7 @@ export const fromMachine = (loadMachine) => {
 
         start : (_, scope) => {
             stopped = false;
-            
+
             Promise
             .resolve(loadMachine())
             .then((machine) => {
