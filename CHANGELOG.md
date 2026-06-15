@@ -1,5 +1,11 @@
 # Changelog
 
+## 9.1.1
+
+### Patch Changes
+
+- [#275](https://github.com/tivac/xstate-component-tree/pull/275) [`fd3cbcb`](https://github.com/tivac/xstate-component-tree/commit/fd3cbcb5d9e9c8459822f4a79f0824315d844924) Thanks [@tivac](https://github.com/tivac)! - Clean up startup/shutdown behavior for `fromMachine`
+
 ## 9.1.0
 
 ### Minor Changes
