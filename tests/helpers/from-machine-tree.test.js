@@ -300,6 +300,68 @@ describe("from-machine component-tree integration", () => {
         ]`);
     });
 
+    it("ignores old children resolving after leaving state", async (context) => {
+        const childMachine = createMachine({
+            initial : "active",
+            states : {
+                active : {
+                    meta : {
+                        component : component("Child"),
+                    },
+                },
+            },
+        });
+
+        const deferredChild = deferred();
+
+        const tree = context.tree = createTree({
+            id : "parent",
+            initial : "component",
+            states : {
+                component : {
+                    meta : {
+                        component : component("Parent"),
+                    },
+
+                    invoke : {
+                        id : "async-child",
+                        src : fromMachine(() => deferredChild),
+                    },
+
+                    on : {
+                        NEXT : "other",
+                    },
+                },
+
+                other : {
+                    on : {
+                        NEXT : "component",
+                    },
+                },
+            },
+        });
+
+        const { tree : first } = await tree();
+
+        snapshot(first, `[
+            [Object: null prototype] {
+                machine: "parent",
+                path: "component",
+                component: [Function: Parent],
+                props: false,
+                children: []
+            }
+        ]`);
+
+        tree.builder.send({ type : "NEXT" });
+
+        deferredChild.resolve(childMachine);
+
+        const { tree : second } = await tree();
+        
+        snapshot(second, `[]`);
+    });
+
     it("supports hasTag() with machines loaded via fromMachine()", async (context) => {
         const Tagged = component("Tagged");
 
