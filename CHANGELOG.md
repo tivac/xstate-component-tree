@@ -1,5 +1,11 @@
 # Changelog
 
+## 9.1.2
+
+### Patch Changes
+
+- [#282](https://github.com/tivac/xstate-component-tree/pull/282) [`836e32b`](https://github.com/tivac/xstate-component-tree/commit/836e32b6ad6acc5ebedcd47043121927e069c68e) Thanks [@tivac](https://github.com/tivac)! - fix: handle actors that immediately complete
+
 ## 9.1.1
 
 ### Patch Changes
