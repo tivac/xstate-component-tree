@@ -46,7 +46,7 @@
     "c8": "^11.0.0",
     "dedent": "^1.7.2",
     "eslint": "^10.3.0",
-    "eslint-plugin-jsdoc": "^62.9.0",
+    "eslint-plugin-jsdoc": "^63.0.10",
     "eslint-plugin-unicorn": "^64.0.0",
     "globals": "^17.6.0",
     "nanospy": "^1.0.0",
