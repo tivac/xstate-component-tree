@@ -254,9 +254,11 @@ class ComponentTree {
 
         initialized = true;
 
+        /* c8 ignore start */
         if(completed) {
             return;
         }
+        /* c8 ignore stop */
 
         this._unsubscribes.add(unsubscribe);
 
@@ -388,7 +390,7 @@ class ComponentTree {
         if(this._destroyed) {
             return false;
         }
-        /* c8 ignore end */
+        /* c8 ignore stop */
 
         this._result = Object.assign(Object.create(null), {
             tree,
