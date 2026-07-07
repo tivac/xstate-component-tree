@@ -225,6 +225,9 @@ class ComponentTree {
 
         _log(`[${path}][_watch] subscribing`);
 
+        let completed = false;
+        let initialized = false;
+
         const { unsubscribe } = actor.subscribe({
             // Actor has transitioned states
             next : (state) => {
@@ -237,12 +240,25 @@ class ComponentTree {
             complete : () => {
                 _log(`[${path}][subscribe.complete] stopped, tearing down`);
 
-                unsubscribe?.();
+                completed = true;
 
-                this._unsubscribes.delete(unsubscribe);
+                if(initialized) {
+                    unsubscribe();
+
+                    this._unsubscribes.delete(unsubscribe);
+                }
+
                 _actors.delete(path);
             },
         });
+
+        initialized = true;
+
+        /* c8 ignore start */
+        if(completed) {
+            return;
+        }
+        /* c8 ignore stop */
 
         this._unsubscribes.add(unsubscribe);
 
@@ -374,7 +390,7 @@ class ComponentTree {
         if(this._destroyed) {
             return false;
         }
-        /* c8 ignore end */
+        /* c8 ignore stop */
 
         this._result = Object.assign(Object.create(null), {
             tree,
