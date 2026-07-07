@@ -225,6 +225,9 @@ class ComponentTree {
 
         _log(`[${path}][_watch] subscribing`);
 
+        let completed = false;
+        let initialized = false;
+
         const { unsubscribe } = actor.subscribe({
             // Actor has transitioned states
             next : (state) => {
@@ -237,12 +240,23 @@ class ComponentTree {
             complete : () => {
                 _log(`[${path}][subscribe.complete] stopped, tearing down`);
 
-                unsubscribe?.();
+                completed = true;
 
-                this._unsubscribes.delete(unsubscribe);
+                if(initialized) {
+                    unsubscribe();
+
+                    this._unsubscribes.delete(unsubscribe);
+                }
+
                 _actors.delete(path);
             },
         });
+
+        initialized = true;
+
+        if(completed) {
+            return;
+        }
 
         this._unsubscribes.add(unsubscribe);
 
