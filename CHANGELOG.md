@@ -1,5 +1,11 @@
 # Changelog
 
+## 9.1.3
+
+### Patch Changes
+
+- [#285](https://github.com/tivac/xstate-component-tree/pull/285) [`ddca955`](https://github.com/tivac/xstate-component-tree/commit/ddca9558cf16bf734fa103da1459158b2ce07ee6) Thanks [@tivac](https://github.com/tivac)! - fix: better sync actor fix
+
 ## 9.1.2
 
 ### Patch Changes
