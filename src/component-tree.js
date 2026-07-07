@@ -237,7 +237,7 @@ class ComponentTree {
             complete : () => {
                 _log(`[${path}][subscribe.complete] stopped, tearing down`);
 
-                unsubscribe();
+                unsubscribe?.();
 
                 this._unsubscribes.delete(unsubscribe);
                 _actors.delete(path);
@@ -562,7 +562,7 @@ class ComponentTree {
         this._destroyed = true;
 
         for(const unsub of this._unsubscribes) {
-            unsub();
+            unsub?.();
         }
         
         this._paths.clear();
