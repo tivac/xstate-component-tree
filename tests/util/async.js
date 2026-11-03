@@ -5,13 +5,7 @@ export const asyncValue = (result, delay = 0) => new Promise((resolve) =>
 export const asyncLoad = (...parameters) => () => asyncValue(...parameters);
 
 export const deferred = () => {
-    let resolve;
-    let reject;
-    
-    const p = new Promise((ok, no) => {
-        resolve = ok;
-        reject = no;
-    });
+    const { promise : p, resolve, reject } = Promise.withResolvers();
 
     p.resolve = resolve;
     p.reject = reject;
