@@ -15,7 +15,7 @@ export const diff = (a, b, out) => {
 
     const output = strip(comparison)
     .replaceAll("·", " ")
-    .replaceAll("→", "     ");
+    .replaceAll("→", " ".repeat(4));
 
     return assert.strictEqual(dedent(output), dedent(out));
 };

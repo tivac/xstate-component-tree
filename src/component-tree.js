@@ -288,7 +288,7 @@ class ComponentTree {
         _log(`[${path}][_onState] checking children`);
 
         // Add any new children to be tracked
-        for(const child of Object.keys(children)) {
+        for(const [ child, actor ] of Object.entries(children)) {
             const id = childPath(path, `#${child}`);
 
             if(_actors.has(id)) {
@@ -296,8 +296,6 @@ class ComponentTree {
 
                 continue;
             }
-
-            const actor = children[child];
 
             // Not a statechart or fromMachine actor, abort!
             if(!actor?.logic?.__xstatenode && !actor?.logic?.__fromMachine) {
@@ -500,6 +498,7 @@ class ComponentTree {
                     });
 
                     // Mark this state loaded in the cache once its actually done
+                    // eslint-disable-next-line unicorn/prefer-await
                     loading.then(() => {
                         const saved = _cache.get(id);
 
@@ -549,6 +548,7 @@ class ComponentTree {
             } else {
                 const keys = Object.keys(values);
     
+                // eslint-disable-next-line unicorn/require-array-sort-compare -- they _are_ strings
                 for(const child of _options.stable ? keys.toSorted() : keys) {
                     queue.push([ pointer, childPath(node, child), values[child] ]);
                 }

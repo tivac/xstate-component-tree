@@ -21,17 +21,17 @@ export const trees = (service, options = {}, callback = false) => {
         p.resolve({ tree : response[0], extra : response[1] });
     };
 
-    const out = () => {
+    const out = async () => {
         p = deferred();
         resolved = false;
 
         respond();
 
-        return p.then((data) => {
-            resolved = true;
+        const data = await p;
+        
+        resolved = true;
 
-            return data;
-        });
+        return data;
     };
 
     out.responses = responses;
@@ -78,7 +78,7 @@ export const getTree = async (definition, ...rest) => {
 };
 
 export const waitForPath = async (tree, path) => {
-    let found = false;
+    let isFound = false;
     let value;
 
     do {
@@ -91,13 +91,13 @@ export const waitForPath = async (tree, path) => {
             const item = searching.shift();
 
             if(item.path === path) {
-                found = true;
+                isFound = true;
                 break;
             }
 
             searching.push(...item.children);
         }
-    } while(!found);
+    } while(!isFound);
 
     return value;
 };

@@ -170,6 +170,7 @@ export const fromMachine = (loadMachine) => {
 
             Promise
             .resolve(loadMachine())
+            // eslint-disable-next-line unicorn/prefer-await
             .then((machine) => {
                 if(!stopped) {
                     scope.self.send({
@@ -178,6 +179,7 @@ export const fromMachine = (loadMachine) => {
                     });
                 }
             })
+            // eslint-disable-next-line unicorn/prefer-await
             .catch((error) => {
                 if(!stopped) {
                     scope.self.send({

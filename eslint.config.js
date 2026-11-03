@@ -8,7 +8,7 @@ import globals from "globals";
 const eslintConfig = [
     stylistic.configs.all,
     jsdoc.configs["flat/recommended"],
-    unicorn.configs["flat/recommended"],
+    unicorn.configs.unopinionated,
 
     {
         name : "Base Config",
@@ -499,15 +499,6 @@ const eslintConfig = [
             "@stylistic/yield-star-spacing" : "error",
 
             // #region Unicorn Rules
-            "unicorn/prevent-abbreviations" : [ "warn", {
-                replacements : {
-                    mod : false,
-                    jit : false,
-                    ref : false,
-                    src : false,
-                },
-            }],
-
             "unicorn/prefer-top-level-await" : "off",
             "unicorn/prefer-switch" : "off",
 
